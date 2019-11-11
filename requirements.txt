@@ -1,1 +1,1 @@
-plexapi
+plexapi==3.2.0
