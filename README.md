@@ -1,7 +1,7 @@
 # plex-utills
 ## Requirements
-Python
-Pip
+Python3
+Pip3
 
 ## Instructions
 Clone to your machine
