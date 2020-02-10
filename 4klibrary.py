@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
+
 from collections import defaultdict
 from plexapi.server import PlexServer
 
 def to_tags(labels):
     return [l.tag for l in labels]
 
+
+
 if __name__ == "__main__":
     baseurl = 'YOUR_PLEX_SERVER_URL'
     token = 'YOUR_PLEX_TOKEN'
     plex = PlexServer(baseurl, token)
-    movies_section = plex.library.section('Movies')
+    movies_section = plex.library.section('Films')
     movies = defaultdict(list)
     added = movies_section.search(sort='addedAt:desc')
 
     for movie in added:
         resolutions = {m.videoResolution for m in movie.media}
         if len(resolutions) > 1 and '4k' in resolutions:
+            movie.addCollection(movie.title)
             movie.split()
+
 
     added = movies_section.search(sort='addedAt:desc')
     for movie in added:
