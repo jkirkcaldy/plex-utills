@@ -9,6 +9,8 @@ from configparser import ConfigParser
 config_object = ConfigParser()
 config_object.read("config.ini")
 
+server = config_object["PLEXSERVER"]
+
 
 def to_tags(labels):
     return [l.tag for l in labels]
@@ -16,8 +18,8 @@ def to_tags(labels):
 
 
 if __name__ == "__main__":
-    baseurl = config_object["PLEX_URL"]
-    token = config_object["TOKEN"]
+    baseurl = (server["PLEX_URL"])
+    token = (server["TOKEN"])
     plex = PlexServer(baseurl, token)
     movies_section = plex.library.section('Films')
     movies = defaultdict(list)
