@@ -20,6 +20,7 @@ def to_tags(labels):
 if __name__ == "__main__":
     baseurl = (server["PLEX_URL"])
     token = (server["TOKEN"])
+    films = (server["FILMSLIBRARY"])
     plex = PlexServer(baseurl, token)
     movies_section = plex.library.section('Films')
     movies = defaultdict(list)
