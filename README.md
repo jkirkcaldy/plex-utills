@@ -20,4 +20,7 @@ Edit the config.ini file, change the plex url and the plex token and select your
 Run the script. 
 `python3 4klibrary.py`
 
+### Optional
+Set cron job to run the script daily to automatically run the script and organise your library
+
 Profit.
