@@ -3,6 +3,8 @@
 Python3
 python3-pip
 
+`sudo apt install python3 python3-pip`
+
 ## Instructions
 Clone to your machine
 `sudo git clone https://github.com/jkirkcaldy/plex-utills.git`
@@ -13,9 +15,9 @@ Cd into the folder
 install the requirements 
 `sudo pip install -r requirements.txt`
 
-Edit 4klibrary.py, change the plex url and the plex token at the top of the file. 
+Edit the config.ini file, change the plex url and the plex token. 
 
 Run the script. 
-`sudo python 4klibrary.py`
+`python3 4klibrary.py`
 
 Profit.
