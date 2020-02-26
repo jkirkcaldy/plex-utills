@@ -15,7 +15,7 @@ Cd into the folder
 install the requirements 
 `sudo pip install -r requirements.txt`
 
-Edit the config.ini file, change the plex url and the plex token. 
+Edit the config.ini file, change the plex url and the plex token and select your film library. 
 
 Run the script. 
 `python3 4klibrary.py`
