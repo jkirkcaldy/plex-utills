@@ -3,14 +3,21 @@
 from collections import defaultdict
 from plexapi.server import PlexServer
 
+from configparser import ConfigParser
+
+#Read config.ini file
+config_object = ConfigParser()
+config_object.read("config.ini")
+
+
 def to_tags(labels):
     return [l.tag for l in labels]
 
 
 
 if __name__ == "__main__":
-    baseurl = 'YOUR_PLEX_SERVER_URL'
-    token = 'YOUR_PLEX_TOKEN'
+    baseurl = config_object["PLEX_URL"]
+    token = config_object["TOKEN"]
     plex = PlexServer(baseurl, token)
     movies_section = plex.library.section('Films')
     movies = defaultdict(list)
