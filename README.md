@@ -25,4 +25,4 @@ Set cron job to run the script daily to automatically run the script and organis
 
 Profit.
 
-Original Script by [u/spazatk](https://www.reddit.com/r/PleX/comments/afs8m9/my_scripted_solution_to_having_a_single_movies/?utm_source=share&utm_medium=web2x)
+Modified from this script by [u/spazatk](https://www.reddit.com/r/PleX/comments/afs8m9/my_scripted_solution_to_having_a_single_movies/?utm_source=share&utm_medium=web2x)
