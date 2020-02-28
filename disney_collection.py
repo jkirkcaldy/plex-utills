@@ -24,5 +24,4 @@ for movie in added:
     print('%s (%s)' % (movie.title, movie.studio)) 
     if "Disney" in movie.studio:
         movie.addCollection('Disney')
-    else:
-        pass    
+  
