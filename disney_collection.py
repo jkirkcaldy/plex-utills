@@ -15,9 +15,9 @@ plex = PlexServer(baseurl, token)
 movies_section = plex.library.section('films')
 added = movies_section.search(sort='titleSort')
 
-
 for movie in added: 
     print('%s (%s)' % (movie.title, movie.studio)) 
-    if "Disney" in movie.studio:
-        movie.addCollection('Disney')
+    if movie.studio is not None:
+        if "Disney" in movie.studio:
+            movie.addCollection('Disney Movies')
   
