@@ -19,5 +19,5 @@ for movie in added:
     print('%s (%s)' % (movie.title, movie.studio)) 
     if movie.studio is not None:
         if "Disney" in movie.studio:
-            movie.addCollection('Disney Movies')
+            movie.addCollection('Disney')
   
