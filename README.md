@@ -27,7 +27,7 @@ Cd into the folder
 `cd plex-utills`
 
 install the requirements 
-`sudo pip install -r requirements.txt`
+`sudo pip3 install -r requirements.txt`
 
 Edit the config.ini file, change the plex url and the plex token and select your film library. 
 
