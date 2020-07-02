@@ -22,7 +22,7 @@ if __name__ == "__main__":
     token = (server["TOKEN"])
     films = (server["FILMSLIBRARY"])
     plex = PlexServer(baseurl, token)
-    movies_section = plex.library.section('films')
+    movies_section = plex.library.section(films)
     movies = defaultdict(list)
     added = movies_section.search(sort='addedAt:desc')
 
