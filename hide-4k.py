@@ -20,20 +20,18 @@ def to_tags(labels):
 if __name__ == "__main__":
     baseurl = (server["PLEX_URL"])
     token = (server["TOKEN"])
-    movies = (server["FILMSLIBRARY"])
+    films = (server["FILMSLIBRARY"])
     plex = PlexServer(baseurl, token)
-    movies_section = plex.library.section('movies')
+    movies_section = plex.library.section('films')
     movies = defaultdict(list)
-    added = movies_section.search(sort='addedAt:desc')
+    added = movies_section.search(sort='titleSort')
 
-
+    #print(added)
 
     for movie in added:
         resolutions = {m.videoResolution for m in movie.media}
-        if len(resolutions) > 0 and '4k' in resolutions:
-            movie.removeLabel('Transcodable')   
-        if len(resolutions) > 1 and '4k' in resolutions:
-            movie.addLabel('Transcodable')
-        if len(resolutions) > 0 and '4k'  not in resolutions:
-            movie.addLabel('Transcodable')
+        if len(resolutions) < 2 and '4k' in resolutions:
+            movie.addLabel('Untranscodable')   
+            print(movie)
+
                     
