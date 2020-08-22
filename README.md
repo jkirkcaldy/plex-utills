@@ -1,5 +1,17 @@
 # plex-utills
 ## Description
+### Hide-4k Files
+The plex streaming brain has come on a long way and I believe it's no longer necessary to separate your 4k files into a separate library. 
+
+There is still the risk, when keeping all your media in a single library, of having a film where the only copy is 4k. In this case running the hide-4k script will add an 'Untranscodable' tag to these items.
+
+If you add a lower resolution to your library it will remove the tag. 
+
+You will need to set the restrictions in your users profile to exclude the 'Untranscodable' label.
+
+Run this script on a regular basis to keep on top of your library. 
+
+
 #### 4klibrary
 I don't like the idea of having two separate libraries for 4k and 1080p films, the whole process seems like a lot of extra work when it comes to watching movies. I have to rember if I have a 4k version or not. I prefer to have a single library to scroll though, when I want to watch a film I want to just select a film and watch, I don't want to have to remember whether or not I have a 4k version and if someone else selects I want them to select the best quality by default.
 
