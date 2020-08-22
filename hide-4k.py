@@ -33,5 +33,8 @@ if __name__ == "__main__":
         if len(resolutions) < 2 and '4k' in resolutions:
             movie.addLabel('Untranscodable')   
             print(movie)
+        if len(resolutions) > 1 and '4k' in resolutions:
+            movie.removeLabel('Untranscodable')
+            print(movie)             
 
                     
