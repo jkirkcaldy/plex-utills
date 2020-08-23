@@ -9,7 +9,7 @@ from configparser import ConfigParser
 config_object = ConfigParser()
 config_object.read("config.ini")
 
-server = config_object["PLEXSERVER"]
+server = config_object["DEVSERVER"]
 
 
 def to_tags(labels):
