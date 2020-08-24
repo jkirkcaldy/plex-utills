@@ -17,8 +17,8 @@ added = movies_section.search(sort='titleSort')
 
 for movie in added:
     try:
-        if "Disney" in movie.studio:
-            movie.addCollection('Disney')
+        if "pixar" in movie.studio:
+            movie.addCollection('Pixar')
             print('%s (%s)' % (movie.title, movie.studio))
     # Skip movie if there is no studio info
     except TypeError:
