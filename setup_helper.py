@@ -1,5 +1,6 @@
 from plexapi.server import PlexServer
 from configparser import ConfigParser
+import os
 
 config_object = ConfigParser()
 config_object.read("config.ini")
