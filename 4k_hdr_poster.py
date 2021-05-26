@@ -163,7 +163,7 @@ def poster_hdr():
        
 for i in films.search(resolution="4k", hdr=True):
     poster_4k_hdr()
-#for i in films.search(resolution="4k", hdr=False):
+#for i in films.search(resolution="4k", hdr=True):
 #    poster_4k_dv()
 #for i in films.search(resolution="4k", hdr=False):
 #    poster_4k()
