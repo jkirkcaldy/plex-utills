@@ -21,6 +21,7 @@ mpath = (server["MOUNTEDPATH"])
 pbak = (server["POSTER_BU"])
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
+dvfilms = plex.library.section(plexdvlibrary)
 banner_4k = Image.open("4K-Template.png")
 banner_hdr = Image.open("hdr-poster.png")
 banner_4k_hdr = Image.open("4k-hdr-poster.png")
@@ -92,7 +93,6 @@ def poster_4k_dv():
     i.uploadPoster(filepath="poster.png")
     os.remove('poster.png') 
            
-
 def poster_4k():   
     print(i.title + " 4K Poster")
     if platform.system() == 'Windows':
@@ -163,9 +163,9 @@ def poster_hdr():
        
 for i in films.search(resolution="4k", hdr=True):
     poster_4k_hdr()
-#for i in films.search(resolution="4k", hdr=True):
-#    poster_4k_dv()
-#for i in films.search(resolution="4k", hdr=False):
-#    poster_4k()
+for i in films.search(resolution="4k", hdr=False):
+    poster_4k()
 #for i in films.search(resolution="1080,720", hdr=True):
 #    poster_hdr()
+for i in dvfilms.search(resolution="4k", hdr=True):
+    poster_4k_dv() 
