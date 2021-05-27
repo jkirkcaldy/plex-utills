@@ -32,7 +32,7 @@ banner_hdr = Image.open("hdr-poster.png")
 banner_4k_hdr = Image.open("4k-hdr-poster.png")
 banner_4k_dv = Image.open("4k-dv-poster.png")
 banner_4k_de = Image.open("4k-de-poster.png")
-banner_de = Image.open("DE-Template.png")
+banner_de = Image.open("DE-template.png")
 size = (911,1367)
  
 
