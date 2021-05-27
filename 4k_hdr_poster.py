@@ -269,7 +269,7 @@ def poster_dk():
     os.remove('poster.png') 
      
 def poster_nl():   
-    print(i.title + " DE Poster")
+    print(i.title + " NL Poster")
     if platform.system() == 'Windows':
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+"\\" 
     else:
