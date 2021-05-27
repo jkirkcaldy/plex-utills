@@ -16,6 +16,7 @@ server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
 plexlibrary = (server["FILMSLIBRARY"])
+plexdvlibrary = (server["DVLIBRARY"])
 ppath = (server["PLEXPATH"])
 mpath = (server["MOUNTEDPATH"])
 pbak = (server["POSTER_BU"])
