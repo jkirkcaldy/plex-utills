@@ -3,6 +3,8 @@ PLEX_URL = http://127.0.0.1:32400
 TOKEN = <token>
 FILMSLIBRARY = Movies - 4K
 DVLIBRARY = Movies - 4K DV
+DE4KLIBRARY = Movies - 4K - German
+DELIBRARY = Movies - German
 #Use the setup helper if you don't know what to use here.
 PLEXPATH = /mnt/unionfs
 # no trailing slash.
