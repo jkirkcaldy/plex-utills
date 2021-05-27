@@ -236,7 +236,7 @@ for i in films.search(resolution="4k", hdr=True):
     poster_4k_hdr()
 for i in films.search(resolution="4k", hdr=False):
     poster_4k()
-for i in films.search(resolution="1080,720,480", hdr=False):
+for i in defilms.search(resolution="1080,720,480", hdr=False):
     poster_de()
 for i in dvfilms.search(resolution="4k", hdr=True):
     poster_4k_dv() 
