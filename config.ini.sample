@@ -5,6 +5,7 @@ FILMSLIBRARY = Movies - 4K
 DVLIBRARY = Movies - 4K DV
 DE4KLIBRARY = Movies - 4K - German
 DELIBRARY = Movies - German
+DKLIBRARY = Movies - Danish
 #Use the setup helper if you don't know what to use here.
 PLEXPATH = /mnt/unionfs
 # no trailing slash.
