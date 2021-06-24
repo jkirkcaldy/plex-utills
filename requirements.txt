@@ -1,4 +1,6 @@
-plexapi==4.5.2
-configparser==5.0.2
-numpy==1.20.3
-pillow==8.2.0
+plexapi
+configparser
+numpy
+pillow
+colorama
+imagehash

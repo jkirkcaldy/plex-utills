@@ -11,6 +11,8 @@ from configparser import ConfigParser
 import platform
 import imagehash
 
+# Do not edit these, use the config file to make any changes
+
 config_object = ConfigParser()
 config_object.read("config.ini")
 server = config_object["PLEXSERVER"]
@@ -26,9 +28,10 @@ banner_4k = Image.open("4K-Template.png")
 banner_hdr = Image.open("hdr-poster.png")
 banner_4k_hdr = Image.open("4k-hdr-poster.png")
 chk_banner = Image.open("chk-4k.png")
+chk_hdr = Image.open("chk_hdr.png")
 size = (911,1367)
 box= (0,0,911,100)
-
+hdr_box = (0,611,215,720)
 
 def add_banner():
     background = Image.open('poster.png')
@@ -38,14 +41,27 @@ def add_banner():
     hash1 = imagehash.average_hash(chk_banner)
     cutoff= 5
     if hash0 - hash1 < cutoff:
-        print('4K banner exists, moving on.')
+        print('4K banner exists, moving on...')
     else:
         background.paste(banner_4k, (0, 0), banner_4k)
         background.save('poster.png')
         i.uploadPoster(filepath="poster.png")
         os.remove('poster.png')
     
-    
+def add_hdr():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    backgroundchk = background.crop(hdr_box)
+    hash0 = imagehash.average_hash(backgroundchk)
+    hash1 = imagehash.average_hash(chk_hdr)
+    cutoff= 5
+    if hash0 - hash1 < cutoff:
+        print('HDR banner exists, moving on...')
+    else:
+        background.paste(banner_hdr, (0, 0), banner_hdr)
+        background.save('poster.png')
+        i.uploadPoster(filepath="poster.png")
+        os.remove('poster.png')    
 
 def poster_4k_hdr():
     print(i.title + ' 4k HDR')    
@@ -62,21 +78,21 @@ def poster_4k_hdr():
 
     if pbak == 'True': 
         if backup == True: 
-            print('Backup File Exists, Skipping...')                                   
+            print('Backup File Exists, Skipping...')
+            add_banner() 
+            add_hdr()                                  
         else:
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            print('creating poster')    
-            background = Image.open('poster.png')
-            background = background.resize(size,Image.ANTIALIAS)
-            background.paste(banner_4k, (0, 0), banner_4k)
-            background.save('poster.png')
-            i.uploadPoster(filepath="poster.png")
+            add_banner()
+            add_hdr()
          
             if platform.system() != 'Windows':
                 os.chown(newdir+'poster_bak.png', 99, 100)
                 os.chmod(newdir+'poster_bak.png', 0o0666)
-    os.remove('poster.png') 
+    else:
+        add_banner()
+        add_hdr()
            
 
 def poster_4k():   
@@ -124,27 +140,24 @@ def poster_hdr():
 
     if pbak == 'True': 
         if backup == True: 
-            print('Backup File Exists, Skipping...')                                   
+            print('Backup File Exists, Skipping...')
+            add_hdr()                                   
         else:
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            print('creating poster')    
-            background = Image.open('poster.png')
-            background = background.resize(size,Image.ANTIALIAS)
-            background.paste(banner_4k, (0, 0), banner_4k)
-            background.save('poster.png')
-            i.uploadPoster(filepath="poster.png")
+            add_hdr()
          
             if platform.system() != 'Windows':
                 os.chown(newdir+'poster_bak.png', 99, 100)
                 os.chmod(newdir+'poster_bak.png', 0o0666)
-    os.remove('poster.png')
+    else:
+        add_hdr()
            
 
        
-#for i in films.search(resolution="4k", hdr=True):
-#    poster_4k_hdr()
+for i in films.search(resolution="4k", hdr=True):
+    poster_4k_hdr()
 for i in films.search(resolution="4k", hdr=False):
     poster_4k()
-#for i in films.search(resolution="1080,720", hdr=True):
-#    poster_hdr()
+for i in films.search(resolution="1080,720", hdr=True):
+    poster_hdr()

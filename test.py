@@ -1,39 +1,3 @@
-<<<<<<< Updated upstream
-#!/usr/bin/env python3
-import fnmatch
-from collections import defaultdict
-from plexapi.server import PlexServer
-
-from configparser import ConfigParser
-
-#Read config.ini file
-config_object = ConfigParser()
-config_object.read("config.ini")
-
-server = config_object["PLEXSERVER"]
-
-
-baseurl = (server["PLEX_URL"])
-token = (server["TOKEN"])
-films = (server["FILMSLIBRARY"])
-plex = PlexServer(baseurl, token)
-movies_section = plex.library.section('films')
-movies = defaultdict(list)
-added = movies_section.search(sort='titleSort')
-
-
-
-for movie in added:
-    movies[movie.title].append(movie.studio)
-    #print(movies)      
-    #studio = {movie.studio for movie in movies}
-    #fnmatch.filter(movies, '[*]Disney[*]')
-    #print(movies)
-    fnmatch.filter(movies, '*Disney*')
-print('%s (%s)' % (movie.title, movie.studio))
-
-    
-=======
 from pathlib import Path
 from PIL import Image
 from plexapi.server import PlexServer
@@ -82,7 +46,6 @@ for i in films.search():
     background = Image.open('poster.png')
     background = background.resize(size,Image.ANTIALIAS)
     backgroundchk = background.crop(hdr_box)
-    background.save("test.png")
     hash0 = imagehash.average_hash(backgroundchk)
     hash1 = imagehash.average_hash(chk_hdr)
     cutoff= 5
@@ -91,9 +54,6 @@ for i in films.search():
     else:
         background.paste(banner_hdr, (0, 0), banner_hdr)
         background.save('poster.png')
-    
+        i.uploadPoster(filepath="poster.png")
+        os.remove('poster.png')
 
-    
-#   i.uploadPoster(filepath="poster.png")
-#   os.remove('poster.png')     
->>>>>>> Stashed changes
