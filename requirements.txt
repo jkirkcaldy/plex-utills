@@ -3,3 +3,5 @@ configparser
 numpy
 pillow
 colorama
+imagehash
+

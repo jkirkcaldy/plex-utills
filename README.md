@@ -1,8 +1,10 @@
 # plex-utills
 ## Description
 ### Automatically add 4k/HDR Banner
-![4k Poster Art](https://github.com/jkirkcaldy/plex-utills/blob/master/library_update_sm.gif?raw=true)
-![4k Poster Art-cmdline](https://github.com/jkirkcaldy/plex-utills/blob/master/library_update_console.gif?raw=true)
+
+![4k Poster Art](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_sm.gif?raw=true)
+![4k Poster Art-cmdline](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_console.gif?raw=true)
+
 
 This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. 
 

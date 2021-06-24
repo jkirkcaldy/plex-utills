@@ -12,6 +12,7 @@ from colorama import Fore, Back, Style
 
 config_object = ConfigParser()
 config_object.read("config.ini")
+
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
@@ -45,4 +46,3 @@ if img.status_code == 200:
     print("You're good to go")
 elif img.status_code == 401:
     print("Unable to download the image")
-

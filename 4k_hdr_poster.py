@@ -9,6 +9,9 @@ import re
 import stat
 from configparser import ConfigParser
 import platform
+import imagehash
+
+# Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
 config_object.read("config.ini")
@@ -21,10 +24,42 @@ mpath = (server["MOUNTEDPATH"])
 pbak = (server["POSTER_BU"])
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
-banner_4k = Image.open("4K-Template.png")
-banner_hdr = Image.open("hdr-poster.png")
-banner_4k_hdr = Image.open("4k-hdr-poster.png")
+banner_4k = Image.open("img/4K-Template.png")
+banner_hdr = Image.open("img/hdr-poster.png")
+chk_banner = Image.open("img/chk-4k.png")
+chk_hdr = Image.open("img/chk_hdr.png")
 size = (911,1367)
+box= (0,0,911,100)
+hdr_box = (0,611,215,720)
+
+def add_banner():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    backgroundchk = background.crop(box)
+    hash0 = imagehash.average_hash(backgroundchk)
+    hash1 = imagehash.average_hash(chk_banner)
+    cutoff= 5
+    if hash0 - hash1 < cutoff:
+        print('4K banner exists, moving on...')
+    else:
+        background.paste(banner_4k, (0, 0), banner_4k)
+        background.save('poster.png')
+        i.uploadPoster(filepath="poster.png")
+
+    
+def add_hdr():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    backgroundchk = background.crop(hdr_box)
+    hash0 = imagehash.average_hash(backgroundchk)
+    hash1 = imagehash.average_hash(chk_hdr)
+    cutoff= 5
+    if hash0 - hash1 < cutoff:
+        print('HDR banner exists, moving on...')
+    else:
+        background.paste(banner_hdr, (0, 0), banner_hdr)
+        background.save('poster.png')
+        i.uploadPoster(filepath="poster.png")
  
 
 def poster_4k_hdr():
@@ -42,22 +77,19 @@ def poster_4k_hdr():
 
     if pbak == 'True': 
         if backup == True: 
-            print('Backup File Exists, Skipping...')                                   
+            print('Backup File Exists, Skipping...')
+            add_banner() 
+            add_hdr()                                  
         else:
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            print('creating poster')    
-            background = Image.open('poster.png')
-            background = background.resize(size,Image.ANTIALIAS)
-            background.paste(banner_4k, (0, 0), banner_4k)
-            background.save('poster.png')
-            i.uploadPoster(filepath="poster.png")
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
-    os.remove('poster.png') 
-           
+            add_banner()
+            add_hdr()
+    else:
+        add_banner()
+        add_hdr()
+    os.remove('poster.png')              
+
 
 def poster_4k():   
     print(i.title + " 4K Poster")
@@ -74,21 +106,16 @@ def poster_4k():
 
     if pbak == 'True': 
         if backup == True: 
-            print('Backup File Exists, Skipping...')                                   
+            print('Backup File Exists, Skipping...')
+            add_banner()                                   
         else:
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            print('creating poster')    
-            background = Image.open('poster.png')
-            background = background.resize(size,Image.ANTIALIAS)
-            background.paste(banner_4k, (0, 0), banner_4k)
-            background.save('poster.png')
-            i.uploadPoster(filepath="poster.png")
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
-    os.remove('poster.png')
+            add_banner()
+    else:
+        add_banner()
+    os.remove('poster.png')   
+
 
                    
 def poster_hdr():
@@ -106,22 +133,16 @@ def poster_hdr():
 
     if pbak == 'True': 
         if backup == True: 
-            print('Backup File Exists, Skipping...')                                   
+            print('Backup File Exists, Skipping...')
+            add_hdr()                                   
         else:
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            print('creating poster')    
-            background = Image.open('poster.png')
-            background = background.resize(size,Image.ANTIALIAS)
-            background.paste(banner_4k, (0, 0), banner_4k)
-            background.save('poster.png')
-            i.uploadPoster(filepath="poster.png")
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
-    os.remove('poster.png')
-           
+            add_hdr()
+    else:
+        add_hdr()
+    os.remove('poster.png')              
+
 
        
 for i in films.search(resolution="4k", hdr=True):
