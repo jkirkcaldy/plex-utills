@@ -2,3 +2,4 @@ plexapi
 configparser
 numpy
 pillow
+colorama

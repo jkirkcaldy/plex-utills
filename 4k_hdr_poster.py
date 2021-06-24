@@ -31,6 +31,7 @@ def poster_4k_hdr():
     print(i.title + ' 4k HDR')    
     if platform.system() == 'Windows':
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+"\\" 
+        windir = newdir.replace(r'/', '\\')        
     else:
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
     backup = os.path.exists(newdir+'poster_bak.png')  
@@ -64,8 +65,10 @@ def poster_4k():
     print(i.title + " 4K Poster")
     if platform.system() == 'Windows':
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+"\\" 
+        windir = newdir.replace(r'/', '\\')
     else:
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
+
     backup = os.path.exists(newdir+'poster_bak.png')    
     imgurl = i.posterUrl
     img = requests.get(imgurl, stream=True)
@@ -91,13 +94,14 @@ def poster_4k():
     background.save('poster.png')
     i.uploadPoster(filepath="poster.png")
     os.remove('poster.png') 
-           
+          
 
            
 def poster_hdr():
     print(i.title + " HDR Poster")
     if platform.system() == 'Windows':
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+"\\" 
+        windir = newdir.replace(r'/', '\\')        
     else:
         newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
     backup = os.path.exists(newdir+'poster_bak.png')    
@@ -130,7 +134,7 @@ def poster_hdr():
        
 for i in films.search(resolution="4k", hdr=True):
     poster_4k_hdr()
-#for i in films.search(resolution="4k", hdr=False):
-#    poster_4k()
-#for i in films.search(resolution="1080,720", hdr=True):
-#    poster_hdr()
+for i in films.search(resolution="4k", hdr=False):
+    poster_4k()
+for i in films.search(resolution="1080,720", hdr=True):
+    poster_hdr()

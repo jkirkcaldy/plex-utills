@@ -6,8 +6,9 @@ import requests
 import shutil
 import os
 import re
-import stat
 from configparser import ConfigParser
+import platform
+from colorama import Fore, Back, Style
 
 config_object = ConfigParser()
 config_object.read("config.ini")
@@ -27,6 +28,13 @@ media_location = films.search(resolution='4k')
 filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
 print('Plex mount path is:')
 print(filepath)
+
+if platform.system() == 'Windows':
+    print(Fore.CYAN + 'It looks like you are running this on Windows, your Mounted path should look like this:')
+    print('Z:\\\Plex_Folder')
+    print('Take note of the double backwards slash here.') 
+    print(Fore.RESET)
+
 
 print('checking poster download permissions...')
 i = films.search(resolution='4k')
