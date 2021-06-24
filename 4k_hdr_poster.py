@@ -14,7 +14,7 @@ import imagehash
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("config.ini")
+config_object.read("dev_config.ini")
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
@@ -46,7 +46,7 @@ def add_banner():
         background.paste(banner_4k, (0, 0), banner_4k)
         background.save('poster.png')
         i.uploadPoster(filepath="poster.png")
-    os.remove('poster.png')
+
     
 def add_hdr():
     background = Image.open('poster.png')
@@ -61,7 +61,7 @@ def add_hdr():
         background.paste(banner_hdr, (0, 0), banner_hdr)
         background.save('poster.png')
         i.uploadPoster(filepath="poster.png")
-    os.remove('poster.png')    
+ 
 
 def poster_4k_hdr():
     print(i.title + ' 4k HDR')    
@@ -86,14 +86,10 @@ def poster_4k_hdr():
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
             add_banner()
             add_hdr()
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
     else:
         add_banner()
         add_hdr()
-           
+    os.remove('poster.png')              
 
 def poster_4k():   
     print(i.title + " 4K Poster")
@@ -116,13 +112,9 @@ def poster_4k():
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
             add_banner()
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
     else:
         add_banner()
-
+    os.remove('poster.png')   
 
                    
 def poster_hdr():
@@ -146,13 +138,9 @@ def poster_hdr():
             print('Creating a backup file')
             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
             add_hdr()
-         
-            if platform.system() != 'Windows':
-                os.chown(newdir+'poster_bak.png', 99, 100)
-                os.chmod(newdir+'poster_bak.png', 0o0666)
     else:
         add_hdr()
-           
+    os.remove('poster.png')              
 
        
 for i in films.search(resolution="4k", hdr=True):
