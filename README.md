@@ -6,7 +6,7 @@
 ![4k Poster Art-cmdline](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_console.gif?raw=true)
 
 
-This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. 
+This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. This can be disabled in the config file.
 
 The script will download the poster that you have set for your media and add the banners meaning you can still have curated posters. It will also make a backup of your posters next to the media files so the posters can be restored easily (coming soon)
 
