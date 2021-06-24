@@ -32,9 +32,9 @@ if __name__ == "__main__":
         resolutions = {m.videoResolution for m in movie.media}
         if len(resolutions) < 2 and '4k' in resolutions:
             movie.addLabel('Untranscodable')   
-            print(movie)
+            print(movie.title+' has only 4k avaialble' )
         if len(resolutions) > 1 and '4k' in resolutions:
             movie.removeLabel('Untranscodable')
-            print(movie)             
+            print(movie.title+' Is available for all')             
 
                     
