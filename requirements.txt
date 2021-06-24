@@ -1,2 +1,11 @@
+<<<<<<< Updated upstream
 plexapi==3.2.0
 configparser==4.0.2
+=======
+plexapi
+configparser
+numpy
+pillow
+colorama
+imagehash
+>>>>>>> Stashed changes
