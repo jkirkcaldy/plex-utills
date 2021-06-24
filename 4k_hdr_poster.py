@@ -155,5 +155,6 @@ if HDR_BANNER == 'True':
     for i in films.search(resolution="1080,720", hdr=True):
         poster_hdr()
 else:
+    print('Creating 4k posters only')
     for i in films.search(resolution="4k"):
         poster_4k()
