@@ -31,8 +31,9 @@ print(filepath)
 
 if platform.system() == 'Windows':
     print(Fore.CYAN + 'It looks like you are running this on Windows, your Mounted path should look like this:')
-    print('Z:\\\Plex_Folder')
-    print('Take note of the double backwards slash here.') 
+    print('"Z:/"')
+    print('Take note of the forward slash here.') 
+    print('It is important that you replace all backslashes with forward slashes for the script to work') 
     print(Fore.RESET)
 
 
