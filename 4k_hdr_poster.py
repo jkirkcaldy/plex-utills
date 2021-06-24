@@ -90,6 +90,7 @@ def poster_4k_hdr():
         add_hdr()
     os.remove('poster.png')              
 
+
 def poster_4k():   
     print(i.title + " 4K Poster")
     newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
@@ -114,6 +115,7 @@ def poster_4k():
     else:
         add_banner()
     os.remove('poster.png')   
+
 
                    
 def poster_hdr():
@@ -140,6 +142,7 @@ def poster_hdr():
     else:
         add_hdr()
     os.remove('poster.png')              
+
 
        
 for i in films.search(resolution="4k", hdr=True):
