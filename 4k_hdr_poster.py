@@ -22,6 +22,7 @@ plexlibrary = (server["FILMSLIBRARY"])
 ppath = (server["PLEXPATH"])
 mpath = (server["MOUNTEDPATH"])
 pbak = (server["POSTER_BU"])
+HDR_BANNER = (server["HDR_BANNER"])
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
 banner_4k = Image.open("img/4K-Template.png")
@@ -144,10 +145,15 @@ def poster_hdr():
     os.remove('poster.png')              
 
 
-       
-for i in films.search(resolution="4k", hdr=True):
-    poster_4k_hdr()
-for i in films.search(resolution="4k", hdr=False):
-    poster_4k()
-for i in films.search(resolution="1080,720", hdr=True):
-    poster_hdr()
+
+
+if HDR_BANNER == 'True':
+    for i in films.search(resolution="4k", hdr=False):
+        poster_4k()
+    for i in films.search(resolution="4k", hdr=True):
+        poster_4k_hdr()
+    for i in films.search(resolution="1080,720", hdr=True):
+        poster_hdr()
+else:
+    for i in films.search(resolution="4k"):
+        poster_4k()
