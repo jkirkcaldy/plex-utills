@@ -11,6 +11,8 @@ from configparser import ConfigParser
 import platform
 import imagehash
 from colorama import Fore, Back, Style
+from requests.api import get
+from requests.models import REDIRECT_STATI
 
 # Do not edit these, use the config file to make any changes
 
@@ -64,12 +66,10 @@ def add_hdr():
         background.paste(banner_hdr, (0, 0), banner_hdr)
         background.save('poster.png')
         i.uploadPoster(filepath="poster.png")
- 
 
-def poster_4k_hdr():
-    print(i.title + ' 4k HDR')    
+def get_poster():
     newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
-    backup = os.path.exists(newdir+'poster_bak.png')   
+    backup = os.path.exists(newdir+'poster_bak.png')
     imgurl = i.posterUrl
     img = requests.get(imgurl, stream=True)
     filename = "poster.png"
@@ -78,94 +78,58 @@ def poster_4k_hdr():
         img.raw.decode_content = True
         with open(filename, 'wb') as f:
             shutil.copyfileobj(img.raw, f)
-
-    if pbak == 'True': 
-        if backup == True: 
-            print('Backup File Exists, Skipping...')
-            add_banner() 
-            add_hdr()                                  
-        else:
-            print('Creating a backup file')
-            dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            add_banner()
-            add_hdr()
+        if pbak == 'True': 
+            if backup == True: 
+                print('Backup File Exists, Skipping...')
+            else:        
+                print('Creating a backup file')
+                dest = shutil.copyfile(filename, newdir+'poster_bak.png')
     else:
-        add_banner()
-        add_hdr()
+        print(Fore.RED+films.title+"cannot find the poster for this film")
+        print(Fore.RESET)
+
+
+def poster_4k_hdr():
+    print(i.title + ' 4k HDR')     
+    get_poster()
+    add_banner() 
+    add_hdr()                                  
     os.remove('poster.png')              
 
 
 def poster_4k():   
     print(i.title + " 4K Poster")
-    newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
-    backup = os.path.exists(newdir+'poster_bak.png')  
-    imgurl = i.posterUrl
-    img = requests.get(imgurl, stream=True)
-    filename = "poster.png"
-
-    if img.status_code == 200:
-        img.raw.decode_content = True
-        with open(filename, 'wb') as f:
-            shutil.copyfileobj(img.raw, f)
-
-    if pbak == 'True': 
-        if backup == True: 
-            print('Backup File Exists, Skipping...')
-            add_banner()                                   
-        else:
-            print('Creating a backup file')
-            dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            add_banner()
-    else:
-        add_banner()
+    get_poster()
+    add_banner()                                  
     os.remove('poster.png')   
 
 
                    
 def poster_hdr():
-    print(i.title + " HDR Poster")
-    newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
-    backup = os.path.exists(newdir+'poster_bak.png')  
-    imgurl = i.posterUrl
-    img = requests.get(imgurl, stream=True)
-    filename = "poster.png"
-
-    if img.status_code == 200:
-        img.raw.decode_content = True
-        with open(filename, 'wb') as f:
-            shutil.copyfileobj(img.raw, f)
-
-    if pbak == 'True': 
-        if backup == True: 
-            print('Backup File Exists, Skipping...')
-            add_hdr()                                   
-        else:
-            print('Creating a backup file')
-            dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            add_hdr()
-    else:
-        add_hdr()
+    print(i.title + " HDR Poster") 
+    get_poster() 
+    add_hdr()                                  
     os.remove('poster.png')              
 
 if HDR_BANNER == 'True':
     for i in films.search(resolution="4k", hdr=False):
         try:
             poster_4k()
-        except TypeError:
+        except FileNotFoundError:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
             continue    
     for i in films.search(resolution="4k", hdr=True):
         try:
             poster_4k_hdr()
-        except TypeError:
+        except FileNotFoundError:
             print(Fore.RED+films.title+" Error, the 4k HDR poster for this film could not be created.")
             print(Fore.RESET)
             continue
     for i in films.search(resolution="1080,720", hdr=True):
         try:
             poster_hdr()
-        except TypeError:
+        except FileNotFoundError:
             print(Fore.RED+films.title+" Error, the HDR poster for this film could not be created.")
             print(Fore.RESET)
             continue
@@ -174,7 +138,7 @@ else:
     for i in films.search(resolution="4k"):
         try:
             poster_4k()
-        except TypeError:
+        except FileNotFoundError:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
             continue
