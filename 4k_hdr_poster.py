@@ -10,6 +10,7 @@ import stat
 from configparser import ConfigParser
 import platform
 import imagehash
+from colorama import Fore, Back, Style
 
 # Do not edit these, use the config file to make any changes
 
@@ -32,6 +33,8 @@ chk_hdr = Image.open("img/chk_hdr.png")
 size = (911,1367)
 box= (0,0,911,100)
 hdr_box = (0,611,215,720)
+
+          
 
 def add_banner():
     background = Image.open('poster.png')
@@ -144,17 +147,34 @@ def poster_hdr():
         add_hdr()
     os.remove('poster.png')              
 
-
-
-
 if HDR_BANNER == 'True':
     for i in films.search(resolution="4k", hdr=False):
-        poster_4k()
+        try:
+            poster_4k()
+        except TypeError:
+            print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
+            print(Fore.RESET)
+            continue    
     for i in films.search(resolution="4k", hdr=True):
-        poster_4k_hdr()
+        try:
+            poster_4k_hdr()
+        except TypeError:
+            print(Fore.RED+films.title+" Error, the 4k HDR poster for this film could not be created.")
+            print(Fore.RESET)
+            continue
     for i in films.search(resolution="1080,720", hdr=True):
-        poster_hdr()
+        try:
+            poster_hdr()
+        except TypeError:
+            print(Fore.RED+films.title+" Error, the HDR poster for this film could not be created.")
+            print(Fore.RESET)
+            continue
 else:
     print('Creating 4k posters only')
     for i in films.search(resolution="4k"):
-        poster_4k()
+        try:
+            poster_4k()
+        except TypeError:
+            print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
+            print(Fore.RESET)
+            continue
