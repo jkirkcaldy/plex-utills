@@ -4,4 +4,4 @@ numpy
 pillow
 colorama
 imagehash
-
+schedule

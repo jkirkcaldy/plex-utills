@@ -17,7 +17,7 @@ from requests.models import REDIRECT_STATI
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("config.ini")
+config_object.read("/config/config.ini")
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
