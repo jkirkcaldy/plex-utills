@@ -3,18 +3,12 @@
 ### Automatically add 4k/HDR Banner
 
 ![4k Poster Art](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_sm.gif?raw=true)
-![4k Poster Art-cmdline](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_console.gif?raw=true)
-
 
 This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. This can be disabled in the config file.
 
-The script will download the poster that you have set for your media and add the banners meaning you can still have curated posters. It will also make a backup of your posters next to the media files so the posters can be restored easily (coming soon)
+The script will download the poster that you have set for your media and add the banners meaning you can still have curated posters. It will also make a backup of your posters next to the media files so the posters can be restored easily.
 
-In order to use this script you will need your plex media volumes mounted. If you are not running this on the same computer as your plex server or you are using docker you will likely need to change the root path of your media. 
-
-Find the file path that Plex uses to find the media, if you use docker this is likely 
-`/media/<your directory layout>`
-You can use the setup_helper.py script to show you the base path that Plex is using. 
+In order to use this script you will need your plex media volumes mounted. 
 
 Change this in the config.ini file and add the location of the local directory where your plex media is located. You will need read/write access to this directory. 
 
@@ -32,13 +26,27 @@ You will need to set the restrictions in your users profile to exclude the 'Untr
 
 Run this script on a regular basis to keep on top of your library. 
 
+#### Optional
+Set transcode to True in the config file. This will send your 4k only files to be optimised through plex. The setting for this is 1080p 10mbps. This is not reccomended on low powered hardware. 
+
 
 #### Disney/Pixar collection
 This is a script to find all films in your library with a studio having Disney in the studio's title, e.g. Walt Disney Pictures or Disney animation. It then adds all of these films into a collection named Disney. 
 
 It then does the same for Pixar
 
-# Install
+# Docker install
+I have created a docker container for ease of use, epecially for people who aren't comfortable with Python. 
+
+To run the container enter the following:
+
+`docker run -d --name=Plex-utills -v </your/plex/media/folder>:/films -v /<your config directory>:/config jkirkcaldy/plex-utills`
+
+Or you can use docker-compose. An example file is located in the repository.
+
+All configuration is done in the config file. 
+
+# Manual Install
 ### Requirements
 Python3
 python3-pip
@@ -62,6 +70,3 @@ Run the script.
 
 #### Optional
 Set cron job to run the script daily to automatically run the script and organise your library
-
-Profit.
-

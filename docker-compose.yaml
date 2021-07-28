@@ -6,5 +6,5 @@ services:
         container_name: plex-utills
         restart: unless-stopped
         volumes: 
-            - /mnt/plex:/films
-            - /opt/plex-uitills:/config
+            - <your Plex media directory>:/films
+            - <your config location>:/config
