@@ -2,7 +2,7 @@
 from collections import defaultdict
 from plexapi.server import PlexServer
 from configparser import ConfigParser
-
+from datetime import datetime
 #Read config.ini file
 config_object = ConfigParser()
 config_object.read("/config/config.ini")
@@ -14,6 +14,9 @@ films = (server["FILMSLIBRARY"])
 plex = PlexServer(baseurl, token)
 movies_section = plex.library.section(films)
 added = movies_section.search(sort='titleSort')
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print(current_time, ": Pixar Collection script starting now")
 
 for movie in added:
     try:

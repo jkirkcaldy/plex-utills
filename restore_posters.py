@@ -10,6 +10,7 @@ import stat
 from configparser import ConfigParser
 import platform
 import imagehash
+from datetime import datetime
 
 config_object = ConfigParser()
 config_object.read("config.ini")
@@ -22,7 +23,9 @@ mpath = (server["MOUNTEDPATH"])
 pbak = (server["POSTER_BU"])
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
-
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print(current_time, ": Restore backup posters starting now")
 
 for i in films.search(resolution="4k", hdr=False):  
     newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'

@@ -13,6 +13,7 @@ import imagehash
 from colorama import Fore, Back, Style
 from requests.api import get
 from requests.models import REDIRECT_STATI
+from datetime import datetime
 
 # Do not edit these, use the config file to make any changes
 
@@ -36,7 +37,9 @@ size = (911,1367)
 box= (0,0,911,100)
 hdr_box = (0,611,215,720)
 
-          
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print(current_time, ": 4k HDR poster script starting now.")          
 
 def add_banner():
     background = Image.open('poster.png')

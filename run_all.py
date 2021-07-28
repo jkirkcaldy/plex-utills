@@ -52,7 +52,7 @@ def working():
 
 print(current_time, ": This script is now running, check back later for more info")
 
-schedule.every(10).minutes.do(working)
+schedule.every(60).minutes.do(working)
 schedule.every().day.at(t1).do(posters)   
 schedule.every().day.at(t2).do(disney)
 schedule.every().day.at(t3).do(pixar)
