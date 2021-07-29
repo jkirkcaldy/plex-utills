@@ -15,10 +15,9 @@ Change this in the config.ini file and add the location of the local directory w
 If your paths are the same or you are running the script on the same machine as your plex server make sure that both entries in the config file match otherwise you will get an error. 
  
 #### Optional
-Now there is the option to use a minified 4k logo if you don't want to have the full width banner on your posters. 
+Now there is the option to use a minified 4k logo if you don't want to have the full width banner on your posters. Set mini-4k to true in the config file. 
 
-from IPython.display import HTML, display
-display(HTML("<table><tr><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/4k-example.png?raw=true'></td><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/mini-4k-example.png?raw=true'></td></tr></table>"))
+<table><tr><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/4k-example.png?raw=true'></td><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/mini-4k-example.png?raw=true'></td></tr></table>
 
 
 ### Hide-4k Files
