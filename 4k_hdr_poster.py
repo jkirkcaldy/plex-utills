@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 from pathlib import Path
 from PIL import Image, ImageChops
 from plexapi.server import PlexServer
@@ -72,21 +71,22 @@ def add_hdr():
         i.uploadPoster(filepath="poster.png")
 
 def get_poster():
-    backup = Path(ppath).joinpath(mpath, i.media[0].parts[0].file).parent.joinpath('poster_bak.png')
+    newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
+    backup = os.path.exists(newdir+'poster_bak.png')
     imgurl = i.posterUrl
     img = requests.get(imgurl, stream=True)
-    filename = Path("poster.png")
+    filename = "poster.png"
 
     if img.status_code == 200:
         img.raw.decode_content = True
-        with open(str(filename), 'wb') as f:
+        with open(filename, 'wb') as f:
             shutil.copyfileobj(img.raw, f)
         if pbak == 'True': 
-            if backup.exists(): 
+            if backup == True: 
                 print('Backup File Exists, Skipping...')
             else:        
                 print('Creating a backup file')
-                dest = shutil.copyfile(str(filename), str(backup))
+                dest = shutil.copyfile(filename, newdir+'poster_bak.png')
     else:
         print(Fore.RED+films.title+"cannot find the poster for this film")
         print(Fore.RESET)
