@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 import os
 import subprocess 
 from configparser import ConfigParser

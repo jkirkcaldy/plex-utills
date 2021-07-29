@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 from collections import defaultdict
 from plexapi.server import PlexServer
 from datetime import datetime

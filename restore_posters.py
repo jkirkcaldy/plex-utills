@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 from pathlib import Path
 from PIL import Image
 from plexapi.server import PlexServer

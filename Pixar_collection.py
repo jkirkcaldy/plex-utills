@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python
 from collections import defaultdict
 from plexapi.server import PlexServer
 from configparser import ConfigParser
