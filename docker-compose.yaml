@@ -8,3 +8,5 @@ services:
         volumes: 
             - <your Plex media directory>:/films
             - <your config location>:/config
+        environment: 
+            - TZ=Europe/London

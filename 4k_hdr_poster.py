@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3
 from pathlib import Path
 from PIL import Image, ImageChops
 from plexapi.server import PlexServer
@@ -18,23 +19,27 @@ from datetime import datetime
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read(".config.ini")
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
 plexlibrary = (server["FILMSLIBRARY"])
 ppath = (server["PLEXPATH"])
 mpath = (server["MOUNTEDPATH"])
-pbak = (server["POSTER_BU"])
-HDR_BANNER = (server["HDR_BANNER"])
+pbak = str.lower((server["POSTER_BU"]))
+HDR_BANNER = str.lower((server["HDR_BANNER"]))
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
+mini_4k = str.lower((server["mini_4k"]))
 banner_4k = Image.open("img/4K-Template.png")
+mini_4k_banner = Image.open("img/4K-mini-Template.png")
 banner_hdr = Image.open("img/hdr-poster.png")
 chk_banner = Image.open("img/chk-4k.png")
+chk_mini_banner = Image.open("img/chk-mini-4k.png")
 chk_hdr = Image.open("img/chk_hdr.png")
 size = (911,1367)
 box= (0,0,911,100)
+mini_box = (0,0,301,268)
 hdr_box = (0,611,215,720)
 
 now = datetime.now()
@@ -55,6 +60,19 @@ def add_banner():
         background.save('poster.png')
         i.uploadPoster(filepath="poster.png")
 
+def add_mini_banner():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    backgroundchk = background.crop(mini_box)
+    hash0 = imagehash.average_hash(backgroundchk)
+    hash1 = imagehash.average_hash(chk_mini_banner)
+    cutoff= 15
+    if hash0 - hash1 < cutoff:
+        print('4K banner exists, moving on...')
+    else:
+        background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
+        background.save('poster.png')
+        i.uploadPoster(filepath="poster.png")
     
 def add_hdr():
     background = Image.open('poster.png')
@@ -81,7 +99,7 @@ def get_poster():
         img.raw.decode_content = True
         with open(filename, 'wb') as f:
             shutil.copyfileobj(img.raw, f)
-        if pbak == 'True': 
+        if pbak == 'true': 
             if backup == True: 
                 print('Backup File Exists, Skipping...')
             else:        
@@ -91,7 +109,6 @@ def get_poster():
         print(Fore.RED+films.title+"cannot find the poster for this film")
         print(Fore.RESET)
 
-
 def poster_4k_hdr():
     print(i.title + ' 4k HDR')     
     get_poster()
@@ -99,22 +116,22 @@ def poster_4k_hdr():
     add_hdr()                                  
     os.remove('poster.png')              
 
-
 def poster_4k():   
     print(i.title + " 4K Poster")
     get_poster()
-    add_banner()                                  
+    if mini_4k == 'true':
+        add_mini_banner()
+    else:
+        add_banner()                                  
     os.remove('poster.png')   
-
-
-                   
+                  
 def poster_hdr():
     print(i.title + " HDR Poster") 
     get_poster() 
     add_hdr()                                  
     os.remove('poster.png')              
 
-if HDR_BANNER == 'True':
+if HDR_BANNER == 'true':
     for i in films.search(resolution="4k", hdr=False):
         try:
             poster_4k()

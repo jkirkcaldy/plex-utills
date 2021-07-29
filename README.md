@@ -14,6 +14,12 @@ Change this in the config.ini file and add the location of the local directory w
 
 If your paths are the same or you are running the script on the same machine as your plex server make sure that both entries in the config file match otherwise you will get an error. 
  
+#### Optional
+Now there is the option to use a minified 4k logo if you don't want to have the full width banner on your posters. 
+
+from IPython.display import HTML, display
+display(HTML("<table><tr><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/4k-example.png?raw=true'></td><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/mini-4k-example.png?raw=true'></td></tr></table>"))
+
 
 ### Hide-4k Files
 The plex streaming brain has come on a long way and I believe it's no longer necessary to separate your 4k files into a separate library. 
@@ -30,7 +36,7 @@ Run this script on a regular basis to keep on top of your library.
 Set transcode to True in the config file. This will send your 4k only files to be optimised through plex. The setting for this is 1080p 10mbps. This is not reccomended on low powered hardware. 
 
 
-#### Disney/Pixar collection
+### Disney/Pixar collection
 This is a script to find all films in your library with a studio having Disney in the studio's title, e.g. Walt Disney Pictures or Disney animation. It then adds all of these films into a collection named Disney. 
 
 It then does the same for Pixar

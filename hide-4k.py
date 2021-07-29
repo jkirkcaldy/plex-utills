@@ -9,7 +9,7 @@ import socket
 config_object = ConfigParser()
 config_object.read("/config/config.ini")
 server = config_object["PLEXSERVER"]
-optimise = (server["transcode"])
+optimise = str.lower((server["transcode"]))
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print(current_time, ": Hide 4k films script starting now")
@@ -28,7 +28,7 @@ for movie in added:
         if optimise == 'False':
             movie.addLabel('Untranscodable')   
             print(movie.title+' has only 4k avaialble, setting untranscodable' )
-        elif optimise == 'True':
+        elif optimise == 'true':
             print('Sending', movie.title, 'to be transcoded')
             movie.optimize(deviceProfile="Android", videoQuality=10)
 for movie in b:

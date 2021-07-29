@@ -11,7 +11,7 @@ import platform
 from colorama import Fore, Back, Style
 
 config_object = ConfigParser()
-config_object.read("config.ini")
+config_object.read(".config.ini")
 
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
