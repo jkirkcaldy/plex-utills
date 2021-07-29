@@ -1,3 +1,4 @@
+#!/usr/local/bin/python
 from pathlib import Path
 from PIL import Image, ImageChops
 from plexapi.server import PlexServer
@@ -18,7 +19,7 @@ from datetime import datetime
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config.ini")
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
@@ -71,22 +72,21 @@ def add_hdr():
         i.uploadPoster(filepath="poster.png")
 
 def get_poster():
-    newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
-    backup = os.path.exists(newdir+'poster_bak.png')
+    backup = Path(ppath).joinpath(mpath, i.media[0].parts[0].file).parent.joinpath('poster_bak.png')
     imgurl = i.posterUrl
     img = requests.get(imgurl, stream=True)
-    filename = "poster.png"
+    filename = Path("poster.png")
 
     if img.status_code == 200:
         img.raw.decode_content = True
-        with open(filename, 'wb') as f:
+        with open(str(filename), 'wb') as f:
             shutil.copyfileobj(img.raw, f)
         if pbak == 'True': 
-            if backup == True: 
+            if backup.exists(): 
                 print('Backup File Exists, Skipping...')
             else:        
                 print('Creating a backup file')
-                dest = shutil.copyfile(filename, newdir+'poster_bak.png')
+                dest = shutil.copyfile(str(filename), str(backup))
     else:
         print(Fore.RED+films.title+"cannot find the poster for this film")
         print(Fore.RESET)
