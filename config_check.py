@@ -38,7 +38,6 @@ url = parse.urlparse(server["PLEX_URL"]).hostname
 try: 
     url = parse.urlparse(server["PLEX_URL"]).hostname
     socket.inet_aton(url)
-    print("ok")
 except socket.error:
     raise Exception("Uh-Oh, it looks like your PLEX_URL is not correct in the config file \n Make sure you enter it as 'http://ip-address:plex-port'")
 
@@ -140,5 +139,5 @@ elif hide_4k != 'true':
 else:
     raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')  
 
-print('Config check passed')
+print('Pass')
  

@@ -38,11 +38,11 @@ banner_4k = Image.open("img/4K-Template.png")
 mini_4k_banner = Image.open("img/4K-mini-Template.png")
 banner_hdr = Image.open("img/hdr-poster.png")
 chk_banner = Image.open("img/chk-4k.png")
-chk_mini_banner = Image.open("img/chk-mini-4k.png")
+chk_mini_banner = Image.open("img/chk-mini-4k2.png")
 chk_hdr = Image.open("img/chk_hdr.png")
 size = (911,1367)
 box= (0,0,911,100)
-mini_box = (0,0,301,268)
+mini_box = (0,0,150,125)
 hdr_box = (0,611,215,720)
 
 now = datetime.now()
@@ -55,9 +55,9 @@ def check_for_mini():
     backgroundchk = background.crop(mini_box)
     hash0 = imagehash.average_hash(backgroundchk)
     hash1 = imagehash.average_hash(chk_mini_banner)
-    cutoff= 15
+    cutoff= 10
     if hash0 - hash1 < cutoff:
-        print('Mini 4K banner exists, moving on...')
+        print(Fore.LIGHTMAGENTA_EX, 'Mini 4K banner exists, moving on...',Fore.RESET)
     else:    
         if mini_4k == 'true':
             add_mini_banner()
@@ -74,7 +74,7 @@ def check_for_banner():
     hash1 = imagehash.average_hash(chk_banner)
     cutoff= 5
     if hash0 - hash1 < cutoff:
-        print('4K banner exists, moving on...')
+        print(Fore.LIGHTMAGENTA_EX, '4K banner exists, moving on...', Fore.RESET)
     else:
         check_for_mini()     
 
@@ -136,7 +136,7 @@ def get_poster():
                     backgroundchk = background.crop(box)
                     hash0 = imagehash.average_hash(backgroundchk)
                     hash1 = imagehash.average_hash(chk_banner)
-                    cutoff= 50
+                    cutoff= 5
                     if hash0 - hash1 < cutoff:
                         print(Fore.LIGHTRED_EX, 'Poster has 4k banner, skipping backup', Fore.RESET)
                     else:
@@ -146,7 +146,7 @@ def get_poster():
                         backgroundchk = background.crop(mini_box)
                         hash0 = imagehash.average_hash(backgroundchk)
                         hash1 = imagehash.average_hash(chk_mini_banner)
-                        cutoff= 50
+                        cutoff= 10
                         if hash0 - hash1 < cutoff: 
                             print(Fore.LIGHTRED_EX, 'Poster has mini 4K banner, skipping backup', Fore.RESET)
                         else:

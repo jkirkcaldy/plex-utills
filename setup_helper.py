@@ -45,7 +45,7 @@ print(Fore.YELLOW,'Searching...',Fore.RESET)
 media_location = films.search()
 filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
 print('Plex mount path for your movies is:')
-print(filepath)
+print('/'+filepath.split('/')[1])
 print(Fore.LIGHTGREEN_EX, '# You should use the mount path of all your media not just your movies folder.', Fore.RESET)
 
 if platform.system() == 'Windows':

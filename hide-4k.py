@@ -7,7 +7,7 @@ import socket
 
 #Read config.ini file
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 optimise = str.lower((server["transcode"]))
 now = datetime.now()
