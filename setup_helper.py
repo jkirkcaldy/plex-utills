@@ -11,7 +11,7 @@ import platform
 from colorama import Fore, Back, Style
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 
 server = config_object["PLEXSERVER"]
 baseurl = (server["PLEX_URL"])
@@ -25,10 +25,11 @@ print('Running this will output a file location from your film library set in th
 print('It will only work properly if you have used the correct plex naming protocols.')
 print('Searching...')
 
-media_location = films.search(resolution='4k')
+media_location = films.search()
 filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-print('Plex mount path is:')
+print('Plex mount path for your movies is:')
 print(filepath)
+print(Fore.LIGHTGREEN_EX, '# You should use the mount path of all your media not just your movies folder.', Fore.RESET)
 
 if platform.system() == 'Windows':
     print(Fore.CYAN + 'It looks like you are running this on Windows, your Mounted path should look like this:')

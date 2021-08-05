@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 import os
 import subprocess 
 from configparser import ConfigParser
@@ -11,22 +11,27 @@ from colorama import Fore, Back, Style
 
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 schedules = config_object["SCHEDULES"]
-hdr_4k_posters = str.lower((server["4k_hdr_posters"]))
-Disney = str.lower((server["Disney"]))
-Pixar = (str.lower(server["Pixar"]))
-hide_4k = str.lower((server["hide_4k"]))
-pbak = str.lower((server["POSTER_BU"]))
-HDR_BANNER = str.lower((server["HDR_BANNER"]))
-optimise = str.lower((server["transcode"]))
-mini_4k = str.lower((server["mini_4k"]))
-t1 = (schedules["poster_schedule"])
+options = config_object["OPTIONS"]
+
+hdr_4k_posters = str.lower((options["4k_hdr_posters"]))
+poster_3d = str.lower((options["3D_posters"]))
+Disney = str.lower((options["Disney"]))
+Pixar = (str.lower(options["Pixar"]))
+hide_4k = str.lower((options["hide_4k"]))
+pbak = str.lower((options["POSTER_BU"]))
+HDR_BANNER = str.lower((options["HDR_BANNER"]))
+optimise = str.lower((options["transcode"]))
+mini_4k = str.lower((options["mini_4k"]))
+mini_3d = str.lower((options["mini_3D"]))
+
+t1 = (schedules["4k_poster_schedule"])
 t2 = (schedules["disney_schedule"])
 t3 = (schedules["pixar_schedule"])
 t4 = (schedules["hide_poster_schedule"])
-
+t5 = (schedules["3d_poster_schedule"])
 
 
 if pbak == 'true':
@@ -53,6 +58,13 @@ else:
 if hdr_4k_posters == 'true':
     pass
 elif hdr_4k_posters == 'false':
+    pass
+else:
+    raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
+
+if poster_3d == 'true':
+    pass
+elif poster_3d == 'false':
     pass
 else:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
@@ -93,7 +105,13 @@ if a.match(t1) and hdr_4k_posters == 'true':
 elif hdr_4k_posters != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM') 
+    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
+if a.match(t5) and poster_3d == 'true':
+    pass
+elif poster_3d != 'true':
+    pass
+else:
+    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')     
 if a.match(t2) and Disney == 'true':
     pass
 elif Disney != 'true':

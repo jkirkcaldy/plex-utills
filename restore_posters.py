@@ -14,27 +14,29 @@ import imagehash
 from datetime import datetime
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("congfig/config.ini")
 server = config_object["PLEXSERVER"]
+options = config_object["OPTIONS"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
 plexlibrary = (server["FILMSLIBRARY"])
 ppath = (server["PLEXPATH"])
 mpath = (server["MOUNTEDPATH"])
-pbak = (server["POSTER_BU"])
+pbak = str.lower((options["POSTER_BU"]))
 plex = PlexServer(baseurl, token)
 films = plex.library.section(plexlibrary)
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print(current_time, ": Restore backup posters starting now")
 
-for i in films.search(resolution="4k", hdr=False):  
+for i in films.search():  
     newdir = os.path.dirname(re.sub(ppath, mpath, i.media[0].parts[0].file))+'/'
     backup = os.path.exists(newdir+'poster_bak.png') 
     if backup == True:
         poster = newdir+'poster_bak.png'
         print(i.title)
         i.uploadPoster(filepath=poster)
+        os.remove(poster)
 
 
 

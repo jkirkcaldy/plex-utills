@@ -19,18 +19,21 @@ from datetime import datetime
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
+options = config_object["OPTIONS"]
 baseurl = (server["PLEX_URL"])
 token = (server["TOKEN"])
+plex = PlexServer(baseurl, token)
 plexlibrary = (server["FILMSLIBRARY"])
+films = plex.library.section(plexlibrary)
 ppath = (server["PLEXPATH"])
 mpath = (server["MOUNTEDPATH"])
-pbak = str.lower((server["POSTER_BU"]))
-HDR_BANNER = str.lower((server["HDR_BANNER"]))
-plex = PlexServer(baseurl, token)
-films = plex.library.section(plexlibrary)
-mini_4k = str.lower((server["mini_4k"]))
+
+pbak = str.lower((options["POSTER_BU"]))
+HDR_BANNER = str.lower((options["HDR_BANNER"]))
+mini_4k = str.lower((options["mini_4k"]))
+
 banner_4k = Image.open("img/4K-Template.png")
 mini_4k_banner = Image.open("img/4K-mini-Template.png")
 banner_hdr = Image.open("img/hdr-poster.png")
@@ -46,7 +49,24 @@ now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print(current_time, ": 4k HDR poster script starting now.")          
 
-def add_banner():
+def check_for_mini():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    backgroundchk = background.crop(mini_box)
+    hash0 = imagehash.average_hash(backgroundchk)
+    hash1 = imagehash.average_hash(chk_mini_banner)
+    cutoff= 15
+    if hash0 - hash1 < cutoff:
+        print('Mini 4K banner exists, moving on...')
+    else:    
+        if mini_4k == 'true':
+            add_mini_banner()
+        else:
+            add_banner()     
+        
+        
+
+def check_for_banner():
     background = Image.open('poster.png')
     background = background.resize(size,Image.ANTIALIAS)
     backgroundchk = background.crop(box)
@@ -56,23 +76,21 @@ def add_banner():
     if hash0 - hash1 < cutoff:
         print('4K banner exists, moving on...')
     else:
-        background.paste(banner_4k, (0, 0), banner_4k)
-        background.save('poster.png')
-        i.uploadPoster(filepath="poster.png")
+        check_for_mini()     
+
+def add_banner():
+    background = Image.open('poster.png')
+    background = background.resize(size,Image.ANTIALIAS)
+    background.paste(banner_4k, (0, 0), banner_4k)
+    background.save('poster.png')
+    i.uploadPoster(filepath="poster.png")
 
 def add_mini_banner():
     background = Image.open('poster.png')
     background = background.resize(size,Image.ANTIALIAS)
-    backgroundchk = background.crop(mini_box)
-    hash0 = imagehash.average_hash(backgroundchk)
-    hash1 = imagehash.average_hash(chk_mini_banner)
-    cutoff= 15
-    if hash0 - hash1 < cutoff:
-        print('4K banner exists, moving on...')
-    else:
-        background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
-        background.save('poster.png')
-        i.uploadPoster(filepath="poster.png")
+    background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
+    background.save('poster.png')
+    i.uploadPoster(filepath="poster.png")
     
 def add_hdr():
     background = Image.open('poster.png')
@@ -101,10 +119,45 @@ def get_poster():
             shutil.copyfileobj(img.raw, f)
         if pbak == 'true': 
             if backup == True: 
-                print('Backup File Exists, Skipping...')
+                #open backup poster to compare it to the current poster. If it is similar enough it will skip, if it's changed then create a new backup and add the banner. 
+                poster = os.path.join(newdir, 'poster_bak.png')
+                b_check1 = Image.open(filename)
+                b_check = Image.open(poster)
+                b_hash = imagehash.average_hash(b_check)
+                b_hash1 = imagehash.average_hash(b_check1)
+                cutoff = 10
+                if b_hash - b_hash1 < cutoff:    
+                    print(Fore.GREEN, 'Backup File Exists, Skipping...', Fore.RESET)
+                else:
+                    
+                    #Check to see if the poster has a 4k Banner
+                    background = Image.open(filename)
+                    background = background.resize(size,Image.ANTIALIAS)
+                    backgroundchk = background.crop(box)
+                    hash0 = imagehash.average_hash(backgroundchk)
+                    hash1 = imagehash.average_hash(chk_banner)
+                    cutoff= 50
+                    if hash0 - hash1 < cutoff:
+                        print(Fore.LIGHTRED_EX, 'Poster has 4k banner, skipping backup', Fore.RESET)
+                    else:
+                        #Check if the poster has a mini 4k banner
+                        background = Image.open(filename)
+                        background = background.resize(size,Image.ANTIALIAS)
+                        backgroundchk = background.crop(mini_box)
+                        hash0 = imagehash.average_hash(backgroundchk)
+                        hash1 = imagehash.average_hash(chk_mini_banner)
+                        cutoff= 50
+                        if hash0 - hash1 < cutoff: 
+                            print(Fore.LIGHTRED_EX, 'Poster has mini 4K banner, skipping backup', Fore.RESET)
+                        else:
+                            print(Fore.MAGENTA, 'New poster detected, Creating a new backup', Fore.RESET)  
+                            os.remove(poster)
+                            print(Fore.CYAN, 'Check Passed, Creating a backup file', Fore.RESET)
+                            dest = shutil.copyfile(filename, newdir+'poster_bak.png')
             else:        
-                print('Creating a backup file')
+                print(Fore.BLUE, 'Creating a backup file', Fore.RESET)
                 dest = shutil.copyfile(filename, newdir+'poster_bak.png')
+
     else:
         print(Fore.RED+films.title+"cannot find the poster for this film")
         print(Fore.RESET)
@@ -112,17 +165,14 @@ def get_poster():
 def poster_4k_hdr():
     print(i.title + ' 4k HDR')     
     get_poster()
-    add_banner() 
+    check_for_banner() 
     add_hdr()                                  
     os.remove('poster.png')              
 
 def poster_4k():   
     print(i.title + " 4K Poster")
     get_poster()
-    if mini_4k == 'true':
-        add_mini_banner()
-    else:
-        add_banner()                                  
+    check_for_banner()                             
     os.remove('poster.png')   
                   
 def poster_hdr():
@@ -130,6 +180,9 @@ def poster_hdr():
     get_poster() 
     add_hdr()                                  
     os.remove('poster.png')              
+
+
+
 
 if HDR_BANNER == 'true':
     for i in films.search(resolution="4k", hdr=False):
@@ -162,3 +215,5 @@ else:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
             continue
+#for i in films.search(title="Cold Pursuit"):
+#    get_poster()
