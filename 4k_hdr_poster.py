@@ -182,8 +182,6 @@ def poster_hdr():
     os.remove('poster.png')              
 
 
-
-
 if HDR_BANNER == 'true':
     for i in films.search(resolution="4k", hdr=False):
         try:
@@ -215,5 +213,3 @@ else:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
             continue
-#for i in films.search(title="Cold Pursuit"):
-#    get_poster()

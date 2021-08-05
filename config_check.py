@@ -8,7 +8,8 @@ import time
 from datetime import datetime
 import re
 from colorama import Fore, Back, Style
-
+import socket
+from urllib import parse 
 
 config_object = ConfigParser()
 config_object.read("config/config.ini")
@@ -32,6 +33,14 @@ t2 = (schedules["disney_schedule"])
 t3 = (schedules["pixar_schedule"])
 t4 = (schedules["hide_poster_schedule"])
 t5 = (schedules["3d_poster_schedule"])
+
+url = parse.urlparse(server["PLEX_URL"]).hostname
+try: 
+    url = parse.urlparse(server["PLEX_URL"]).hostname
+    socket.inet_aton(url)
+    print("ok")
+except socket.error:
+    raise Exception("Uh-Oh, it looks like your PLEX_URL is not correct in the config file \n Make sure you enter it as 'http://ip-address:plex-port'")
 
 
 if pbak == 'true':
