@@ -9,7 +9,8 @@ import socket
 config_object = ConfigParser()
 config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
-optimise = str.lower((server["transcode"]))
+options = config_object["OPTIONS"]
+optimise = str.lower((options["transcode"]))
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print(current_time, ": Hide 4k films script starting now")
