@@ -1,4 +1,14 @@
 # plex-utills
+## You will likely need to re-create or update your config file after updating as there are breaking changes. 
+### Changes
+Setting whether scripts should run or selecting options has now moved to a different config block. 
+
+New 3D poster creation. This is done by library only at the moment. So all films in your selected 3D library will have banners added. 
+
+4K_hdr_poster script allows for changning poster art, it will recreate the backup as long as it doesn't detect a 4k banner. 
+
+restore poster script will restore all posters from backup not just 4k HDR posters. 
+
 ## Description
 ### Automatically add 4k/HDR Banner
 
