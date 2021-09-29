@@ -26,7 +26,7 @@ b = movies_section.search(label='untranscodable', sort='addedAt')
 for movie in added:
     resolutions = {m.videoResolution for m in movie.media}
     if len(resolutions) < 2 and '4k' in resolutions:
-        if optimise == 'False':
+        if optimise == 'false':
             movie.addLabel('Untranscodable')   
             print(movie.title+' has only 4k avaialble, setting untranscodable' )
         elif optimise == 'true':
