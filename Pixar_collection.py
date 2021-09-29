@@ -1,11 +1,11 @@
-#!/usr/local/bin/python
+#/usr/local/bin/python
 from collections import defaultdict
 from plexapi.server import PlexServer
 from configparser import ConfigParser
 from datetime import datetime
 #Read config.ini file
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 
 baseurl = (server["PLEX_URL"])

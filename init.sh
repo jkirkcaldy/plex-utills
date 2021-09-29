@@ -9,3 +9,4 @@ else
 fi
 
 python -u ./config_check.py
+

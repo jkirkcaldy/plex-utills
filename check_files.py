@@ -8,7 +8,8 @@ import re
 
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
+
 server = config_object["PLEXSERVER"]
 options = config_object["OPTIONS"]
 baseurl = (server["PLEX_URL"])

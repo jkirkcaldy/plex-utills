@@ -12,7 +12,7 @@ from colorama import Fore, Back, Style
 import subprocess
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 
 
 

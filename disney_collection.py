@@ -5,7 +5,7 @@ from configparser import ConfigParser
 from datetime import datetime
 #Read config.ini file
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 
 baseurl = (server["PLEX_URL"])
@@ -28,3 +28,4 @@ for movie in added:
     # Skip movie if there is no studio info
     except TypeError:
         continue
+

@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import os
 import subprocess 
+
 from subprocess import Popen, PIPE, STDOUT
 from configparser import ConfigParser
 import subprocess
@@ -15,11 +16,11 @@ from urllib import parse
 from plexapi.server import PlexServer
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
+
 server = config_object["PLEXSERVER"]
 schedules = config_object["SCHEDULES"]
 options = config_object["OPTIONS"]
-
 
 hdr_4k_posters = str.lower((options["4k_hdr_posters"]))
 poster_3d = str.lower((options["3D_posters"]))
@@ -44,6 +45,7 @@ try:
     socket.inet_aton(url)
 except socket.error:
     raise Exception("Uh-Oh, it looks like your PLEX_URL is not correct in the config file \n Make sure you enter it as 'http://ip-address:plex-port'")
+
 if server["TOKEN"] == '<token>':
     raise Exception("You must add your Plex Token to the config file.")
 try:
@@ -51,6 +53,7 @@ try:
 except :
     print('Cannot access your Plex account, please make sure that your Plex URL and Token are correct')
     exit()
+
 if pbak == 'true':
     pass
 elif pbak == 'false':
@@ -123,12 +126,14 @@ elif hdr_4k_posters != 'true':
     pass
 else:
     raise ValueError('Please make sure that your scheduled time for "4k_poster schedule" is written in the format HH:MM')
+
 if a.match(t5) and poster_3d == 'true':
     pass
 elif poster_3d != 'true':
     pass
 else:
     raise ValueError('Please make sure that your scheduled time for "3d_poster_schedule" is written in the format HH:MM')     
+
 if a.match(t2) and Disney == 'true':
     pass
 elif Disney != 'true':
@@ -141,6 +146,7 @@ if a.match(t3) and Pixar == 'true':
 elif Pixar != 'true':
     pass
 else:
+
     raise ValueError('Please make sure that your scheduled time for "pixar_schedule" is written in the format HH:MM')     
 
 if a.match(t4) and hide_4k == 'true':

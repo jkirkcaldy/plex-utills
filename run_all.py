@@ -27,7 +27,7 @@ def check_config():
 #check_config()
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 schedules = config_object["SCHEDULES"]
 options = config_object["OPTIONS"]

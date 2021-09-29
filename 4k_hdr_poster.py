@@ -19,7 +19,7 @@ from datetime import datetime
 # Do not edit these, use the config file to make any changes
 
 config_object = ConfigParser()
-config_object.read("/config/config.ini")
+config_object.read("config/config.ini")
 server = config_object["PLEXSERVER"]
 options = config_object["OPTIONS"]
 baseurl = (server["PLEX_URL"])
@@ -213,3 +213,4 @@ else:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
             continue
+
