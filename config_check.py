@@ -122,32 +122,33 @@ if a.match(t1) and hdr_4k_posters == 'true':
 elif hdr_4k_posters != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
+    raise ValueError('Please make sure that your scheduled time for "4k_poster schedule" is written in the format HH:MM')
 if a.match(t5) and poster_3d == 'true':
     pass
 elif poster_3d != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')     
+    raise ValueError('Please make sure that your scheduled time for "3d_poster_schedule" is written in the format HH:MM')     
 if a.match(t2) and Disney == 'true':
     pass
 elif Disney != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM') 
+    raise ValueError('Please make sure that your scheduled time for "disney_schedule" is written in the format HH:MM')     
+
 if a.match(t3) and Pixar == 'true':
     pass
 elif Pixar != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM') 
+    raise ValueError('Please make sure that your scheduled time for "pixar_schedule" is written in the format HH:MM')     
+
 if a.match(t4) and hide_4k == 'true':
     pass
 elif hide_4k != 'true':
     pass
 else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')  
-
+    raise ValueError('Please make sure that your scheduled time for "hide_poster_schedule" is written in the format HH:MM') 
 print('Config check passed')
 
 p = Popen('python -u ./run_all.py', shell=True)

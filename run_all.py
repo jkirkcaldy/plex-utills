@@ -105,17 +105,25 @@ print(current_time, ": This script is now running, check back later for more inf
 plex_file_path()
 check_mpath()
 print('waiting for next script...')
+print('Your schedule is as follows:')
+
+
 
 schedule.every(60).minutes.do(working)
 if hdr_4k_posters == "true":
+    print('4K HDR Posters:', t1)
     schedule.every().day.at(t1).do(posters_4k)
 if posters_3d_banner_add == "true":
+    print('3D banners:', t5)
     schedule.every().day.at(t5).do(posters_3d)  
 if Disney == "true":
+    print('Disney Collection:', t2)
     schedule.every().day.at(t2).do(disney)
 if Pixar == "true":
+    print('Pixar collection:', t3)
     schedule.every().day.at(t3).do(pixar)
 if hide_4k == "true":
+    print('Hide 4k Films:', t4)
     schedule.every().day.at(t4).do(hide_4k_films)
 
 while True:
