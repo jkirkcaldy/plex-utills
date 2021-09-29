@@ -20,7 +20,7 @@ print(current_time, ": Pixar Collection script starting now")
 
 for movie in added:
     try:
-        if "pixar" in movie.studio:
+        if "Pixar" in movie.studio:
             movie.addCollection('Pixar')
             print('%s (%s)' % (movie.title, movie.studio))
     # Skip movie if there is no studio info
