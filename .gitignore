@@ -104,4 +104,7 @@ venv.bak/
 .mypy_cache/
 
 # dev config files
-dev_confiog.ini
+dev_config.ini
+.config.ini
+config.ini
+app.db
