@@ -1,6 +1,7 @@
 # plex-utills
 
 ## MASSIVE UPDATE!
+---
 The whole app now runs in a webui. This should make things easier for those who are not as comfortable in the commandline or just prefer a ui. 
 
 I have also removed a couple of the config elements, namely, the PLEXPATH and MOUNTEDPATH options. These are now handled directly by the application and Docker. When you pass through you plex media directory, the app will automatically map this and find your plex path to make the config easier. Now as long as the container has write access to the media directory, it should make enabling the backup posters much easier. 
@@ -28,76 +29,66 @@ New HDR banner design
 Dolby Vision HDR Banner
 HDR10 Banner
 
-
-## Description
-### Automatically add 4k/HDR Banner
+Migration scripts for moving from the old config files to the new datbase and for moving from the old HDR banner to the new designs. 
 
 
+## Features
 
-This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. This can be disabled in the config file.
+### 4K/HDR Posters
 
-The script will download the poster that you have set for your media and add the banners meaning you can still have curated posters. It will also make a backup of your posters next to the media files so the posters can be restored easily.
 
+
+This script will go through your library and add a 4k banner to your posters. Configurable options include:
+
+-   Selecting full width banners or mini corner banners
+-   enabling HDR banners
+-   Backup your original posters alongside your media
+
+This can be run on both your films library and your TV shows Library. If enabled on your TV shows, a mini 4K banner will be added to each of your 4K epiisodes, not the season posters. This is due to the possibility of having Shows/Seasons with mixed resolutions. TV shows will be done at the same time as film posters.
+
+
+### 3D Posters
+
+
+Much like the 4K poster script, this will go through your films and add a 3D banner to your films. Currently as Plex has no support for labelling content as 3D this will only work for 3D films kept in a separate library. You can configure the script to have full width banners or the mini corner banners as well as backing up your posters.
+
+Available Banners
+-----------------
+
+* * * * *
+
+#### The 4K/3D banners will be combined with the HDR posters if they are enabled.
 
  
-#### Optional
-Now there is the option to use a minified 4k logo if you don't want to have the full width banner on your posters. Set mini-4k to true in the config file. 
-
-<table><tr><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/4k-example.png?raw=true'></td><td><img src='https://github.com/jkirkcaldy/plex-utills/blob/master/img/mini-4k-example.png?raw=true'></td></tr></table>
-
-
-### Hide-4k Files
-The plex streaming brain has come on a long way and I believe it's no longer necessary to separate your 4k files into a separate library. 
-
-There is still the risk, when keeping all your media in a single library, of having a film where the only copy is 4k. In this case running the hide-4k script will add an 'Untranscodable' tag to these items.
-
-If you add a lower resolution to your library it will remove the tag. 
-
-You will need to set the restrictions in your users profile to exclude the 'Untranscodable' label.
-
-Run this script on a regular basis to keep on top of your library. 
-
-#### Optional
-Set transcode to True in the config. This will send your 4k only files to be optimised through plex. The setting for this is 1080p 10mbps. This is not reccomended on low powered hardware. 
+<table class="tg">
+  <tr>
+    <th class="tg-0pky"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/4k_banner.png" alt="Image" width="200" height="300"></th>
+    <th class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/mini4k.png" width="200" height="300"></th>
+    <th class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/3D_banner.png" width="200" height="300"></th>
+    <th class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/mini3d.png" width="200" height="300"></th>
+  </tr>
+  <tr>
+    <td class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/old_hdr.png" width="200" height="300"></td>
+    <td class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/new_hdr.png" width="200" height="300"></td>
+    <td class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/new_dolby_vision.png" width="200" height="300"></td>
+    <td class="tg-0lax"><img src="https://raw.githubusercontent.com/jkirkcaldy/plex-utills/f0d354387c1010d55066ae971c8f44874ca11906/app/img/Examples/new_hdr10.png" width="200" height="300"></td>
+  </tr>
+</table>
 
 
-### Disney/Pixar collection
-This is a script to find all films in your library with a studio having Disney in the studio's title, e.g. Walt Disney Pictures or Disney animation. It then adds all of these films into a collection named Disney. 
 
-It then does the same for Pixar
+### Hide 4K
 
-# Docker install
-I have created a docker container for ease of use, epecially for people who aren't comfortable with Python. 
+For those of you who don't separate your 4K and non-4K content into separate libraries. This script will go through your films library and add an "Untranscodable" tag to any of your films that only have a single 4K copy of the film available. By adding this tag to your users restrictions, they simply won't see these 4K films giving your hardware a break.
 
-To run the container enter the following:
+If your hardware is powerful enough, there is the option to create an optimized version so that your users can play this version. This will send your film to be optimized with the Plex optimize feature baked directly into Plex. This means all the hardwork is done by your plex server, (useful if you're hosting these scripts on a lower powered device.) Once the transcode has finished, the untranscodable tag will be removed the next time the script runs and your users will be able to see the film.
 
-`docker run -d --name=Plex-utills -v </your/plex/media/folder>:/films -v /<your config directory>:/config jkirkcaldy/plex-utills`
+### Disney Collection
 
-Or you can use docker-compose. An example file is located in the repository.
 
-All configuration is done in the config file. 
 
-# Manual Install
-### Requirements
-Python3
-python3-pip
+Where this whole project started. A simple script, that will go through your films library and add any film from the Disney Studio into a Disney collection.
 
-`sudo apt install python3 python3-pip`
+### Pixar Collection
 
-### Instructions
-Clone to your machine
-`sudo git clone https://github.com/jkirkcaldy/plex-utills.git`
-
-Cd into the folder
-`cd plex-utills`
-
-install the requirements 
-`sudo pip3 install -r requirements.txt`
-
-Edit the config.ini file, change the plex url and the plex token and select your film library. 
-
-Run the script. 
-`python3 4klibrary.py`
-
-#### Optional
-Set cron job to run the script daily to automatically run the script and organise your library
+As above only with Pixar Films

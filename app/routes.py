@@ -46,7 +46,7 @@ def run_restore():
 
 @app.route('/recreate_hdr', methods=['GET'])
 def run_recreate_hdr():   
-    return render_template("/recreate_hdr.html")
+    return render_template("/recreate_hdr.html", pagetitle='Recreate HDR Posters')
 
 @app.route('/recreate_hdr_script', methods=['GET'])
 def run_recreate_hdr_script():   

@@ -9165,17 +9165,13 @@ body.sidebar-toggled footer.sticky-footer{
     width: 60%;
     margin: auto;
     margin-bottom: auto;
-    overflow-y: auto;
+    overflow: auto;
     overflow-x: hidden;
     height: 700px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 
 } 
-.nav-pills .nav-link.active {
-    color: black;
-    background-color: white;
-    border-radius: 0.5rem 0.5rem 0 0;
-    font-weight: 600
-}
-a.active {
-    border-bottom: 2px solid #55c57a
+.logging_window::-webkit-scrollbar {
+    display: none;
 }

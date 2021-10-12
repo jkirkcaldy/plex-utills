@@ -162,25 +162,25 @@ def posters4k():
 
             if "dolby" and "vision" in name:
                 if hash0 - hash2 < cutoff:
-                    print("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
+                    logger.info("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
                 else:
-                    print("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
+                    logger.info("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
                     background.paste(banner_dv, (0, 0), banner_dv)
                     background.save('poster.png')
                     i.uploadPoster(filepath="poster.png")
             elif "hdr10" in name:
                 if hash0 - hash3 < cutoff:
-                    print("HDR Banner: "+i.title+" hdr10 banner exists")
+                    logger.info("HDR Banner: "+i.title+" hdr10 banner exists")
                 else:
-                    print("HDR Banner: "+i.title+" adding HDR 10 banner now")
+                    logger.info("HDR Banner: "+i.title+" adding HDR 10 banner now")
                     background.paste(banner_hdr10, (0, 0), banner_hdr10)
                     background.save('poster.png')
                     i.uploadPoster(filepath="poster.png")
             else:
                 if hash0 - hash1 < cutoff:
-                    print("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
+                    logger.info("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
                 else:
-                    print("HDR Banner: "+i.title+" adding hdr banner now")
+                    logger.info("HDR Banner: "+i.title+" adding hdr banner now")
                     background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
                     background.save('poster.png')
                     i.uploadPoster(filepath="poster.png")            
@@ -230,17 +230,17 @@ def posters4k():
             hash4 = imagehash.average_hash(chk_hdr)
             cutoff= 5
             if hash0 - hash4 < cutoff:
-                print(i.title+" has old hdr banner")
+                logger.info(i.title+" has old hdr banner")
                 for a in i:
                     newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
                     backup = os.path.exists(newdir+'poster_bak.png') 
                     if backup == True:
                         poster = newdir+'poster_bak.png'
-                        print(i.title+ ' Restored from local files')
+                        logger.info(i.title+ ' Restored from local files')
                         i.uploadPoster(filepath=poster)
                         os.remove(poster)
                     else:
-                        print(i.title, i.year)
+                        logger.info(i.title, i.year)
                         tmdb_search = search.movies({"query": i.title, "year": i.year})
                         def get_poster_link():
                             for r in tmdb_search:
@@ -255,12 +255,12 @@ def posters4k():
                                     shutil.copyfileobj(r.raw, f)
                                     i.uploadPoster(filepath='poster.png')
                                     #os.remove('poster.png')
-                                    print(i.title+" Restored from TMDb")
+                                    logger.info(i.title+" Restored from TMDb")
                         try:
                             poster = get_poster_link()  
                             get_poster(poster) 
                         except TypeError:
-                            print("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
+                            logger.warning("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
                             continue
                         
         def get_poster():
@@ -633,7 +633,7 @@ def hide4k():
 
         logger.info("Hide-4K: Hide 4k films script starting now")
 
-        #movies_section = plex.library.section(films)
+        
         added = films.search(resolution='4k', sort='addedAt')
         b = films.search(label='untranscodable', sort='addedAt')
 

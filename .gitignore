@@ -107,4 +107,6 @@ venv.bak/
 dev_config.ini
 .config.ini
 config.ini
-app.db
+*/app.db
+
+poster.png
