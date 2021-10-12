@@ -1,28 +1,44 @@
 # plex-utills
-## You will likely need to re-create or update your config file after updating as there are breaking changes. 
-### Changes
-Setting whether scripts should run or selecting options has now moved to a different config block. 
 
-New 3D poster creation. This is done by library only at the moment. So all films in your selected 3D library will have banners added. 
+## MASSIVE UPDATE!
+The whole app now runs in a webui. This should make things easier for those who are not as comfortable in the commandline or just prefer a ui. 
 
-4K_hdr_poster script allows for changning poster art, it will recreate the backup as long as it doesn't detect a 4k banner. 
+I have also removed a couple of the config elements, namely, the PLEXPATH and MOUNTEDPATH options. These are now handled directly by the application and Docker. When you pass through you plex media directory, the app will automatically map this and find your plex path to make the config easier. Now as long as the container has write access to the media directory, it should make enabling the backup posters much easier. 
 
-restore poster script will restore all posters from backup not just 4k HDR posters. 
+There is an option to automatically migrate your old config files into the new ui for easier migration. 
+
+New HDR banners along with a script to migrate from the old banners to the new ones should you wish to use them. You can stick with the old banners if you would like. 
+
+The new scripts us TheMoviedb for finidng posters and metadata, so for maximum compatability and fewer issues, these work best when using TheMoviedb as your metadata agent. Trhoughout my testing, it is only sequals that were giving me issues, as the Plex scanner will name your films like: 
+
+Boss Baby 2: Family Business
+
+Whereas on TheMoviedb it is named:
+
+Boss Baby: Family Business 
+
+This means that the search for the film can fail in the script. 
+
+### New Features:
+GUI for managing the application in a browser
+
+Add 4k mini banners to your 4K TV episodes. 
+
+New HDR banner design
+Dolby Vision HDR Banner
+HDR10 Banner
+
 
 ## Description
 ### Automatically add 4k/HDR Banner
 
-![4k Poster Art](https://github.com/jkirkcaldy/plex-utills/blob/master/img/library_update_sm.gif?raw=true)
+
 
 This will go through your library and automatically add a 4k banner at the top of your posters. It will also add a HDR logo so you can easily see which of your files are HDR at a glance. This can be disabled in the config file.
 
 The script will download the poster that you have set for your media and add the banners meaning you can still have curated posters. It will also make a backup of your posters next to the media files so the posters can be restored easily.
 
-In order to use this script you will need your plex media volumes mounted. 
 
-Change this in the config.ini file and add the location of the local directory where your plex media is located. You will need read/write access to this directory. 
-
-If your paths are the same or you are running the script on the same machine as your plex server make sure that both entries in the config file match otherwise you will get an error. 
  
 #### Optional
 Now there is the option to use a minified 4k logo if you don't want to have the full width banner on your posters. Set mini-4k to true in the config file. 
@@ -42,7 +58,7 @@ You will need to set the restrictions in your users profile to exclude the 'Untr
 Run this script on a regular basis to keep on top of your library. 
 
 #### Optional
-Set transcode to True in the config file. This will send your 4k only files to be optimised through plex. The setting for this is 1080p 10mbps. This is not reccomended on low powered hardware. 
+Set transcode to True in the config. This will send your 4k only files to be optimised through plex. The setting for this is 1080p 10mbps. This is not reccomended on low powered hardware. 
 
 
 ### Disney/Pixar collection

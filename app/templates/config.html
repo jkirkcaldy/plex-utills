@@ -1,0 +1,188 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block styles %}
+{{ super() }}
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+
+    <!-- Custom fonts for this template-->
+    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+
+{% endblock %}
+
+
+{% block title %}
+Plex-Utills
+{% endblock %}
+
+
+{% block content %}
+<body id='pagetop'>
+    <div id="wrapper">
+        <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index')  }}">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Plex-Utills</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('index')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Home</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('config')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Config</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('run_scripts')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Scripts</span></a>
+              </li>        
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('run')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Logs</span></a>
+              </li> 
+              <hr class="sidebar-divider">
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('run_migrate')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Migrate Config</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Recreate HDR Banners</span></a>
+              </li>  
+        </ul>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <h1 class="h1 text-grey-800">{{ pagetitle }}</h1>
+
+                </nav>
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row pb-5">
+                          <div class="col-lg-10 mx-lg-auto">
+                            
+                            <h1 class="pt-5 pb-2">
+                              Plex-Utills
+                            </h1>
+                        
+                        
+                              <p class="lead alert alert-success">Edit your config data.</p>
+                        
+                        
+                                   {% with errors = get_flashed_messages() %}
+                                       {% if errors %}
+                                           {% for err in errors %}
+                                           <div class="alert alert-danger alert-dismissible" role="alert">
+                                               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                               {{ err }}
+                                           </div>
+                                           {% endfor %}
+                                       {% endif %}
+                                   {% endwith %}
+                                   <form method="post" action="{{ url_for('config') }}" id="update">
+                                            {{ form.csrf_token }}
+                                            {{ form.id_field(value=plex.id) }}
+                                            <h2>Plex Connection</h2>
+                                            {{ wtf.form_field(form.plexurl, value=plex.plexurl) }}
+                                            {{ wtf.form_field(form.token, value=plex.token) }}
+                                            <h2>Libraries</h2>
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            
+                                            {{ wtf.form_field(form.filmslibrary, value=plex.filmslibrary) }}
+                                            {{ wtf.form_field(form.tvlibrary, value=plex.tvlibrary) }}
+                                            {{ wtf.form_field(form.library3d, value=plex.library3d) }}
+                                            <h2>Schedules</h2>
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p>These must be set, even if you disable a script.</p>
+                                            
+                                            {{ wtf.form_field(form.t1, value=plex.t1) }}
+                                            {{ wtf.form_field(form.t5, value=plex.t5) }}
+                                            {{ wtf.form_field(form.t2, value=plex.t2) }}
+                                            {{ wtf.form_field(form.t3, value=plex.t3) }}
+                                            {{ wtf.form_field(form.t4, value=plex.t4) }}
+                                            <h2>Backup and Restore Options</h2>
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p>For the best experience, enable backups, this will keep all your selected posters in the event of a restore. The TMDb is there as a fallback for those who had issues with the backup or if there isn't a backup poster avaialbe</p>          
+                                                                              
+                                            {{ wtf.form_field(form.backup, value=plex.backup) }}
+                                            {{ wtf.form_field(form.restore_from_tmdb, value=plex.tmdb_restore) }}
+                                            {{ wtf.form_field(form.tmdb_api, value=plex.tmdb_api) }}
+                                            
+
+
+
+                                            <h2>Script Options</h2>   
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>       
+                                            {{ wtf.form_field(form.posters4k, value=plex.posters4k) }}                                                                              
+                                            {{ wtf.form_field(form.films4kposters, value=plex.films4kposters) }}
+                                            {{ wtf.form_field(form.tv4kposters, value=plex.tv4kposters) }}                                            
+                                            {{ wtf.form_field(form.mini4k, value=plex.mini4k) }}
+                                            {{ wtf.form_field(form.hdr, value=plex.hdr ) }}
+                                            {{ wtf.form_field(form.new_hdr, value=plex.new_hdr ) }}
+                                            {{ wtf.form_field(form.recreate_hdr, value=plex.recreate_hdr) }}
+                                            {{ wtf.form_field(form.posters3d, value=plex.posters3d) }}
+                                            {{ wtf.form_field(form.mini3d, value=plex.mini3d) }}
+                                            {{ wtf.form_field(form.hide4k, value=plex.hide4k) }}
+                                            {{ wtf.form_field(form.transcode, value=plex.transcode) }}
+                                            {{ wtf.form_field(form.disney, value=plex.disney) }}
+                                            {{ wtf.form_field(form.pixar, value=plex.pixar) }}
+                                            {{ wtf.form_field(form.submit, button_map={'submit':'success'}) }}
+                                  </form>
+                              </div>
+                            
+                          </div>
+                      </div>
+                </div>
+            </div>
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; jkirkcaldy 2021</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body> 
+<script>
+    $(document).ready(function(){
+        $(".nav-tabs a").click(function(){
+            $(this).tab('show');
+        });
+        $('.nav-tabs a').on('shown.bs.tab', function(event){
+            var x = $(event.target).text();         
+            var y = $(event.relatedTarget).text();  
+            $(".act span").text(x);
+            $(".prev span").text(y);
+        });
+    });
+</script>
+{% endblock %}
