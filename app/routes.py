@@ -8,8 +8,8 @@ from app import app
 from app.forms import AddRecord
 from app.models import Plex
 from time import sleep
-from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters
-from app.scripts import fresh_hdr_posters
+from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters
+
 
 @app.route('/')
 @app.route('/index', methods=["GET"])

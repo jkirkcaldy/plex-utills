@@ -9,4 +9,3 @@
 #fi
 #
 exec gunicorn -w 4 --bind 0.0.0.0:5000 plex-utills:app
-#config_check.py

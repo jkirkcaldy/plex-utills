@@ -5,7 +5,7 @@ RUN apt update && apt install ffmpeg -y
 WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt
-#VOLUME [ "/films" ]
+VOLUME [ "/films" ]
 VOLUME [ "/config" ]
 EXPOSE 5000
 #workdir /config

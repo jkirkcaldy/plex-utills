@@ -13,3 +13,4 @@ flask_apscheduler
 flask_wtf
 wtforms
 gunicorn
+tmdbv3api

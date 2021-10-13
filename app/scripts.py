@@ -14,6 +14,8 @@ from tmdbv3api import TMDb, Search
 
 
 
+
+
 logger = logging.getLogger('Plex-Utills')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler("app/logs/log.log")
@@ -49,11 +51,10 @@ def setup_helper():
             conn.commit()
             c.close()
             logger.info("Setup Helper: Your plexpath has been changed to "+plexpath)
+            
         except OSError as e:
             if e.errno == 111: 
                 logger.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
-
-        
 
     def table_check():
         database = os.path.exists('app/app.db')

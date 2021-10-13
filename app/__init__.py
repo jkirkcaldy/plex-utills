@@ -2,11 +2,13 @@ from flask import Flask
 from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import setup_helper, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters
+from app.scripts import posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
 import logging
+import shutil
+from plexapi.server import PlexServer
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -49,7 +51,42 @@ def update_scheduler():
     scheduler.add_job('pixar', func=pixar, trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
     logger.info("Pixar Collection schedule created for "+ t3)
 
+def setup_helper():
+    def create_table():
+        shutil.copy('app/static/default_db/default_app.db', 'app/app.db')
+    def continue_setup():
+        conn = sqlite3.connect('app/app.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM plex_utills")
+        config = c.fetchall()
+    
+        logger.info("Setup Helper: Going though the setup helper.")
+    
+        
+        
+        try:
+            plex = PlexServer(config[0][1], config[0][2])
+            films = plex.library.section(config[0][3])
+            media_location = films.search()
+            filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
+            plexpath = '/'+filepath.split('/')[1]
+    
+            c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
+            conn.commit()
+            c.close()
+            logger.info("Setup Helper: Your plexpath has been changed to "+plexpath)
+            
+        except OSError as e:
+            if e.errno == 111: 
+                logger.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
 
+    def table_check():
+        database = os.path.exists('app/app.db')
+        if database == True:
+            continue_setup()
+        else:
+            create_table()
+    table_check()
 SCHEDULER_API_ENABLED = True
 
 class Plex_utills(Flask):
@@ -64,6 +101,7 @@ app = Plex_utills(__name__)
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
+setup_helper()
 update_scheduler()
 if __name__ == "__main__":
   app.run()
