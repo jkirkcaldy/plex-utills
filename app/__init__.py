@@ -107,7 +107,7 @@ if __name__ == "__main__":
   app.run()
 
 
-app.secret_key = os.urandom(42)
+app.secret_key = '_3:WBH)qdY2WDe-_/h9r6)BD(Mp$SX' #os.urandom(42)
 
 
 Bootstrap(app)
