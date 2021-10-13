@@ -233,7 +233,7 @@ def posters4k():
             if hash0 - hash4 < cutoff:
                 logger.info(i.title+" has old hdr banner")
                 for a in i:
-                    newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+                    newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
                     backup = os.path.exists(newdir+'poster_bak.png') 
                     if backup == True:
                         poster = newdir+'poster_bak.png'
@@ -265,7 +265,7 @@ def posters4k():
                             continue
                         
         def get_poster():
-            newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png')
             imgurl = i.posterUrl
             img = requests.get(imgurl, stream=True)
@@ -316,7 +316,7 @@ def posters4k():
             else:
                 logger.warning("4k Posters: "+films.title+ 'cannot find the poster for this film')
         def get_TVposter():   
-            newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png')
             imgurl = i.posterUrl
             img = requests.get(imgurl, stream=True)
@@ -489,7 +489,7 @@ def posters3d():
             i.uploadPoster(filepath="poster.png")        
 
         def get_poster():
-            newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png')
             imgurl = i.posterUrl
             img = requests.get(imgurl, stream=True)
@@ -547,7 +547,7 @@ def restore_posters():
         logger.info("RESTORE: restoring posters from TMDB")
     for i in films.search():  
         if config[0][26] == 0:
-            newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png') 
             if backup == True:
                 poster = newdir+'poster_bak.png'
@@ -795,7 +795,7 @@ def fresh_hdr_posters():
     for i in films.search(hdr='true'):  
         if config[0][26] == 0:
             # Try to restore from local posters first. If they don't exist, restore from TMDB
-            newdir = os.path.dirname(re.sub(config[0][5], '/mnt/plex', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png') 
             if backup == True:
                 poster = newdir+'poster_bak.png'
