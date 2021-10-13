@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+    plex-utills:
+        image: jkirkcaldy/plex-utills
+        container_name: plex-utills
+        restart: unless-stopped
+        volumes: 
+            - <your Plex media directory>:/films
+            - <your config location>:/config
+        environment: 
+            - TZ=Europe/London

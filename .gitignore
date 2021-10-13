@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# dev config files
+dev_config.ini
+.config.ini
+config.ini
+*/app.db
+
+poster.png
