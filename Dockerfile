@@ -1,7 +1,7 @@
 FROM python:3.9.6-slim
 LABEL author="Jkirkcaldy"
 
-RUN apt update && apt install ffmpeg -y
+RUN apt update && apt install mediainfo -y
 WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt
