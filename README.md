@@ -107,10 +107,6 @@ In a browser go to http://<your_unraid_ip>:5000
 ****
 For a docker on any other system, run 
 
-`docker run -d -p 5000:5000 -v <your/plex/media>:/films -v <mount/your/logs>:/logs -e TZ=Europe/london -e PUID=1000 -e PGUI=1000 jkirkcaldy/plex-utills`
-
-If you want to migrate from the old config file, simply mount your your config as you did before:
-
 `docker run -d -p 5000:5000 -v <your/plex/media>:/films -v <mount/your/logs>:/logs -v <your/config>:/config -e TZ=Europe/london -e PUID=1000 -e PGUI=1000 jkirkcaldy/plex-utills`
 
-Once done visit http://<your_ip>:5000 to continue. 
+From there go to http://<your_ip>:5000 to continue

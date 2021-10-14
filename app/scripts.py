@@ -27,46 +27,10 @@ tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2'
 search = Search()
 
-def setup_helper():
-    def create_table():
-        shutil.copy('app/static/default_db/default_app.db', 'app/app.db')
-    def continue_setup():
-        conn = sqlite3.connect('app/app.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM plex_utills")
-        config = c.fetchall()
-    
-        logger.info("Setup Helper: Going though the setup helper.")
-    
-        
-        
-        try:
-            plex = PlexServer(config[0][1], config[0][2])
-            films = plex.library.section(config[0][3])
-            media_location = films.search()
-            filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-            plexpath = '/'+filepath.split('/')[1]
-    
-            c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
-            conn.commit()
-            c.close()
-            logger.info("Setup Helper: Your plexpath has been changed to "+plexpath)
-            
-        except OSError as e:
-            if e.errno == 111: 
-                logger.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
-
-    def table_check():
-        database = os.path.exists('app/app.db')
-        if database == True:
-            continue_setup()
-        else:
-            create_table()
-    table_check()
 
 def posters4k():
     
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -420,7 +384,7 @@ def posters4k():
     logger.info("4k Posters: 4K/HDR Poster Script has finished.")
 
 def posters3d(): 
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -524,7 +488,7 @@ def posters3d():
         logger.info("3D Posters: 3D Poster Script has finished.")
 
 def restore_posters():
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -571,7 +535,7 @@ def restore_posters():
                 continue
 
 def pixar():
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -593,7 +557,7 @@ def pixar():
         logger.info("Collections: Pixar Script has finished.")
 
 def disney():
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -615,7 +579,7 @@ def disney():
         logger.info("Collections: Disney Script has finished.")
 
 def hide4k():
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
@@ -651,7 +615,7 @@ def hide4k():
 def migrate():
     from configparser import ConfigParser
     config_object = ConfigParser()
-    config_object.read("config/config.ini")
+    config_object.read("/config/config.ini")
     server = config_object["PLEXSERVER"]
     schedules = config_object["SCHEDULES"]
     options = config_object["OPTIONS"]
@@ -731,7 +695,7 @@ def migrate():
     else:
         pixar = 0
     
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     
     def update_config(conn, old_config):
         
@@ -775,7 +739,7 @@ def migrate():
     conn.close()
 
 def fresh_hdr_posters():
-    conn = sqlite3.connect('app/app.db')
+    conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()

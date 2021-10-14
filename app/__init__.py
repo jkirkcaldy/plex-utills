@@ -19,7 +19,7 @@ logger.addHandler(handler)
 
 def update_scheduler():
   scheduler.remove_all_jobs()
-  conn = sqlite3.connect('app/app.db')
+  conn = sqlite3.connect('/config/app.db')
   c = conn.cursor()
   c.execute("SELECT * FROM plex_utills")
   config = c.fetchall()
@@ -48,9 +48,9 @@ def update_scheduler():
 def setup_helper():
     scheduler.remove_all_jobs()
     def create_table():
-        shutil.copy('app/static/default_db/default_app.db', 'app/app.db')
+        shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
     def continue_setup():
-        conn = sqlite3.connect('app/app.db')
+        conn = sqlite3.connect('/config/app.db')
         c = conn.cursor()
         c.execute("SELECT * FROM plex_utills")
         config = c.fetchall()
@@ -76,7 +76,7 @@ def setup_helper():
                 logger.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
 
     def table_check():
-        database = os.path.exists('app/app.db')
+        database = os.path.exists('/config/app.db')
         if database == True:
             continue_setup()
         else:
@@ -106,7 +106,7 @@ app.secret_key = '_3:WBH)qdY2WDe-_/h9r6)BD(Mp$SX' #os.urandom(42)
 
 
 Bootstrap(app)
-db_name = 'app.db'
+db_name = '/config/app.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
