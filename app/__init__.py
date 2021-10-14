@@ -11,19 +11,13 @@ import shutil
 from plexapi.server import PlexServer
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler("app/logs/application_log.log")
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler("/logs/application_log.log")
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler) 
 
 def update_scheduler():
-  logger = logging.getLogger('Scheduler')
-  logger.setLevel(logging.DEBUG)
-  handler = logging.FileHandler("app/logs/log.log")
-  formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-  handler.setFormatter(formatter)
-  logger.addHandler(handler)
   scheduler.remove_all_jobs()
   conn = sqlite3.connect('app/app.db')
   c = conn.cursor()
@@ -52,6 +46,7 @@ def update_scheduler():
     logger.info("Pixar Collection schedule created for "+ t3)
 
 def setup_helper():
+    scheduler.remove_all_jobs()
     def create_table():
         shutil.copy('app/static/default_db/default_app.db', 'app/app.db')
     def continue_setup():

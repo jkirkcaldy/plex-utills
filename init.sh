@@ -8,4 +8,4 @@
 #    echo "copied files"
 #fi
 #
-exec gunicorn -w 4 --bind 0.0.0.0:5000 plex-utills:app
+exec gunicorn -w 4 --bind 0.0.0.0:5000 --timeout 300000 plex-utills:app

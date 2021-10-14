@@ -14,4 +14,4 @@ flask_wtf
 wtforms
 gunicorn
 tmdbv3api
-mediainfo
+pymediainfo

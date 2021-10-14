@@ -1,12 +1,13 @@
-FROM python:3.9.6-slim
+FROM python:3.9.6-slim-bullseye
 LABEL author="Jkirkcaldy"
 
-RUN apt update && apt install mediainfo -y
+RUN apt update && apt install mediainfo nano -y
 WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt
 VOLUME [ "/films" ]
 VOLUME [ "/config" ]
+VOLUME [ "/logs" ]
 EXPOSE 5000
-#workdir /config
-CMD /bin/bash ./init.sh
+
+ENTRYPOINT ["/bin/bash", "/app/init.sh"]

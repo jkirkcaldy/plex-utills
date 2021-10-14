@@ -17,7 +17,7 @@ class AddRecord(FlaskForm):
     t3 = StringField('Pixar Collection Schedule (HH:MM)', [Regexp(r"[0-2][0-9]:[0-5][0-9]", message="Must be entered as HH:MM in 24 hour format")])
     t4 = StringField('Hide 4k Schedule (HH:MM)', [Regexp(r"[0-2][0-9]:[0-5][0-9]", message="Must be entered as HH:MM in 24 hour format")])
     backup = SelectField('Enable Poster Backups ', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
-    restore_from_tmdb = SelectField('Enable restoration of posters from TheMoviedb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
+    restore_from_tmdb = SelectField('Restore from TMDb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     tmdb_api = StringField("Your TMDB API key, set to none if you don't wish to use the TMDb restore feature")
     posters4k = SelectField('Enable the global 4K Poster script ', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     films4kposters = SelectField('Enable 4K Posters For Films', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])

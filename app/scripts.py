@@ -11,14 +11,14 @@ import imagehash
 import logging
 import sqlite3
 from tmdbv3api import TMDb, Search
-
-
+from pymediainfo import MediaInfo
+import json
 
 
 
 logger = logging.getLogger('Plex-Utills')
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler("app/logs/log.log")
+handler = logging.FileHandler("/logs/script_log.log")
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -159,57 +159,50 @@ def posters4k():
             hash3 = imagehash.average_hash(chk_hdr10)
             hash4 = imagehash.average_hash(chk_hdr)
             cutoff= 10
-            name = str.lower(i.media[0].parts[0].file)
 
-            if "dolby" and "vision" in name:
-                if hash0 - hash2 < cutoff:
-                    logger.info("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
-                else:
-                    logger.info("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
-                    background.paste(banner_dv, (0, 0), banner_dv)
-                    background.save('poster.png')
-                    i.uploadPoster(filepath="poster.png")
-            elif "hdr10" in name:
-                if hash0 - hash3 < cutoff:
-                    logger.info("HDR Banner: "+i.title+" hdr10 banner exists")
-                else:
-                    logger.info("HDR Banner: "+i.title+" adding HDR 10 banner now")
-                    background.paste(banner_hdr10, (0, 0), banner_hdr10)
-                    background.save('poster.png')
-                    i.uploadPoster(filepath="poster.png")
+            if hash0 - hash2 < cutoff:
+                logger.info("HDR Banner: "+i.title+" dolby-vision banner exists moving on")
+            elif hash0 - hash3 < cutoff:
+                logger.info("HDR Banner: "+i.title+" HDR10+ banner exists moving on")
+            elif hash0 - hash1 < cutoff:
+                logger.info("HDR Banner: "+i.title+" hdr banner exists moving on")
             else:
-                if hash0 - hash1 < cutoff:
-                    logger.info("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
+                file = re.sub(config[0][5], '/films', i.media[0].parts[0].file)          
+                m = MediaInfo.parse(file, output='JSON')
+                x = json.loads(m)
+                try:
+                    hdr_version = str.lower(x['media']['track'][1]['HDR_Format_Commercial'])
+                except KeyError:
+                    try:
+                        hdr_version = str.lower(x['media']['track'][1]['Format_Commercial_IfAny'])
+                    except KeyError:
+                        logger.info(i.title+" Can't find HDR Version")
+                        hdr_version = 'standard'
+                if "dolby" and "vision" in hdr_version:
+                    #if hash0 - hash2 < cutoff:
+                    #    logger.info("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
+                    #else:
+                        logger.info("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
+                        background.paste(banner_dv, (0, 0), banner_dv)
+                        background.save('poster.png')
+                        i.uploadPoster(filepath="poster.png")
+                elif "hdr10+" in hdr_version:
+                    #if hash0 - hash3 < cutoff:
+                    #    logger.info("HDR Banner: "+i.title+" hdr10 banner exists")
+                    #else:
+                        logger.info("HDR Banner: "+i.title+" adding HDR 10 banner now")
+                        background.paste(banner_hdr10, (0, 0), banner_hdr10)
+                        background.save('poster.png')
+                        i.uploadPoster(filepath="poster.png")
                 else:
-                    logger.info("HDR Banner: "+i.title+" adding hdr banner now")
-                    background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
-                    background.save('poster.png')
-                    i.uploadPoster(filepath="poster.png")            
+                    #if hash0 - hash1 < cutoff:
+                    #    logger.info("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
+                    #else:
+                        logger.info("HDR Banner: "+i.title+" adding hdr banner now")
+                        background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
+                        background.save('poster.png')
+                        i.uploadPoster(filepath="poster.png")            
 
-                    if "dolby" and "vision" in name:
-                        if hash0 - hash2 < cutoff:
-                            logger.info("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
-                        else:
-                            logger.info("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
-                            background.paste(banner_dv, (0, 0), banner_dv)
-                            background.save('poster.png')
-                            i.uploadPoster(filepath="poster.png")
-                    elif "hdr10" in name:
-                        if hash0 - hash3 < cutoff:
-                            logger.info("HDR Banner: "+i.title+" hdr10 banner exists")
-                        else:
-                            logger.info("HDR Banner: "+i.title+" adding HDR 10 banner now")
-                            background.paste(banner_hdr10, (0, 0), banner_hdr10)
-                            background.save('poster.png')
-                            i.uploadPoster(filepath="poster.png")
-                    else:
-                        if hash0 - hash1 < cutoff:
-                            logger.info("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
-                        else:
-                            logger.info("HDR Banner: "+i.title+" adding hdr banner now")
-                            background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
-                            background.save('poster.png')
-                            i.uploadPoster(filepath="poster.png")            
         def add_hdr():
             background = Image.open('poster.png')
             background = background.resize(size,Image.ANTIALIAS)
@@ -391,12 +384,6 @@ def posters4k():
     if config[0][24] == 1 and config[0][3] != 'None':
         films = plex.library.section(config[0][3])
         if config[0][15] == 1:
-            for i in films.search(resolution="4k", hdr=False):
-                try:
-                    poster_4k()
-                except FileNotFoundError:
-                    logger.error("4k Posters: "+films.title+" The 4k poster for this film could not be created.")
-                    continue    
             for i in films.search(resolution="4k", hdr=True):
                 try:
                     poster_4k_hdr()
@@ -409,6 +396,12 @@ def posters4k():
                 except FileNotFoundError:
                     logger.error("4k Posters: "+films.title+" The HDR poster for this film could not be created.")
                     continue
+            for i in films.search(resolution="4k", hdr=False):
+                try:
+                    poster_4k()
+                except FileNotFoundError:
+                    logger.error("4k Posters: "+films.title+" The 4k poster for this film could not be created.")
+                    continue                    
         else:
             logger.info('4k Posters: Creating 4K posters only')
             for i in films.search(resolution="4k"):
@@ -798,13 +791,14 @@ def fresh_hdr_posters():
             newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png') 
             if backup == True:
+                logger.info(i.title+" Restored from Local Files")
                 poster = newdir+'poster_bak.png'
-                logger.info(i.title+ ' Restored')
                 i.uploadPoster(filepath=poster)
                 os.remove(poster)
+                
             else:
                 tmdb_search = search.movies({"query": i.title, "year": i.year})
-                logger.info(i.title)
+                logger.info(i.title+" Restoring from TMDb")
                 def get_poster_link():
                     for r in tmdb_search:
                         poster = r.poster_path
@@ -825,7 +819,6 @@ def fresh_hdr_posters():
                     continue
         elif config[0][26] == 1:
             tmdb_search = search.movies({"query": i.title, "year": i.year})
-            logger.info(i.title)
             def get_poster_link():
                 for r in tmdb_search:
                     poster = r.poster_path
@@ -844,6 +837,7 @@ def fresh_hdr_posters():
             except TypeError:
                 logger.warning("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
                 continue
+
     posters4k()
 
     

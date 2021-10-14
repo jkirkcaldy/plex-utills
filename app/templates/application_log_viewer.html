@@ -88,36 +88,43 @@ Plex-Utills
                     
                     <!-- ENTER your content here -->
                     
-        			<div class="container">
-        				<div class="row pb-5">
-        				  <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+ 
+                    <div class="container">
+                            
+                    </div>                 
+                        <div>
+                            <h2 align="center">Log file Output:</h2>
+                            <div class="logging_window" id='logging_window'>
+                            
+                            
+                              <pre id="output"></pre>
+                            
+                            </div>
+                        </div>
+                        <script>
+
+
+                            var output = document.getElementById('output');
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', "{{ url_for('stream') }}");
+                            xhr.send();
                         
-        					  <h1 class="pt-5 pb-2">Database Result</h1>
-                        
-        				  {% if message %}
-                        
-        					  <!-- the form was submitted and message exists -->
-        					  <p class="lead"><strong>{{ message }}</strong></p>
-                        
-        				  {% else %}
-                        
-        					  <p class="lead">There is nothing for you here.</p>
-                        
-        				  {% endif %}
-                        
-        					  <!-- links -->
-        					  <p><a href="{{ url_for('config') }}">Return to the config page.</a></p>
-                              <p><a href="{{ url_for('index') }}">Return home.</a></p>
-                        
-                        
-        					  </div>
-        				  </div>
-        			  </div>
-                  
+                            setInterval(function() {
+                                output.textContent = xhr.responseText;
+                            }, 1000);
+                              
+                            setInterval(function updateScroll(){
+                                var element = document.getElementById("logging_window");
+                                element.scrollTop = element.scrollHeight;
+                            }, 1000);
+                        </script>
+
+                            
+
                     <!--END of your content-->
-                  
-                    </div>  
-                  
+                    
+                    </div>                      
+                    
                 </div>
                 <footer class="sticky-footer bg-white">
                     <div class="container my-auto">
@@ -130,16 +137,4 @@ Plex-Utills
         </div>
     </div>
 </body>
-
-
-</script> 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript">
-            function schedule_updater() {
-                qr=new XMLHttpRequest();
-                qr.open('get', "/update_schedules");
-                qr.send
-            }
-            window.onload = schedule_updater
-    </script>
 {% endblock %}

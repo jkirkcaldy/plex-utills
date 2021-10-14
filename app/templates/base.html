@@ -56,20 +56,26 @@ Plex-Utills
                     <span>Scripts</span></a>
               </li>        
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('run')  }}">
+                <a class="nav-link" href="{{ url_for('script_logs')  }}">
                     <i class="fas fa-fw fa-home"></i>
                     <span>Logs</span></a>
-              </li> 
+              </li>               
               <hr class="sidebar-divider">
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('run_migrate')  }}">
                     <i class="fas fa-fw fa-home"></i>
                     <span>Migrate Config</span></a>
-              </li> 
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
                     <i class="fas fa-fw fa-home"></i>
                     <span>Recreate HDR Banners</span></a>
+              </li>  
+              <hr class="sidebar-divider">              
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('application_logs')  }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>System Logs</span></a>
               </li> 
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">

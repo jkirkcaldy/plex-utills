@@ -21,9 +21,9 @@ def index():
 def run_scripts():
     return render_template('scripts.html', pagetitle='Scripts')
 
-@app.route('/run')
-def run():
-    return render_template('run.html')
+
+
+
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():   
@@ -62,15 +62,31 @@ def start_migrate():
     message = 'The database has been migrated, please go to the config page to double check your config has migrated correctly.'
     return render_template('result.html', message=message, pagetitle='Config migrated')
 
-
-@app.route("/log_stream", methods=["GET"])
-def stream():
-    def generate():
-        with open('app/logs/log.log') as f:
+@app.route('/view_script_logs')
+def script_logs():
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
+@app.route("/script_log_stream", methods=["GET"])
+def script_stream():
+    def script_generate():
+        with open('/logs/script_log.log') as f:
             while True:
                 yield f.read()
                 sleep(0.1) 
-    return app.response_class(generate(), mimetype='text/plain')  
+    return app.response_class(script_generate(), mimetype='text/plain')  
+@app.route('/view_application_logs')
+def application_logs():
+    return render_template('application_log_viewer.html', pagetitle='Applciation Logs')
+@app.route("/application_log_stream", methods=["GET"])
+def stream():
+    def generate():
+        with open('/logs/application_log.log') as f:
+            while True:
+                yield f.read()
+                sleep(0.1) 
+    return app.response_class(generate(), mimetype='text/plain') 
+
+
+
 @app.route("/update_schedules", methods=['GET'])
 def update_schedules():
     return update_scheduler()
