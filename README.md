@@ -10,7 +10,7 @@ There is an option to automatically migrate your old config files into the new u
 
 New HDR banners along with a script to migrate from the old banners to the new ones should you wish to use them. You can stick with the old banners if you would like. 
 
-The new scripts us TheMoviedb for finidng posters and metadata, so for maximum compatability and fewer issues, these work best when using TheMoviedb as your metadata agent. Trhoughout my testing, it is only sequals that were giving me issues, as the Plex scanner will name your films like: 
+The new scripts us TheMoviedb for finidng posters and metadata, so for maximum compatability and fewer issues, these work best when using TheMoviedb as your metadata agent. Throughout my testing, it is only sequals that were giving me issues, as the Plex scanner will name your films like: 
 
 Boss Baby 2: Family Business
 
