@@ -1,11 +1,15 @@
-FROM python:3.9.6-slim
+FROM tiangolo/uwsgi-nginx-flask:python3.9
 LABEL author="Jkirkcaldy"
 
-RUN apt update && apt install ffmpeg -y
+RUN apt update && apt install mediainfo nano -y
 WORKDIR /app
+
+ENV STATIC_PATH /app/app/static
 COPY . .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 VOLUME [ "/films" ]
 VOLUME [ "/config" ]
-#workdir /config
-CMD /bin/bash ./init.sh
+VOLUME [ "/logs" ]
+EXPOSE 5000
+
+

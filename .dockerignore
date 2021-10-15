@@ -6,3 +6,6 @@ README.md
 LICENSE
 .vscode
 .config.ini
+config.ini
+app.db
+*.log

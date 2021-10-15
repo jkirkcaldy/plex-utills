@@ -89,7 +89,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+plex_utills_venv/
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -104,8 +104,9 @@ venv.bak/
 .mypy_cache/
 
 # dev config files
-dev_confiog.ini
-
-.vscode
+dev_config.ini
 .config.ini
-logo.svg
+config.ini
+*/app.db
+
+poster.png
