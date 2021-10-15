@@ -10,7 +10,6 @@ from app.models import Plex
 from time import sleep
 from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters
 
-
 @app.route('/')
 @app.route('/index', methods=["GET"])
 def index():
@@ -65,6 +64,8 @@ def start_migrate():
 @app.route('/view_script_logs')
 def script_logs():
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
+
+
 @app.route("/script_log_stream", methods=["GET"])
 def script_stream():
     def script_generate():
@@ -73,6 +74,9 @@ def script_stream():
                 yield f.read()
                 sleep(0.1) 
     return app.response_class(script_generate(), mimetype='text/plain')  
+
+
+
 @app.route('/view_application_logs')
 def application_logs():
     return render_template('application_log_viewer.html', pagetitle='Applciation Logs')
