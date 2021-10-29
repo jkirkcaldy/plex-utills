@@ -393,7 +393,7 @@ def posters4k():
                     logger.error("4k Posters: "+tv.title+" The 4k poster for this episode could not be created")          
         logger.info('4K/HDR Posters script has finished')
     else:
-        logger.warning("4k Posters: 4K/HDR Poster Script has finished.")
+        logger.warning("4K/HDR Posters is disabled in the config so it will not run.")
 
 def posters3d(): 
     conn = sqlite3.connect('/config/app.db')
