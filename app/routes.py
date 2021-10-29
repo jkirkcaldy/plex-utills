@@ -8,7 +8,11 @@ from app import app
 from app.forms import AddRecord
 from app.models import Plex
 from time import sleep
-from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters
+from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters, setup_logger
+
+setup_logger('SYS', r"/logs/application_log.log")
+log = logging.getLogger('SYS')
+
 
 
 @app.route('/')
@@ -26,36 +30,45 @@ def run_scripts():
 
 
 @app.route('/posters4k', methods=['GET'])
-def run_posters4k():   
-    return posters4k()
+def run_posters4k():
+    posters4k()   
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
-    return posters3d()
+    posters3d()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/hide4k', methods=['GET'])
 def run_hide4k():   
-    return hide4k()
+    hide4k()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/disney', methods=['GET'])
 def run_disney():   
-    return disney()
+    disney()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/pixar', methods=['GET'])
 def run_pixar():   
-    return pixar()
+    pixar()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/restore', methods=['GET'])
 def run_restore():   
-    return restore_posters()
-
-@app.route('/recreate_hdr', methods=['GET'])
+    restore_posters()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
+    
+@app.route('/recreate_hdr')
 def run_recreate_hdr():   
     return render_template("/recreate_hdr.html", pagetitle='Recreate HDR Posters')
 
-@app.route('/recreate_hdr_script', methods=['GET'])
+@app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
-    return fresh_hdr_posters()
+    fresh_hdr_posters()
+    message = 'Recreate HDR Poster script has been called, check logs for more details'
+    return render_template('result.html', message=message, pagetitle='Script Running')
 
 
-@app.route('/migrate', methods=['GET', 'POST'])
+@app.route('/migrate')
 def run_migrate():
     return render_template('migrate.html', pagetitle='Config Migration')
+
 @app.route('/start_migrate', methods=['GET', 'POST'])
 def start_migrate():
     migrate()
@@ -75,7 +88,7 @@ def script_stream():
     return app.response_class(script_generate(), mimetype='text/plain')  
 @app.route('/view_application_logs')
 def application_logs():
-    return render_template('application_log_viewer.html', pagetitle='Applciation Logs')
+    return render_template('application_log_viewer.html', pagetitle='Application Logs')
 @app.route("/application_log_stream", methods=["GET"])
 def stream():
     def generate():
@@ -173,3 +186,25 @@ def internal_server_error(e):
     return render_template('error.html', pagetitle="500 Error - Internal Server Error", pageheading="Internal server error (500)", error=e), 500
 
 
+@app.route('/help')
+def help():
+    import sqlite3
+    import os
+    from plexapi.server import PlexServer
+    import re
+    plex = Plex.query.filter(Plex.id == '1').all()
+    
+    conn = sqlite3.connect('/config/app.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM plex_utills")
+    config = c.fetchall()
+
+    plexserver = PlexServer(config[0][1], config[0][2])
+    films = plexserver.library.section(config[0][3])
+    media_location = films.search()
+    filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
+    convertedfilepath = re.sub(config[0][5], '/films', filepath)
+
+    return render_template('help.html', pagetitle='Help', plex=plex, filepath=filepath, convertedfilepath=convertedfilepath, pageheadding='Help')
+
+    

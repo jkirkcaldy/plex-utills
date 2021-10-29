@@ -32,52 +32,52 @@ Plex-Utills
 {% block content %}
 <body id='pagetop'>
     <div id="wrapper">
-        <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index')  }}">
-                <div class="sidebar-brand-icon">
-                    <i class="fas fa-cog"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">Plex-Utills</div>
-            </a>
-            <hr class="sidebar-divider my-0">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('index')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Home</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('config')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Config</span></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('run_scripts')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Scripts</span></a>
-              </li>        
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('script_logs')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Logs</span></a>
-              </li>               
-              <hr class="sidebar-divider">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('run_migrate')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Migrate Config</span></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Recreate HDR Banners</span></a>
-              </li>  
-              <hr class="sidebar-divider">              
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('application_logs')  }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>System Logs</span></a>
-              </li> 
-        </ul>
+    <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index')  }}">
+          <div class="sidebar-brand-icon">
+              <i class="fas fa-cog"></i>
+          </div>
+          <div class="sidebar-brand-text mx-3">Plex-Utills</div>
+      </a>
+      <hr class="sidebar-divider my-0">
+      <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index')  }}">
+              <i class="fas fa-fw fa-home"></i>
+              <span>Home</span></a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('config')  }}">
+              <i class="fas fa-fw fa-cogs"></i>
+              <span>Config</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('run_scripts')  }}">
+              <i class="fas fa-fw fa-play"></i>
+              <span>Scripts</span></a>
+        </li>        
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('script_logs')  }}">
+              <i class="fas fa-fw fa-file"></i>
+              <span>Logs</span></a>
+        </li>               
+        <hr class="sidebar-divider">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('run_migrate')  }}">
+              <i class="fas fa-fw fa-wrench"></i>
+              <span>Migrate Config</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
+              <i class="fas fa-fw fa-film"></i>
+              <span>Recreate HDR Banners</span></a>
+        </li>  
+        <hr class="sidebar-divider">              
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('application_logs')  }}">
+              <i class="fas fa-fw fa-file"></i>
+              <span>System Logs</span></a>
+        </li> 
+  </ul>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">

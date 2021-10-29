@@ -47,34 +47,34 @@ Plex-Utills
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for('config')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-cogs"></i>
                 <span>Config</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('run_scripts')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-play"></i>
                 <span>Scripts</span></a>
           </li>        
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('script_logs')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-file"></i>
                 <span>Logs</span></a>
           </li>               
           <hr class="sidebar-divider">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('run_migrate')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-wrench"></i>
                 <span>Migrate Config</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-film"></i>
                 <span>Recreate HDR Banners</span></a>
           </li>  
           <hr class="sidebar-divider">              
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('application_logs')  }}">
-                <i class="fas fa-fw fa-home"></i>
+                <i class="fas fa-fw fa-file"></i>
                 <span>System Logs</span></a>
           </li> 
     </ul>
@@ -92,12 +92,12 @@ Plex-Utills
                         <h6 class="m-0 font-weight-bold text-primary">Recreate HDR Posters</h6>
                     </div>
                 <div class="card-body">
-                    <p><a href="#" class="btn btn-primary btn-icon-split" id="recreate_hdr">
+                    <p><a href="{{ url_for('run_recreate_hdr_script')  }}" class="btn btn-primary btn-icon-split">
                         <span class="icon text-white-50">
                             <i class="fas fa-film"></i>
                         </span>
                         <span class="text">Run Script</span>
-                        </a></p>
+                      </a></p>
                     <p>As there are newly designed HDR banners, this script is here to migrate you from the old banner style to the new.</p>
 
                     <p>The new desings will highlight whether your files are Dolby Vision or HDR10, if neither can be found, it will just label them as HDR.</p>

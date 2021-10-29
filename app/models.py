@@ -9,8 +9,8 @@ class Plex(db.Model):
     token = db.Column(db.String)
     filmslibrary = db.Column(db.String)
     library3d = db.Column(db.String)
-    #plexpath = db.Column(db.String)
-    #mountedpath = db.Column(db.String)
+    plexpath = db.Column(db.String)
+    mountedpath = db.Column(db.String)
     # Schedules
     t1 = db.Column(db.String)
     t2 = db.Column(db.String)
@@ -36,13 +36,13 @@ class Plex(db.Model):
     recreate_hdr = db.Column(db.Integer)
     new_hdr = db.Column(db.Integer)
     
-    def __init__(self, plexurl, token, filmslibrary, library3d, t1, t2, t3, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr):
+    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t3, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr):
         self.plexurl = plexurl
         self.token = token
         self.filmslibrary = filmslibrary
         self.library3d = library3d
-        #self.plexpath = plexpath
-        #self.mountedpath = mountedpath
+        self.plexpath = plexpath
+        self.mountedpath = mountedpath
         self.t1 = t1
         self.t2 = t2
         self.t3 = t3
