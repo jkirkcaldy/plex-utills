@@ -61,9 +61,9 @@ def run_recreate_hdr():
 @app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
     fresh_hdr_posters()
-    message = 'Recreate HDR Poster script has been called, check logs for more details'
-    return render_template('result.html', message=message, pagetitle='Script Running')
-
+    #message = 'Recreate HDR Poster script has been called, check logs for more details'
+    #return render_template('result.html', message=message, pagetitle='Script Running')
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
 
 @app.route('/migrate')
 def run_migrate():
@@ -81,13 +81,13 @@ def script_logs():
 @app.route("/script_log_stream", methods=["GET"])
 def script_stream():
     def script_generate():
-        import chunk
-        with open('/logs/script_log.log', 'rb') as f:
-            while chunk := f.read(1024):
-                yield f.read()
-        #with open('/logs/script_log.log') as f:
-        #    while True:
+        #import chunk
+        #with open('/logs/script_log.log', 'rb') as f:
+        #    while chunk := f.read(1024):
         #        yield f.read()
+        with open('/logs/script_log.log') as f:
+        #    while True:
+            yield f.read()
         #        sleep(0.1) 
     return app.response_class(script_generate(), mimetype='text/plain') 
 

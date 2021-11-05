@@ -12,14 +12,44 @@ import shutil
 from plexapi.server import PlexServer
 
 
-
-
-
-
 setup_logger('SYS', r"/logs/application_log.log")
 log = logging.getLogger('SYS')
 
+def setup_helper():
+  #setup_logger('Setup-Helper', r"/logs/script_log.log")
+  #log = logging.getLogger('Setup-Helper')
+  def create_table():
+      shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
+  def continue_setup():
+      conn = sqlite3.connect('/config/app.db')
+      c = conn.cursor()
+      c.execute("SELECT * FROM plex_utills")
+      config = c.fetchall()
+  
+      try:
+          plex = PlexServer(config[0][1], config[0][2])
+          films = plex.library.section(config[0][3])
+          media_location = films.search()
+          filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
+          plexpath = '/'+filepath.split('/')[1]
+  
+          c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
+          conn.commit()
+          c.close()
+          log.info("Setup Helper: Your plexpath has been changed to "+plexpath)
+          
+      except OSError as e:
+          if e.errno == 111: 
+              log.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
 
+  def table_check():
+      database = os.path.exists('/config/app.db')
+      if database == True:
+          log.info("Setup Helper: Going though the setup helper.")
+          continue_setup()
+      else:
+          create_table()
+  table_check()
 
 def update_scheduler():
   #setup_logger('Scheduler', r"/logs/script_log.log")
@@ -50,45 +80,21 @@ def update_scheduler():
   if config[0][19] == 1:
     scheduler.add_job('pixar', func=pixar, trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
     log.info("Pixar Collection schedule created for "+ t3)
+  try:
+      plex = PlexServer(config[0][1], config[0][2])
+      films = plex.library.section(config[0][3])
+      media_location = films.search()
+      filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
+      plexpath = '/'+filepath.split('/')[1]
+      c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
+      conn.commit()
+      c.close()
+      log.info("Updater: Your plexpath has been changed to "+plexpath)
+      
+  except OSError as e:
+      if e.errno == 111: 
+          log.warning("Updater: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
 
-def setup_helper():
-  #setup_logger('Setup-Helper', r"/logs/script_log.log")
-  #log = logging.getLogger('Setup-Helper')
-  def create_table():
-      shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
-  def continue_setup():
-      conn = sqlite3.connect('/config/app.db')
-      c = conn.cursor()
-      c.execute("SELECT * FROM plex_utills")
-      config = c.fetchall()
-  
-      log.info("Setup Helper: Going though the setup helper.")
-
-
-
-      try:
-          plex = PlexServer(config[0][1], config[0][2])
-          films = plex.library.section(config[0][3])
-          media_location = films.search()
-          filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-          plexpath = '/'+filepath.split('/')[1]
-  
-          c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
-          conn.commit()
-          c.close()
-          log.info("Setup Helper: Your plexpath has been changed to "+plexpath)
-          
-      except OSError as e:
-          if e.errno == 111: 
-              log.warning("Setup Helper: Cannont connect to your plex server, this may be because it is the first run and you haven't changed the config yet.")
-
-  def table_check():
-      database = os.path.exists('/config/app.db')
-      if database == True:
-          continue_setup()
-      else:
-          create_table()
-  table_check()
 SCHEDULER_API_ENABLED = True
 
 class Plex_utills(Flask):
