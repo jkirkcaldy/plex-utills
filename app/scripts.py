@@ -587,7 +587,7 @@ def disney():
         for movie in added:
             try:
                 if "Disney" in movie.studio:
-                    movie.addCollection('Pixar')
+                    movie.addCollection('Disney')
                     logger.info(movie.title+" "+ movie.studio)
             # Skip movie if there is no studio info
             except TypeError:
@@ -595,6 +595,7 @@ def disney():
         logger.info("Collections: Disney Script has finished.")
     else:
         logger.warning('Disney Collections is not enabled in the config so will not run')
+
 def hide4k():
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()

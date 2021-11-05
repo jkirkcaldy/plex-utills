@@ -81,11 +81,18 @@ def script_logs():
 @app.route("/script_log_stream", methods=["GET"])
 def script_stream():
     def script_generate():
-        with open('/logs/script_log.log') as f:
-            while True:
+        import chunk
+        with open('/logs/script_log.log', 'rb') as f:
+            while chunk := f.read(1024):
                 yield f.read()
-                sleep(0.1) 
-    return app.response_class(script_generate(), mimetype='text/plain')  
+        #with open('/logs/script_log.log') as f:
+        #    while True:
+        #        yield f.read()
+        #        sleep(0.1) 
+    return app.response_class(script_generate(), mimetype='text/plain') 
+
+
+
 @app.route('/view_application_logs')
 def application_logs():
     return render_template('application_log_viewer.html', pagetitle='Application Logs')
