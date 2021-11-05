@@ -12,5 +12,5 @@ flask_apscheduler
 flask_wtf
 wtforms
 tmdbv3api
-pymediainfo
 gunicorn
+pymediainfo
