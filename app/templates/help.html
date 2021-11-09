@@ -113,22 +113,10 @@ Plex-Utills
                                   <td>{{ plex.plexpath }}</td>
                               </tr>
                               <tr>
-                                <th scope="row">Plex Library</th>
+                                <th scope="row">Plex-utills Path</th>
                                 <td>{{ plex.filmslibrary }}</td>
                               </tr>
-                              {% endfor %}
-                              <tr>
-                                <th scope="row">Plex Full File Path</th>
-                                <td>{{ filepath }}</td>
-                                <td>This is where your plex server sees your files</td>
-                                
-                              </tr>    
-                              <tr>
-                                <th scope="row">Plex Utills Converted Full File Path</th>
-                                <td>{{ convertedfilepath }}</td>
-                                <td>This is where this container sees your files. It should start with '/films'</td>
-                                
-                              </tr>                          
+                              {% endfor %}                         
                               
                             </table>
                           </div>
@@ -137,14 +125,63 @@ Plex-Utills
                     </div>
                   </div>
 
-                  
+                  <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Posters</h6>
+                    </div>
+                    <div class="card-body">
+                      <p>This will show you if there are any issues with your permissions or file paths</p>
+
+                      <p>This searches for the first 4K film in your library and shows you it's relative filepath. That is the file path that this container sees the file.</p>
+                      <p>The file path where Plex sees the film. </p>
+                      <p>The current poster, and the backup poster, if it exists.</p>
+
+                      <table class="table table-bordered">
+                        <tr>
+                          <th scope="row">Title</th>
+                          <td>{{ filmtitle }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Plex Path</th>
+                            <td>{{ plex_filepath }}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Plex Library</th>
+                          <td>{{ newdir }}</td>
+                        </tr>                        
+                        
+                      </table>
+
+                        <div class='container'>
+                            <div class="row text-center text-lg-start">
+
+                                <div class="col-lg-3 col-md-4 col-6">
+                                    <a class="d-block mb-4 h-auto">
+                                        <h4>Current Poster</h4>
+                                        <img class="img-fluid img-thumbnail" src="/static/img/poster.png" alt="">
+                                    </a>
+                                </div>
+                                <div class="col-lg-3 col-md-4 col-6">
+                                    <a class="d-block mb-4 h-auto">
+                                        <h4>Backup Poster</h4>
+                                        <img class="img-fluid img-thumbnail" src="/static/img/poster_bak.png" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
-              <!--END of your content-->
+                  
               </div>
 
-
+              <!--END of your content-->
           </div>
+
+
+
           <footer class="sticky-footer bg-white">
               <div class="container my-auto">
                   <div class="copyright text-center my-auto">
@@ -153,7 +190,6 @@ Plex-Utills
               </div>
           </footer>
       </div>
-  </div>
   </div>
 </body>
 

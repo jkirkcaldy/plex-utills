@@ -150,25 +150,16 @@ def posters4k():
                             logger.info(i.title+" Can't find HDR Version")
                             hdr_version = 'standard'
                     if "dolby" and "vision" in hdr_version:
-                        #if hash0 - hash2 < cutoff:
-                        #    logger.info("HDR Banner: "+i.title+" dolby-vision poster exists moving on")
-                        #else:
                             logger.info("HDR Banner: "+i.title+" adding dolby-vision hdr banner")
                             background.paste(banner_dv, (0, 0), banner_dv)
                             background.save('poster.png')
                             i.uploadPoster(filepath="poster.png")
                     elif "hdr10+" in hdr_version:
-                        #if hash0 - hash3 < cutoff:
-                        #    logger.info("HDR Banner: "+i.title+" hdr10 banner exists")
-                        #else:
                             logger.info("HDR Banner: "+i.title+" adding HDR 10 banner now")
                             background.paste(banner_hdr10, (0, 0), banner_hdr10)
                             background.save('poster.png')
                             i.uploadPoster(filepath="poster.png")
                     else:
-                        #if hash0 - hash1 < cutoff:
-                        #    logger.info("HDR Banner: "+i.title+' 4k Posters: HDR banner exists, moving on')
-                        #else:
                             logger.info("HDR Banner: "+i.title+" adding hdr banner now")
                             background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
                             background.save('poster.png')
@@ -219,7 +210,6 @@ def posters4k():
                                     with open('poster.png', 'wb') as f:
                                         shutil.copyfileobj(r.raw, f)
                                         i.uploadPoster(filepath='poster.png')
-                                        #os.remove('poster.png')
                                         logger.info(i.title+" Restored from TMDb")
                             try:
                                 poster = get_poster_link()  
@@ -276,7 +266,11 @@ def posters4k():
                                         dest = shutil.copyfile(filename, newdir+'poster_bak.png')
                         else:        
                             logger.info('4k Posters: Creating a backup file')
-                            dest = shutil.copyfile(filename, newdir+'poster_bak.png')
+                            try:
+                                dest = shutil.copyfile(filename, newdir+'poster_bak.png')
+                            except IOError as e:
+                                logger.error(e)
+                                
                 else:
                     logger.warning("4k Posters: "+films.title+ 'cannot find the poster for this film')
             def get_TVposter():   
@@ -364,6 +358,7 @@ def posters4k():
                     except FileNotFoundError as e:
                         logger.error(e)
                         logger.error("4k Posters: "+films.title+" The 4k HDR poster for this film could not be created.")
+                        logger.error("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")
                         continue
                 for i in films.search(resolution="1080,720", hdr=True):
                     try:
@@ -371,6 +366,7 @@ def posters4k():
                     except FileNotFoundError as e:
                         logger.error(e)
                         logger.error("4k Posters: "+films.title+" The HDR poster for this film could not be created.")
+                        logger.error("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")
                         continue
                 for i in films.search(resolution="4k", hdr=False):
                     try:
@@ -378,6 +374,7 @@ def posters4k():
                     except FileNotFoundError as e:
                         logger.error(e)
                         logger.error("4k Posters: "+films.title+" The 4k poster for this film could not be created.")
+                        logger.error("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")
                         continue                    
             else:
                 logger.info('4k Posters: Creating 4K posters only')
@@ -387,6 +384,7 @@ def posters4k():
                     except FileNotFoundError as e:
                         logger.error(e)                        
                         logger.error("4k Posters: "+films.title+" The 4k poster for this film could not be created.")
+                        logger.error("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")
                         continue        
         if config[0][23] == 1 and config[0][22] != 'None':
             tv = plex.library.section(config[0][22])
@@ -395,7 +393,8 @@ def posters4k():
                     posterTV_4k()
                 except FileNotFoundError as e:
                     logger.error(e)
-                    logger.error("4k Posters: "+tv.title+" The 4k poster for this episode could not be created")          
+                    logger.error("4k Posters: "+tv.title+" The 4k poster for this episode could not be created")
+                    logger.error("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")          
         logger.info('4K/HDR Posters script has finished')
     else:
         logger.warning("4K/HDR Posters is disabled in the config so it will not run.")

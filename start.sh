@@ -1,2 +1,4 @@
-#!/bin/bash
-source /venv/bin/activate
+#! /usr/bin/env sh
+set -e
+exec /usr/bin/supervisord
+exec supervisorctl restart all

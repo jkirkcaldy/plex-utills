@@ -16,8 +16,6 @@ setup_logger('SYS', r"/logs/application_log.log")
 log = logging.getLogger('SYS')
 
 def setup_helper():
-  #setup_logger('Setup-Helper', r"/logs/script_log.log")
-  #log = logging.getLogger('Setup-Helper')
   def create_table():
       shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
   def continue_setup():
@@ -52,14 +50,11 @@ def setup_helper():
   table_check()
 
 def update_scheduler():
-  #setup_logger('Scheduler', r"/logs/script_log.log")
-  #log = logging.getLogger('Scheduler')
   scheduler.remove_all_jobs()
   conn = sqlite3.connect('/config/app.db')
   c = conn.cursor()
   c.execute("SELECT * FROM plex_utills")
   config = c.fetchall()
-  c.close()
   t1 = config[0][7]
   t2 = config[0][8]
   t3 = config[0][9]

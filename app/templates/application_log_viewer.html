@@ -82,50 +82,37 @@ Plex-Utills
                 <div id="content">
                     <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                         <h1 class="h1 text-grey-800">{{ pagetitle }}</h1>
-                    
                     </nav>
                     <div class="container-fluid">
                     
-                    <!-- ENTER your content here -->
-                    
- 
-                    <div class="container">
-                            
-                    </div>                 
-                        <div>
-                            <h2 align="center">Log file Output:</h2>
-                            <div class="logging_window" id='logging_window'>
-                            
-                                <script>
-                                    function resizeIframe(obj) {
-                                        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
-                                        }
-                                  </script>
-                                <!-- iframe pulls whole file -->
-                                <iframe src="{{ url_for('stream') }}" id="log_output" frameborder="0" style="overflow:hidden;width:100%" width="100%" frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe>
-                                      <pre id="output"></pre>
-                                    <script>
-                                        setInterval(function(){
-                                                document.getElementById('log_output').contentDocument.location.reload(true)
-                                        }, 1000);
-                                    setInterval(function updateScroll(){
-                                        var element = document.getElementById("logging_window");
-                                        element.scrollTop = element.scrollHeight;
-                                    }, 1000);
-                                    </script>
-                                    </div>
-                                </div>
-                            
-                            </div>
-                        </div>
-                          
+                        <!-- ENTER your content here -->  
+                        <div class="container">
 
-                    <!--END of your content-->
-                    
-                    </div>                      
-                    
+                            <div>                 
+                                <div>
+                                    <h2 align="center">Log file Output:</h2>
+                                    <div class="logging_window" id='logging_window'>
+                                        <pre id="output"></pre>
+                                        <script>
+                                            setInterval(function updateScroll(){
+                                                var element = document.getElementById  ("logging_window");
+                                                element.scrollTop = element.scrollHeight;
+                                            }, 1000);
+                                            setInterval(function read_log(){
+                                                fetch("{{ url_for('stream')  }}")
+                                                .then(x => x.text())
+                                                .then(y => document.getElementById("output").innerHTML = y); 
+                                            }, 1100);
+                                        </script>
+                                    </div>                            
+                                </div>
+                            </div>
+                        </div>                            
+                        <!--END of your content-->                            
+                    </div>
                 </div>
-                <footer class="sticky-footer bg-white">
+            
+                    <footer class="sticky-footer bg-white">
                     <div class="container my-auto">
                         <div class="copyright text-center my-auto">
                             <span>Copyright &copy; jkirkcaldy 2021</span>
@@ -134,6 +121,5 @@ Plex-Utills
                 </footer>
             </div>
         </div>
-    </div>
 </body>
 {% endblock %}

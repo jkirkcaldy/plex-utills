@@ -16,7 +16,7 @@ server {
 
         }
         location /static {
-                alias /home/josh/plex-utills/app/static;
+                alias /app/app/static;
                 expires 30d;
         }
 }

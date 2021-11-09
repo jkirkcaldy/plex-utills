@@ -9,6 +9,9 @@ from app.forms import AddRecord
 from app.models import Plex
 from time import sleep
 from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters, setup_logger
+import threading
+
+
 
 setup_logger('SYS', r"/logs/application_log.log")
 log = logging.getLogger('SYS')
@@ -31,27 +34,27 @@ def run_scripts():
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():
-    posters4k()   
+    threading.Thread(target=posters4k).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
-    posters3d()
+    threading.Thread(target=posters3d).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/hide4k', methods=['GET'])
 def run_hide4k():   
-    hide4k()
+    threading.Thread(target=hide4k).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/disney', methods=['GET'])
 def run_disney():   
-    disney()
+    threading.Thread(target=disney).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/pixar', methods=['GET'])
-def run_pixar():   
-    pixar()
-    return render_template('script_log_viewer.html', pagetitle='Script Logs')
+def run_pixar():
+    threading.Thread(target=pixar).start()
+    return(render_template('script_log_viewer.html', pagetitle='Script Logs'))
 @app.route('/restore', methods=['GET'])
 def run_restore():   
-    restore_posters()
+    threading.Thread(target=restore_posters).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
     
 @app.route('/recreate_hdr')
@@ -60,9 +63,7 @@ def run_recreate_hdr():
 
 @app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
-    fresh_hdr_posters()
-    #message = 'Recreate HDR Poster script has been called, check logs for more details'
-    #return render_template('result.html', message=message, pagetitle='Script Running')
+    threading.Thread(target=fresh_hdr_posters).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 
 @app.route('/migrate')
@@ -81,14 +82,9 @@ def script_logs():
 @app.route("/script_log_stream", methods=["GET"])
 def script_stream():
     def script_generate():
-        #import chunk
-        #with open('/logs/script_log.log', 'rb') as f:
-        #    while chunk := f.read(1024):
-        #        yield f.read()
-        with open('/logs/script_log.log') as f:
-        #    while True:
-            yield f.read()
-        #        sleep(0.1) 
+        with open('/logs/script_log.log', "rb") as f:
+            while chunk := f.read(1024 * 10):
+                yield chunk
     return app.response_class(script_generate(), mimetype='text/plain') 
 
 
@@ -99,10 +95,9 @@ def application_logs():
 @app.route("/application_log_stream", methods=["GET"])
 def stream():
     def generate():
-        with open('/logs/application_log.log') as f:
-            while True:
-                yield f.read()
-                sleep(0.1) 
+        with open('/logs/application_log.log', "rb") as f:
+            while chunk := f.read(1024):
+                yield chunk
     return app.response_class(generate(), mimetype='text/plain') 
 
 
@@ -199,6 +194,8 @@ def help():
     import os
     from plexapi.server import PlexServer
     import re
+    import requests
+    import shutil
     plex = Plex.query.filter(Plex.id == '1').all()
     
     conn = sqlite3.connect('/config/app.db')
@@ -212,6 +209,28 @@ def help():
     filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
     convertedfilepath = re.sub(config[0][5], '/films', filepath)
 
-    return render_template('help.html', pagetitle='Help', plex=plex, filepath=filepath, convertedfilepath=convertedfilepath, pageheadding='Help')
+    
+    def get_poster():
+        newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+        backup = os.path.exists(newdir+'poster_bak.png')
+        imgurl = i.posterUrl
+        img = requests.get(imgurl, stream=True)
+        filename = "poster.png"
+        if img.status_code == 200:
+            img.raw.decode_content = True
+            with open(filename, 'wb') as f:
+                shutil.copyfileobj(img.raw, f) 
+        shutil.copy(filename, './app/static/img/poster.png')
+        if backup == True:
+            poster_bak = os.path.join(newdir+'poster_bak.png')
+            shutil.copy(poster_bak, './app/static/img/poster_bak.png')
+        
+    for i in films.search(resolution='4k'):
+        get_poster()
+        plex_filepath = i.media[0].parts[0].file
+        filmtitle = i.title
+        newdir = re.sub(config[0][5], '/films', i.media[0].parts[0].file)
+        break
+    return render_template('help.html', pagetitle='Help', plex=plex, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, pageheadding='Help')
 
     

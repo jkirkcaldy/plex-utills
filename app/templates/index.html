@@ -109,7 +109,7 @@ Plex-Utills
                                 <td>{{ plex.plexurl }}</td>
                               </tr>
                               <tr>          
-                                <th socpe="row"><a href="#" class="btn btn-primary btn-icon-split" id="posters4k">
+                                <th socpe="row"><a href="{{ url_for('run_posters4k') }}" class="btn btn-primary btn-icon-split" id="posters4k">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
@@ -120,7 +120,7 @@ Plex-Utills
                                 <td style="display:none;">{{ plex.posters4k }}</td>
                               </tr>
                               <tr>
-                                <th socpe="row"><a href="#" class="btn btn-primary btn-icon-split" id="posters3d">
+                                <th socpe="row"><a href="{{ url_for('run_posters3d') }}" class="btn btn-primary btn-icon-split" id="posters3d">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
@@ -131,7 +131,7 @@ Plex-Utills
                                 <td style="display:none;">{{ plex.posters3d }}</td>
                               </tr>
                               <tr>
-                                <th socpe="row"><a href="#" class="btn btn-primary btn-icon-split" id="hide4k">
+                                <th socpe="row"><a href="{{ url_for('run_hide4k') }}" class="btn btn-primary btn-icon-split" id="hide4k">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
@@ -142,7 +142,7 @@ Plex-Utills
                                 <td style="display:none;">{{ plex.hide4k }}</td>
                               </tr>
                               <tr>
-                                <th socpe="row"><a href="#" class="btn btn-primary btn-icon-split" id="disney">
+                                <th socpe="row"><a href="{{ url_for('run_disney') }}" class="btn btn-primary btn-icon-split" id="disney">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
@@ -153,7 +153,7 @@ Plex-Utills
                                 <td style="display:none;">{{ plex.disney }}</td>
                               </tr>
                               <tr>
-                                <th socpe="row"><a href="#" class="btn btn-primary btn-icon-split" id="pixar">
+                                <th socpe="row"><a href="{{ url_for('run_pixar') }}" class="btn btn-primary btn-icon-split" id="pixar">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
@@ -192,61 +192,7 @@ Plex-Utills
                        }
                     window.onload = searchFunction
                     </script> 
-                        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-                        <script type="text/javascript">
-                                $(function() {
-                                  $('a#posters4k').on('click', function(e) {
-                                    e.preventDefault()
-                                    $.getJSON('/posters4k',
-                                        function(data) {
-                                      //do nothing
-                                    });
-                                    return false;
-                                  });
-                                });
-                                $(function() {
-                                  $('a#posters3d').on('click', function(e) {
-                                    e.preventDefault()
-                                    $.getJSON('/posters3d',
-                                        function(data) {
-                                      //do nothing
-                                    });
-                                    return false;
-                                  });
-                                });
-                                $(function() {
-                                  $('a#hide4k').on('click', function(e) {
-                                    e.preventDefault()
-                                    $.getJSON('/hide4k',
-                                        function(data) {
-                                      //do nothing
-                                    });
-                                    return false;
-                                  });
-                                });
-                                $(function() {
-                                  $('a#disney').on('click', function(e) {
-                                    e.preventDefault()
-                                    $.getJSON('/disney',
-                                        function(data) {
-                                      //do nothing
-                                    });
-                                    return false;
-                                  });
-                                }); 
-                                $(function() {
-                                  $('a#pixar').on('click', function(e) {
-                                    e.preventDefault()
-                                    $.getJSON('/pixar',
-                                        function(data) {
-                                      //do nothing
-                                    });
-                                    return false;
-                                  });
-                                });
-                                
-
-                        </script> 
+                        
                   
                 </div>
 
