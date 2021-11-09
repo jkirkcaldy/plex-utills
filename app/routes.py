@@ -196,18 +196,27 @@ def help():
     import re
     import requests
     import shutil
+    
+    
+    try:
+        os.remove('app/static/img/poster.png')
+        os.remove('app/static/img/poster_bak.png')
+    except FileNotFoundError as e:
+        log.debug(e)
+    
     plex = Plex.query.filter(Plex.id == '1').all()
     
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
     config = c.fetchall()
-
-    plexserver = PlexServer(config[0][1], config[0][2])
-    films = plexserver.library.section(config[0][3])
-    media_location = films.search()
-    filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-    convertedfilepath = re.sub(config[0][5], '/films', filepath)
+    try:
+        plexserver = PlexServer(config[0][1], config[0][2])
+        films = plexserver.library.section(config[0][3])
+    except requests.exceptions.ConnectionError as e:
+        log.error(e)
+        message = "Can not connect to your plex server, please check your config"
+        return render_template('error.html', pagetitle="Error - Connection Error", pageheading="Connection Error", error=e, message=message)
 
     
     def get_poster():
