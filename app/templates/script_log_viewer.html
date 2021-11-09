@@ -47,34 +47,34 @@ Plex-Utills
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('config')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-cogs"></i>
                         <span>Config</span></a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('run_scripts')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-play"></i>
                         <span>Scripts</span></a>
                   </li>        
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('script_logs')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-file"></i>
                         <span>Logs</span></a>
                   </li>               
                   <hr class="sidebar-divider">
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('run_migrate')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-wrench"></i>
                         <span>Migrate Config</span></a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-film"></i>
                         <span>Recreate HDR Banners</span></a>
                   </li>  
                   <hr class="sidebar-divider">              
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('application_logs')  }}">
-                        <i class="fas fa-fw fa-home"></i>
+                        <i class="fas fa-fw fa-file"></i>
                         <span>System Logs</span></a>
                   </li> 
             </ul>
@@ -82,53 +82,37 @@ Plex-Utills
                 <div id="content">
                     <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                         <h1 class="h1 text-grey-800">{{ pagetitle }}</h1>
-                    
                     </nav>
                     <div class="container-fluid">
                     
-                    <!-- ENTER your content here -->
-                    
- 
-                    <div class="container">
-                            
-                    </div>                 
-                        <div>
-                            <h2 align="center">Log file Output:</h2>
-                            <div class="logging_window" id='logging_window'>
-                            
-                            
-                              <pre id="output"></pre>
-                            
+                        <!-- ENTER your content here -->  
+                        <div class="container">
+
+                            <div>                 
+                                <div>
+                                    <h2 align="center">Log file Output:</h2>
+                                    <div class="logging_window" id='logging_window'>
+                                        <pre id="output"></pre>
+                                        <script>
+                                            setInterval(function updateScroll(){
+                                                var element = document.getElementById  ("logging_window");
+                                                element.scrollTop = element.scrollHeight;
+                                            }, 1000);
+                                            setInterval(function read_log(){
+                                                fetch("{{ url_for('script_stream')  }}")
+                                                .then(x => x.text())
+                                                .then(y => document.getElementById("output").innerHTML = y); 
+                                            }, 1100);
+                                        </script>
+                                    </div>                            
+                                </div>
                             </div>
-                        </div>
-
-
-                         <script>
-
-
-                            var output = document.getElementById('output');
-                            var xhr = new XMLHttpRequest();
-                            xhr.open('GET', "{{ url_for('script_stream') }}");
-                            xhr.send();
-                        
-                            setInterval(function() {
-                                output.textContent = xhr.responseText;
-                            }, 1000);
-                              
-                            setInterval(function updateScroll(){
-                                var element = document.getElementById("logging_window");
-                                element.scrollTop = element.scrollHeight;
-                            }, 1000);
-                        </script>
-
- 
-
-                    <!--END of your content-->
-                    
-                    </div>                      
-                    
+                        </div>                            
+                        <!--END of your content-->                            
+                    </div>
                 </div>
-                <footer class="sticky-footer bg-white">
+            
+                    <footer class="sticky-footer bg-white">
                     <div class="container my-auto">
                         <div class="copyright text-center my-auto">
                             <span>Copyright &copy; jkirkcaldy 2021</span>
@@ -137,6 +121,5 @@ Plex-Utills
                 </footer>
             </div>
         </div>
-    </div>
 </body>
 {% endblock %}
