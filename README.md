@@ -99,14 +99,4 @@ As above only with Pixar Films
 
 This update has been designed to run in docker only. 
 
-On Unraid: 
-Install from communtiy apps, mount your plex media and config file location if you wish to use the migrate function. 
-
-In a browser go to http://<your_unraid_ip>:5000
-
-****
-For a docker on any other system, run 
-
-`docker run -d -p 80:80 -v <your/plex/media>:/films -v <mount/your/logs>:/logs -v <your/config>:/config -e TZ=Europe/london -e PUID=1000 -e PGUI=1000 jkirkcaldy/plex-utills`
-
-From there go to http://<your_ip> to continue
+[Click here for installation instructions](https://github.com/jkirkcaldy/plex-utills/wiki)
