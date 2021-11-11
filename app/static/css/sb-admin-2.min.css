@@ -9162,12 +9162,12 @@ body.sidebar-toggled footer.sticky-footer{
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: 60%;
+    width: 80%;
     margin: auto;
     margin-bottom: auto;
     overflow: auto;
     overflow-x: hidden;
-    height: 700px;
+    height: 75%;
     -ms-overflow-style: none;
     scrollbar-width: none;
 

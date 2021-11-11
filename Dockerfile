@@ -1,4 +1,4 @@
-FROM python:3.9-buster
+FROM python:3.9-bullseye
 
 LABEL maintainer="JKirkcaldy"
 
@@ -16,7 +16,6 @@ COPY ./start.sh .
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
-EXPOSE 443
 EXPOSE 5000
 VOLUME [ "/films" ]
 VOLUME [ "/config" ]

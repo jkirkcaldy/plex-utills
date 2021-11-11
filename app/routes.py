@@ -218,6 +218,10 @@ def help():
         message = "Can not connect to your plex server, please check your config"
         return render_template('error.html', pagetitle="Error - Connection Error", pageheading="Connection Error", error=e, message=message)
 
+    imgdir = './app/static/img'
+    imgdir_exists = os.path.exists(imgdir)
+    if imgdir_exists == False:
+        os.mkdir('./app/static/img')
     
     def get_poster():
         newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'

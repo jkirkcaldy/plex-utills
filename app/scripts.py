@@ -14,11 +14,12 @@ import sqlite3
 from tmdbv3api import TMDb, Search
 from pymediainfo import MediaInfo
 import json
+from time import sleep
 
 def setup_logger(logger_name, log_file, level=logging.INFO):
     l = logging.getLogger(logger_name)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
-    fileHandler = RotatingFileHandler(log_file, mode='w', maxBytes=10000, backupCount=5)
+    fileHandler = RotatingFileHandler(log_file, mode='w', maxBytes=100000, backupCount=5)
     fileHandler.setFormatter(formatter)
     streamHandler = logging.StreamHandler()
     streamHandler.setFormatter(formatter)
@@ -270,7 +271,7 @@ def posters4k():
                                 dest = shutil.copyfile(filename, newdir+'poster_bak.png')
                             except IOError as e:
                                 logger.error(e)
-                                
+                    sleep(2)                
                 else:
                     logger.warning("4k Posters: "+films.title+ 'cannot find the poster for this film')
             def get_TVposter():   
@@ -514,25 +515,13 @@ def restore_posters():
 
         
     def continue_restore():
-
         logger.info("Restore-posters: Restore backup posters starting now")
         plex = PlexServer(config[0][1], config[0][2])
         films = plex.library.section(config[0][3])
-        tmdb.api_key = config[0][25]    
-        if config[0][26] == 0:
-            logger.info("RESTORE: restoring posters from local backups")
-        else:
-            logger.info("RESTORE: restoring posters from TMDB")
-        for i in films.search():  
-            if config[0][26] == 0:
-                newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
-                backup = os.path.exists(newdir+'poster_bak.png') 
-                if backup == True:
-                    poster = newdir+'poster_bak.png'
-                    logger.info(i.title+ ' Restored')
-                    i.uploadPoster(filepath=poster)
-                    os.remove(poster)
-            elif config[0][26] == 1:
+        tmdb.api_key = config[0][25]
+        def restore():
+            def restore_tmdb():
+                logger.info("RESTORE: restoring posters from TheMovieDb")
                 tmdb_search = search.movies({"query": i.title, "year": i.year})
                 logger.info(i.title)
                 def get_poster_link():
@@ -549,11 +538,26 @@ def restore_posters():
                             os.remove('tmdb_poster_restore.png')
                 try:
                     poster = get_poster_link()
-
                     get_poster(poster) 
                 except TypeError:
                     logger.warning("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
-                    continue
+                    pass                        
+            
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+            backup = os.path.exists(newdir+'poster_bak.png') 
+            if backup == True:
+                logger.info("RESTORE: restoring posters from Local Backups")
+                poster = newdir+'poster_bak.png'
+                logger.info(i.title+ ' Restored')
+                i.uploadPoster(filepath=poster)
+                os.remove(poster)
+            elif config[0][26] == 1 and backup == False:
+                restore_tmdb()
+
+        for i in films.search(resolution='4k'):
+            restore()
+        for i in films.search(hdr='true'):  
+            restore()          
     def check_connection():
         try:
             plex = PlexServer(config[0][1], config[0][2])
