@@ -10,7 +10,7 @@ There is an option to automatically migrate your old config files into the new u
 
 New HDR banners along with a script to migrate from the old banners to the new ones should you wish to use them. You can stick with the old banners if you would like. 
 
-The new scripts us TheMoviedb for finidng posters and metadata, so for maximum compatability and fewer issues, these work best when using TheMoviedb as your metadata agent. Throughout my testing, it is only sequals that were giving me issues, as the Plex scanner will name your films like: 
+The new scripts us TheMoviedb for finding posters and metadata, so for maximum compatibility and fewer issues, these work best when using TheMoviedb as your metadata agent. Throughout my testing, it is only sequels that were giving me issues, as the Plex scanner will name your films like: 
 
 Boss Baby 2: Family Business
 
@@ -29,7 +29,7 @@ New HDR banner design
 Dolby Vision HDR Banner
 HDR10 Banner
 
-Migration scripts for moving from the old config files to the new datbase and for moving from the old HDR banner to the new designs. 
+Migration scripts for moving from the old config files to the new database and for moving from the old HDR banner to the new designs. 
 
 
 ## Features
@@ -44,7 +44,7 @@ This script will go through your library and add a 4k banner to your posters. Co
 -   enabling HDR banners
 -   Backup your original posters alongside your media
 
-This can be run on both your films library and your TV shows Library. If enabled on your TV shows, a mini 4K banner will be added to each of your 4K epiisodes, not the season posters. This is due to the possibility of having Shows/Seasons with mixed resolutions. TV shows will be done at the same time as film posters.
+This can be run on both your films library and your TV shows Library. If enabled on your TV shows, a mini 4K banner will be added to each of your 4K episodes, not the season posters. This is due to the possibility of having Shows/Seasons with mixed resolutions. TV shows will be done at the same time as film posters.
 
 
 ### 3D Posters
@@ -81,7 +81,7 @@ Available Banners
 
 For those of you who don't separate your 4K and non-4K content into separate libraries. This script will go through your films library and add an "Untranscodable" tag to any of your films that only have a single 4K copy of the film available. By adding this tag to your users restrictions, they simply won't see these 4K films giving your hardware a break.
 
-If your hardware is powerful enough, there is the option to create an optimized version so that your users can play this version. This will send your film to be optimized with the Plex optimize feature baked directly into Plex. This means all the hardwork is done by your plex server, (useful if you're hosting these scripts on a lower powered device.) Once the transcode has finished, the untranscodable tag will be removed the next time the script runs and your users will be able to see the film.
+If your hardware is powerful enough, there is the option to create an optimized version so that your users can play this version. This will send your film to be optimized with the Plex optimize feature baked directly into Plex. This means all the hard work is done by your plex server, (useful if you're hosting these scripts on a lower powered device.) Once the transcode has finished, the untranscodable tag will be removed the next time the script runs and your users will be able to see the film.
 
 ### Disney Collection
 
