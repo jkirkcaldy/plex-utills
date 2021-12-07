@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block main %}
+
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row pb-5">
+                          <div class="col-lg-10 mx-lg-auto">
+                            
+                            <h1 class="pt-5 pb-2">
+                              Plex-Utills
+                            </h1>
+                        
+                        
+                              <p class="lead alert alert-success">Edit your config data.</p>
+                        
+                        
+                                   {% with errors = get_flashed_messages() %}
+                                       {% if errors %}
+                                           {% for err in errors %}
+                                           <div class="alert alert-danger alert-dismissible" role="alert">
+                                               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                               {{ err }}
+                                           </div>
+                                           {% endfor %}
+                                       {% endif %}
+                                   {% endwith %}
+                                   <form method="post" action="{{ url_for('config_options') }}" id="update">
+                                            {{ form.csrf_token }}
+                                            {{ form.id_field(value=plex.id) }}
+                                            <h2>Options</h2>   
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            <h3>Poster Scripts</h3>       
+                                            {{ wtf.form_field(form.posters4k, value=plex.posters4k) }}  
+                                            {{ wtf.form_field(form.audio_posters, value=plex.audio_posters) }}                                                                            
+                                            {{ wtf.form_field(form.films4kposters, value=plex.films4kposters) }}
+                                            {{ wtf.form_field(form.tv4kposters, value=plex.tv4kposters) }}                                            
+                                            {{ wtf.form_field(form.mini4k, value=plex.mini4k) }}
+                                            {{ wtf.form_field(form.hdr, value=plex.hdr ) }}
+                                            {{ wtf.form_field(form.new_hdr, value=plex.new_hdr ) }}
+                                            {{ wtf.form_field(form.recreate_hdr, value=plex.recreate_hdr) }}
+                                            {{ wtf.form_field(form.posters3d, value=plex.posters3d) }}
+                                            {{ wtf.form_field(form.mini3d, value=plex.mini3d) }}
+                                            <h3>Collections</h3>
+                                            {{ wtf.form_field(form.autocollections, value=plex.autocollections) }}
+                                            {{ wtf.form_field(form.tr_r_p_collection, value=plex.tr_r_p_collection) }}
+                                            {{ wtf.form_field(form.disney, value=plex.disney) }}
+                                            {{ wtf.form_field(form.pixar, value=plex.pixar) }}
+                                            {{ wtf.form_field(form.mcu_collection, value=plex.mcu_collection) }}
+                                            {{ wtf.form_field(form.default_poster, value=plex.default_poster) }}
+                                            <h3>Utilities</h3>
+                                            {{ wtf.form_field(form.hide4k, value=plex.hide4k) }}
+                                            {{ wtf.form_field(form.transcode, value=plex.transcode) }}
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            {{ wtf.form_field(form.submit, button_map={'submit':'success'}) }}
+                                            
+                                  </form>
+                              </div>
+                            
+                          </div>
+                      </div>
+
+{% endblock %}
