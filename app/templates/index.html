@@ -1,91 +1,5 @@
-{% extends 'bootstrap/base.html' %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-
-{% block styles %}
-{{ super() }}
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-
-
-    <!-- Custom fonts for this template-->
-    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
-
-
-{% endblock %}
-
-
-{% block title %}
-Plex-Utills
-{% endblock %}
-
-
-{% block content %}
-<body id="page-top">
-  <div id="wrapper">
-    <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index')  }}">
-          <div class="sidebar-brand-icon">
-              <i class="fas fa-cog"></i>
-          </div>
-          <div class="sidebar-brand-text mx-3">Plex-Utills</div>
-      </a>
-      <hr class="sidebar-divider my-0">
-      <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('index')  }}">
-              <i class="fas fa-fw fa-home"></i>
-              <span>Home</span></a>
-      </li>
-      <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('config')  }}">
-              <i class="fas fa-fw fa-cogs"></i>
-              <span>Config</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('run_scripts')  }}">
-              <i class="fas fa-fw fa-play"></i>
-              <span>Scripts</span></a>
-        </li>        
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('script_logs')  }}">
-              <i class="fas fa-fw fa-file"></i>
-              <span>Logs</span></a>
-        </li>               
-        <hr class="sidebar-divider">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('run_migrate')  }}">
-              <i class="fas fa-fw fa-wrench"></i>
-              <span>Migrate Config</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
-              <i class="fas fa-fw fa-film"></i>
-              <span>Recreate HDR Banners</span></a>
-        </li>  
-        <hr class="sidebar-divider">              
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('application_logs')  }}">
-              <i class="fas fa-fw fa-file"></i>
-              <span>System Logs</span></a>
-        </li> 
-  </ul>
-      <div id="content-wrapper" class="d-flex flex-column">
-          <div id="content">
-              <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                  <h1 class="h1 text-grey-800">{{ pagetitle }}</h1>
-
-              </nav>
-              <div class="container-fluid">
-              
+{% extends 'base.html' %}
+{% block main %}
               <!-- ENTER your content here -->
 
 
@@ -98,7 +12,7 @@ Plex-Utills
                       
                       <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Enabled scrpts are shown below:</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Enabled scripts are shown below:</h6>
                         </div>                      
                         <div class="card-body">  
                           <div class="table-responsive">
@@ -142,17 +56,17 @@ Plex-Utills
                                 <td style="display:none;">{{ plex.hide4k }}</td>
                               </tr>
                               <tr>
-                                <th socpe="row"><a href="{{ url_for('run_disney') }}" class="btn btn-primary btn-icon-split" id="disney">
+                                <th socpe="row"><a href="{{ url_for('run_autocollections') }}" class="btn btn-primary btn-icon-split" id="autocollections">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
                                   </span>
-                                  <span class="text">Disney Collection</span>
+                                  <span class="text">Auto Collections</span>
                                   </a>
                                 </th>
                                 <td>{{ plex.t2 }}</td>
-                                <td style="display:none;">{{ plex.disney }}</td>
+                                <td style="display:none;">{{ plex.autocollections }}</td>
                               </tr>
-                              <tr>
+                              <!--<tr>
                                 <th socpe="row"><a href="{{ url_for('run_pixar') }}" class="btn btn-primary btn-icon-split" id="pixar">
                                   <span class="icon text-white-50">
                                       <i class="fas fa-film"></i>
@@ -162,7 +76,7 @@ Plex-Utills
                                 </th>
                                 <td>{{ plex.t3 }}</td>
                                 <td style="display:none;">{{ plex.pixar }}</td>
-                              </tr>
+                              </tr> -->
                               {% endfor %}
                             </table>
                           </div>
@@ -170,47 +84,32 @@ Plex-Utills
                       </div>                      
                     </div>
                   </div>
-                  <script>
 
-                    function searchFunction() {
-                          var input, filter, table, tr, td, i, txtValue;
-                    
-                          filter = "1";
-                          table = document.querySelector(".table");
-                          tr = table.getElementsByTagName("tr");
-                          for (i = 0; i < tr.length; i++) {
-                             td = tr[i].getElementsByTagName("td")[1];
-                             if (td) {
-                                txtValue = td.textContent || td.innerText;
-                                if (txtValue.indexOf(filter) > -1) {
-                                   tr[i].style.display = "";
-                                } else {
-                                   tr[i].style.display = "none";
-                                }
-                             }
-                          }
-                       }
-                    window.onload = searchFunction
-                    </script> 
-                        
-                  
                 </div>
 
               <!--END of your content-->
-              </div>
 
 
-          </div>
-          <footer class="sticky-footer bg-white">
-              <div class="container my-auto">
-                  <div class="copyright text-center my-auto">
-                      <span>Copyright &copy; jkirkcaldy 2021</span>
-                  </div>
-              </div>
-          </footer>
-      </div>
-  </div>
-  </div>
-</body>
+<script>
 
+  function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+  
+        filter = "1";
+        table = document.querySelector(".table");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+           td = tr[i].getElementsByTagName("td")[1];
+           if (td) {
+              txtValue = td.textContent || td.innerText;
+              if (txtValue.indexOf(filter) > -1) {
+                 tr[i].style.display = "";
+              } else {
+                 tr[i].style.display = "none";
+              }
+           }
+        }
+     }
+  window.onload = searchFunction
+  </script>
 {% endblock %}

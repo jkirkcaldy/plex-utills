@@ -14,3 +14,4 @@ wtforms
 tmdbv3api
 gunicorn
 pymediainfo
+tautulli

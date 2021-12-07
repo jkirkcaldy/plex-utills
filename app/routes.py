@@ -5,10 +5,10 @@ from werkzeug.wrappers import response
 
 from app import db
 from app import app
-from app.forms import AddRecord
-from app.models import Plex
+from app.forms import AddRecord_config, AddRecord_config_options
+from app.models import Plex, Dev
 from time import sleep
-from app import update_scheduler, posters4k, posters3d, hide4k, disney, pixar, migrate, restore_posters, fresh_hdr_posters, setup_logger
+from app import update_scheduler, posters4k, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, dev_data, del_dev
 import threading
 
 
@@ -46,11 +46,11 @@ def run_hide4k():
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/disney', methods=['GET'])
 def run_disney():   
-    threading.Thread(target=disney).start()
+    threading.Thread(target=autocollections.disney).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 @app.route('/pixar', methods=['GET'])
 def run_pixar():
-    threading.Thread(target=pixar).start()
+    threading.Thread(target=autocollections.pixar).start()
     return(render_template('script_log_viewer.html', pagetitle='Script Logs'))
 @app.route('/restore', methods=['GET'])
 def run_restore():   
@@ -64,6 +64,11 @@ def run_recreate_hdr():
 @app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
     threading.Thread(target=fresh_hdr_posters).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')
+
+@app.route('/autocollections')
+def run_autocollections():   
+    threading.Thread(target=autocollections).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
 
 @app.route('/migrate')
@@ -110,28 +115,15 @@ def update_schedules():
 def config():
     if request.method=='GET':
         plex = Plex.query.filter(Plex.id == '1').first()
-        form = AddRecord()
+        form = AddRecord_config()
         form.backup.default = plex.backup
         form.restore_from_tmdb.default = plex.tmdb_restore
-        form.posters4k.default = plex.posters4k
-        form.mini4k.default = plex.mini4k
-        form.hdr.default = plex.hdr
-        form.new_hdr.default = plex.new_hdr
-        form.recreate_hdr.default = plex.recreate_hdr
-        form.posters3d.default = plex.posters3d
-        form.tv4kposters.default = plex.tv4kposters
-        form.films4kposters.default = plex.films4kposters
-        form.mini3d.default = plex.mini3d
-        form.hide4k.default = plex.hide4k
-        form.transcode.default = plex.transcode
-        form.pixar.default = plex.pixar
-        form.disney.default = plex.disney
         form.process()
         return render_template('config.html', plex=plex, form=form, pagetitle='Config')
     if request.method=='POST':
         id = request.form['id_field']
         plex = Plex.query.filter(Plex.id == '1').first()
-        form = AddRecord()
+        form = AddRecord_config()
         plex.plexurl = request.form['plexurl']
         plex.token = request.form['token']
         plex.filmslibrary = request.form['filmslibrary']
@@ -140,24 +132,13 @@ def config():
         plex.t1 = request.form['t1']
         plex.t5 = request.form['t5']
         plex.t2 = request.form['t2']
-        plex.t3 = request.form['t3']
+        #plex.t3 = request.form['t3']
         plex.t4 = request.form['t4']
         plex.backup = request.form['backup']
         plex.tmdb_restore = request.form['restore_from_tmdb']
         plex.tmdb_api = request.form['tmdb_api']
-        plex.posters4k = request.form['posters4k']
-        plex.films4kposters = request.form['films4kposters']
-        plex.tv4kposters = request.form['tv4kposters']
-        plex.mini4k = request.form['mini4k']
-        plex.hdr  = request.form['hdr']
-        plex.new_hdr = request.form['new_hdr']
-        plex.recreate_hdr = request.form['recreate_hdr']
-        plex.posters3d = request.form['posters3d']
-        plex.mini3d = request.form['mini3d']
-        plex.hide4k = request.form['hide4k']
-        plex.transcode = request.form['transcode']
-        plex.disney = request.form['disney']
-        plex.pixar = request.form['pixar']
+        plex.tautulli_server = request.form['tautulli_server']
+        plex.tautulli_api = request.form['tautulli_api']
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
@@ -173,7 +154,67 @@ def config():
                     ), 'error')
             return render_template('config.html', plex=plex, form=form, pagetitle='Error')
 
-
+@app.route('/config_options', methods=['POST', 'GET'])
+def config_options():
+    if request.method=='GET':
+        plex = Plex.query.filter(Plex.id == '1').first()
+        form = AddRecord_config_options()
+        form.posters4k.default = plex.posters4k
+        form.mini4k.default = plex.mini4k
+        form.hdr.default = plex.hdr
+        form.new_hdr.default = plex.new_hdr
+        form.recreate_hdr.default = plex.recreate_hdr
+        form.posters3d.default = plex.posters3d
+        form.tv4kposters.default = plex.tv4kposters
+        form.films4kposters.default = plex.films4kposters
+        form.mini3d.default = plex.mini3d
+        form.hide4k.default = plex.hide4k
+        form.transcode.default = plex.transcode
+        form.pixar.default = plex.pixar
+        form.disney.default = plex.disney
+        form.default_poster.default = plex.default_poster
+        form.mcu_collection.default = plex.mcu_collection
+        form.autocollections.default = plex.autocollections
+        form.tr_r_p_collection.default = plex.tr_r_p_collection
+        form.audio_posters.default = plex.audio_posters
+        form.process()
+        return render_template('config_options.html', plex=plex, form=form, pagetitle='Config Options')
+    if request.method=='POST':
+        id = request.form['id_field']
+        plex = Plex.query.filter(Plex.id == '1').first()
+        form = AddRecord_config_options()
+        plex.posters4k = request.form['posters4k']
+        plex.films4kposters = request.form['films4kposters']
+        plex.tv4kposters = request.form['tv4kposters']
+        plex.mini4k = request.form['mini4k']
+        plex.hdr  = request.form['hdr']
+        plex.new_hdr = request.form['new_hdr']
+        plex.recreate_hdr = request.form['recreate_hdr']
+        plex.posters3d = request.form['posters3d']
+        plex.mini3d = request.form['mini3d']
+        plex.hide4k = request.form['hide4k']
+        plex.transcode = request.form['transcode']
+        plex.disney = request.form['disney']
+        plex.pixar = request.form['pixar']
+        plex.mcu_collection = request.form['mcu_collection']
+        plex.default_poster = request.form['default_poster']
+        plex.autocollections = request.form['autocollections']
+        plex.tr_r_p_collection = request.form['tr_r_p_collection']
+        plex.audio_posters = request.form['audio_posters']
+        if form.validate_on_submit():
+            db.session.commit()
+            message = f"The data for {plex.plexurl} has been updated."
+            update_scheduler()
+            return render_template('result.html', message=message, pagetitle='Config Options Updated')
+        else:
+            Plex.id = id
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash("Error in {}: {}".format(
+                        getattr(form, field).label.text,
+                        error
+                    ), 'error')
+            return render_template('config_options.html', plex=plex, form=form, pagetitle='Error')
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -246,4 +287,17 @@ def help():
         break
     return render_template('help.html', pagetitle='Help', plex=plex, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, pageheadding='Help')
 
-    
+@app.route('/dev')
+def dev():
+    dev = Dev.query
+    return render_template('dev.html', pagetitle='Dev', dev=dev)
+@app.route('/api/data')
+def dev_script():
+    threading.Thread(target=dev_data).start()
+    message = 'The script will now start filling the database with results'
+    return render_template('result.html', message=message, pagetitle='Dev data generation')
+@app.route('/api/del_data')
+def del_dev_script():
+    threading.Thread(target=del_dev).start()
+    message = 'dev table will be deleted'
+    return render_template('result.html', message=message, pagetitle='Dev data generation')

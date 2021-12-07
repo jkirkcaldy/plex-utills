@@ -1,6 +1,7 @@
 FROM python:3.9-bullseye
 
 LABEL maintainer="JKirkcaldy"
+LABEL support = "https://github.com/jkirkcaldy/plex-utills"
 
 WORKDIR /app
 COPY ./app ./app

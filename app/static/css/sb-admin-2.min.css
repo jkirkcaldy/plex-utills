@@ -363,7 +363,8 @@ hr{
     border:1px solid #dddfeb;
     border-radius:.35rem;
     max-width:100%;
-    height:auto
+    height:auto;
+    max-height:400px
 }
 .figure{
     display:inline-block
@@ -9162,12 +9163,14 @@ body.sidebar-toggled footer.sticky-footer{
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: 80%;
+    width: auto;
+    max-width: 95%;
     margin: auto;
-    margin-bottom: auto;
+    margin-bottom: 32px;
     overflow: auto;
     overflow-x: hidden;
-    height: 75%;
+    max-height: 750px;
+    height: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
 
@@ -9175,3 +9178,18 @@ body.sidebar-toggled footer.sticky-footer{
 .logging_window::-webkit-scrollbar {
     display: none;
 }
+
+ /* Three image containers (use 25% for four, and 50% for two, etc) */
+ .column {
+    float: left;
+    width: 33.33%;
+    padding: 5px;
+  }
+  
+  /* Clear floats after image containers */
+  .row::after {
+    content: "";
+    clear: both;
+    display: table;
+  } 
+  

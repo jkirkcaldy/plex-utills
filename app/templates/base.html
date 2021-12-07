@@ -15,12 +15,11 @@
 
     <!-- Custom fonts for this template-->
     <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
-
-
+    <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+    -->
+ 
 {% endblock %}
 
 
@@ -45,11 +44,21 @@ Plex-Utills
               <i class="fas fa-fw fa-home"></i>
               <span>Home</span></a>
       </li>
+      <!-- Nav Item - Config Collapse Menu -->
       <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('config')  }}">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+              aria-expanded="true" aria-controls="collapseTwo">
               <i class="fas fa-fw fa-cogs"></i>
-              <span>Config</span></a>
-        </li>
+              <span>Config</span>
+          </a>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+              <div class="bg-white py-2 collapse-inner rounded">
+                  <h6 class="collapse-header">Config Pages:</h6>
+                  <a class="collapse-item" href="{{ url_for('config')  }}">Server Config</a>
+                  <a class="collapse-item" href="{{ url_for('config_options')  }}">Config Options</a>
+              </div>
+          </div>
+      </li>   
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('run_scripts')  }}">
               <i class="fas fa-fw fa-play"></i>
@@ -77,6 +86,12 @@ Plex-Utills
               <i class="fas fa-fw fa-file"></i>
               <span>System Logs</span></a>
         </li> 
+        <hr class="sidebar-divider">              
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('help')  }}">
+              <i class="fas fa-fw fa-life-ring"></i>
+              <span>Help</span></a>
+        </li>         
   </ul>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
@@ -87,8 +102,8 @@ Plex-Utills
                 <div class="container-fluid">
                 
                 <!-- ENTER your content here -->
-
-
+                    {% block main %}
+                    {% endblock %}
 
                 <!--END of your content-->
 
@@ -104,5 +119,9 @@ Plex-Utills
             </footer>
         </div>
     </div>
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
 </body>
 {% endblock %}
