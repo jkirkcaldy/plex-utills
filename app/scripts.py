@@ -769,7 +769,7 @@ def restore_posters():
     tmdb.api_key = config[0][25]
 
     plex = PlexServer(config[0][1], config[0][2])
-    films = plex.library.section('Films')
+    films = plex.library.section(config[0][3])
 
         
     def continue_restore():
