@@ -14,7 +14,6 @@ import sqlite3
 from tmdbv3api import TMDb, Search, Movie, Discover
 from pymediainfo import MediaInfo
 import json
-from time import sleep
 from tautulli.api import RawAPI
 
 def setup_logger(logger_name, log_file, level=logging.INFO):
@@ -31,7 +30,6 @@ def setup_logger(logger_name, log_file, level=logging.INFO):
 
 setup_logger('plex-utills', r"/logs/script_log.log")
 logger = logging.getLogger('plex-utills')
-#ImageFile.LOAD_TRUNCATED_IMAGES = True
 tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2'
 search = Search()
@@ -166,7 +164,7 @@ def posters4k():
                     else:
                         add_banner()  
             def check_for_mini_tv():
-                background = Image.open(tmp_poster)
+                background = Image.open(tv_poster)
                 background = background.resize(tv_size,Image.ANTIALIAS)
                 backgroundchk = background.crop(mini_box)
                 hash0 = imagehash.average_hash(backgroundchk)
@@ -177,10 +175,10 @@ def posters4k():
                 else:    
                     add_mini_tv_banner()
             def add_mini_tv_banner():
-                background = Image.open(tmp_poster)
+                background = Image.open(tv_poster)
                 background = background.resize(tv_size,Image.ANTIALIAS)
                 background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
-                background.save(tmp_poster)
+                background.save(tv_poster)
                 #i.uploadPoster(filepath='/tmp/poster.png')
             def check_for_banner():
                 background = Image.open(tmp_poster)
@@ -501,7 +499,7 @@ def posters4k():
                 backup = os.path.exists(newdir+'poster_bak.png')
                 imgurl = i.posterUrl
                 img = requests.get(imgurl, stream=True)
-                filename = "/tmp/poster.png"
+                filename = tv_poster
                 if img.status_code == 200:
                     img.raw.decode_content = True
                     with open(filename, 'wb') as f:
@@ -578,10 +576,9 @@ def posters4k():
             def posterTV_4k():   
                 logger.info(i.title + " 4K Poster")
                 get_TVposter()
-                sleep(2)
                 check_for_mini_tv()
-                i.uploadPoster(filepath=tmp_poster)                             
-                os.remove(tmp_poster) 
+                i.uploadPoster(filepath=tv_poster)                             
+                os.remove(tv_poster) 
         else:
             logger.info('4K Posters script is not enabled in the config so will not run.')
         
@@ -595,10 +592,12 @@ def posters4k():
                 x = json.loads(m)
                 hdr_version = ""
                 try:
-                    hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
+                    hdr_version = x['media']['track'][1]['HDR_Format_String']
                 except KeyError:
+                    pass
+                if "dolby" not in str.lower(hdr_version):
                     try:
-                        hdr_version = x['media']['track'][1]['HDR_Format']
+                        hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
                     except KeyError:
                         pass
                 audio = ""
@@ -665,16 +664,121 @@ def posters4k():
             tv = plex.library.section(config[0][22])
             for i in tv.searchEpisodes(resolution="4k"):
                 try:
+                    t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                    tv_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
                     posterTV_4k()
                 except FileNotFoundError as e:
                     logger.error(e)
                     logger.info("4k Posters: "+tv.title+" The 4k poster for this episode could not be created")
-                    logger.info("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")          
-        
+                    logger.info("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")             
         logger.info('4K/HDR Posters script has finished')
 
     else:
         logger.info("4K/HDR Posters is disabled in the config so it will not run.")
+    c.close()
+
+def tv4kposter():
+    conn = sqlite3.connect('/config/app.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM plex_utills")
+    config = c.fetchall()
+    tmdb.api_key = config[0][25]
+
+    plex = PlexServer(config[0][1], config[0][2])
+    mini_4k_banner = Image.open("app/img/4K-mini-Template.png")
+    chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
+    size = (911,1367)
+    tv_size = (1280,720)
+    mini_box = (0,0,150,125)   
+
+    def check_for_mini_tv():
+        background = Image.open(tv_poster)
+        background = background.resize(tv_size,Image.ANTIALIAS)
+        backgroundchk = background.crop(mini_box)
+        hash0 = imagehash.average_hash(backgroundchk)
+        hash1 = imagehash.average_hash(chk_mini_banner)
+        cutoff= 10
+        if hash0 - hash1 < cutoff:
+            logger.info('4k Posters: Mini 4k banner exists, moving on')
+        else:    
+            add_mini_tv_banner()
+    def add_mini_tv_banner():
+        background = Image.open(tv_poster)
+        background = background.resize(tv_size,Image.ANTIALIAS)
+        background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
+        background.save(tv_poster)
+
+    def get_TVposter():   
+        newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+        backup = os.path.exists(newdir+'poster_bak.png')
+        imgurl = i.posterUrl
+        img = requests.get(imgurl, stream=True)
+        filename = tv_poster
+        if img.status_code == 200:
+            img.raw.decode_content = True
+            with open(filename, 'wb') as f:
+                shutil.copyfileobj(img.raw, f)
+            if config[0][12] == 1: 
+                if backup == True: 
+                    #open backup poster to compare it to the current poster. If it is similar enough it will skip, if it's changed then create a new backup and add the banner. 
+                    poster = os.path.join(newdir, 'poster_bak.png')
+                    b_check1 = Image.open(filename)
+                    b_check = Image.open(poster)
+                    b_hash = imagehash.average_hash(b_check)
+                    b_hash1 = imagehash.average_hash(b_check1)
+                    cutoff = 10
+                    if b_hash - b_hash1 < cutoff:    
+                        logger.info('4k Posters: Backup file exists, skipping')
+                    else:                              
+                        #Check if the poster has a mini 4k banner
+                        background = Image.open(filename)
+                        try:
+                            background = background.resize(size,Image.ANTIALIAS)
+                        except OSError as e:
+                            logger.error(e)
+                            ImageFile.LOAD_TRUNCATED_IMAGES = True
+                            background = background.resize(size,Image.ANTIALIAS)
+                            ImageFile.LOAD_TRUNCATED_IMAGES = False
+                            backgroundchk = background.crop(mini_box)
+                            hash0 = imagehash.average_hash(backgroundchk)
+                            hash1 = imagehash.average_hash(chk_mini_banner)
+                            cutoff= 10
+                            if hash0 - hash1 < cutoff: 
+                                logger.info('4k Posters: Poster has Mini 4k Banner, Skipping Backup')
+                            else:
+                                logger.info('4k Posters: New poster detected, creating new Backup') 
+                                os.remove(poster)
+                                logger.info('4k Posters: Check passed, creating a backup file')
+                                shutil.copyfile(filename, newdir+'poster_bak.png')
+                else:        
+                    logger.info('4k Posters: Creating a backup file')
+                    shutil.copyfile(filename, newdir+'poster_bak.png')
+        else:
+            logger.info("4k Posters: "+i.title+" cannot find the poster for this Episode")
+
+    def posterTV_4k():   
+        logger.info(i.title + " 4K Poster")
+        get_TVposter()
+        check_for_mini_tv()
+        i.uploadPoster(filepath=tv_poster)  
+        os.remove(tv_poster) 
+
+    if config[0][23] == 1 and config[0][22] != 'None':
+        tv = plex.library.section(config[0][22])
+        for i in tv.searchEpisodes(resolution="4k"):
+            try:
+                t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                tv_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                posterTV_4k()
+            except FileNotFoundError as e:
+                logger.error(e)
+                logger.info("4k Posters: "+tv.title+" The 4k poster for this episode could not be created")
+                logger.info("This is likely because poster backups are enabled and the script can't find or doesn't have access to your backup location")             
+        logger.info('4K/HDR Posters script has finished')
+
+    else:
+        logger.info("4K/HDR Posters is disabled in the config so it will not run.")
+    
     c.close()
 
 def posters3d(): 

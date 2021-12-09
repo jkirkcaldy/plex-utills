@@ -7,8 +7,7 @@ from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options
 from app.models import Plex, Dev
-from time import sleep
-from app import update_scheduler, posters4k, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, dev_data, del_dev
+from app import update_scheduler, posters4k, tv4kposter, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, dev_data, del_dev
 import threading
 
 
@@ -36,6 +35,10 @@ def run_scripts():
 def run_posters4k():
     threading.Thread(target=posters4k).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs')
+@app.route('/tvposters4k', methods=['GET'])
+def run_tvposters4k():
+    threading.Thread(target=tv4kposter).start()   
+    return render_template('script_log_viewer.html', pagetitle='Script Logs')    
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
     threading.Thread(target=posters3d).start()

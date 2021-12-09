@@ -9,7 +9,7 @@ COPY ./main.py .
 COPY ./requirements.txt .
 COPY ./entrypoint.sh .
 COPY ./start.sh .
-COPY ./dv_test.py .
+
 
 
 
@@ -22,7 +22,8 @@ EXPOSE 5000
 VOLUME [ "/films" ]
 VOLUME [ "/config" ]
 VOLUME [ "/logs" ]
-
+RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb
+RUN dpkg -i repo-mediaarea_1.0-19_all.deb
 RUN apt-get update && apt-get install -y supervisor mediainfo nginx \
 && rm -rf /var/lib/apt/lists/*
 COPY supervisord-debian.conf /etc/supervisor/conf.d/supervisord.conf
