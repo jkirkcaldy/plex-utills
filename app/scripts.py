@@ -31,7 +31,7 @@ def setup_logger(logger_name, log_file, level=logging.INFO):
 setup_logger('plex-utills', r"/logs/script_log.log")
 logger = logging.getLogger('plex-utills')
 tmdb = TMDb()
-poster_url_base = 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2'
+poster_url_base = 'https://www.themoviedb.org/t/p/original'
 search = Search()
 movie = Movie()
 discover = Discover()
@@ -111,38 +111,6 @@ def posters4k():
                 else:    
                     background.paste(dtsx, (0, 0), dtsx)
                     background.save(tmp_poster)
-            def get_audio():
-                logger.info('Scanning '+ i.title)
-                file = re.sub(config[0][5], '/films', i.media[0].parts[0].file)          
-                m = MediaInfo.parse(file, output='JSON')
-                x = json.loads(m)
-                audio = ""
-                while True:
-                    for f in range(10):
-                        if 'Audio' in x['media']['track'][f]['@type']:
-                            if 'Format_Commercial_IfAny' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format_Commercial_IfAny']
-                                if 'DTS' in audio:
-                                    if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
-                                        audio = 'DTS:X'
-                                break
-                            elif 'Format' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format']
-                                break
-                    if audio != "":
-                        break
-                logger.info(i.title+' '+audio)
-                if 'Dolby' and 'Atmos' in audio:
-                    audio = 'Dolby Atmos'
-                if audio == 'Dolby Atmos':
-                    get_poster()
-                    atmos_poster()
-                elif audio == 'DTS:X':
-                    get_poster()
-                    dtsx_poster()
-                
-                    
-
             def check_for_mini():
                 background = Image.open(tmp_poster)
                 try:
@@ -220,7 +188,6 @@ def posters4k():
                     ImageFile.LOAD_TRUNCATED_IMAGES = False
                 background.paste(mini_4k_banner, (0, 0), mini_4k_banner)
                 background.save(tmp_poster)
-                #i.uploadPoster(filepath='/tmp/poster.png')
             def add_new_hdr():
                 background = Image.open(tmp_poster)
                 try:
@@ -235,33 +202,28 @@ def posters4k():
                 hash1 = imagehash.average_hash(chk_new_hdr)
                 hash2 = imagehash.average_hash(chk_dolby_vision)
                 hash3 = imagehash.average_hash(chk_hdr10)
-                hash4 = imagehash.average_hash(chk_hdr)
                 cutoff= 10
-                file = re.sub(config[0][5], '/films', i.media[0].parts[0].file)          
-                m = MediaInfo.parse(file, output='JSON')
-                x = json.loads(m)
 
-                try:
-                    hdr_version = str.lower(x['media']['track'][1]['HDR_Format_Commercial'])
-                except KeyError:
-                    try:
-                        hdr_version = str.lower(x['media']['track'][1]['Format_Commercial_IfAny'])
-                    except KeyError:
-                        try:
-                            hdr_version = str.lower(x['media']['track'][1]['HDR_Format'])
-                        except KeyError:
-                            logger.info(i.title+" Can't find HDR Version")
-                            hdr_version = 'Unknown'
                 def recreate_poster():
                     os.remove(tmp_poster)
                     def restore_tmdb():
                         logger.info("RESTORE: restoring posters from TheMovieDb")
-                        tmdb_search = search.movies({"query": i.title, "year": i.year})
+                        def get_tmdb_guid():
+                            g = str(i.guids)
+                            g = g[1:-1]
+                            g = re.sub(r'[*?:"<>| ]',"",g)
+                            g = re.sub("Guid","",g)
+                            g = g.split(",")
+                            f = filter(lambda a: "tmdb" in a, g)
+                            g = list(f)
+                            g = str(g[0])
+                            gv = list([v for v in g 
+                                        if v.isnumeric()])
+                            g = "".join(gv)
+                            return g
+                        g = get_tmdb_guid()
+                        tmdb_search = movie.details(movie_id=g)
                         logger.info(i.title)
-                        def get_poster_link():
-                            for r in tmdb_search:
-                                poster = r.poster_path
-                                return poster
                         def get_poster(poster):
                             r = requests.get(poster_url_base+poster, stream=True)
                             if r.status_code == 200:
@@ -269,7 +231,7 @@ def posters4k():
                                 with open('/tmp/poster.png', 'wb') as f:
                                     shutil.copyfileobj(r.raw, f)
                         try:
-                            poster = get_poster_link()
+                            poster = tmdb_search.poster_path
                             get_poster(poster) 
                         except TypeError:
                             logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
@@ -319,7 +281,7 @@ def posters4k():
                     background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
                     background.save(tmp_poster)
                 
-                if "dolby" and "vision" in hdr_version:
+                if "dolby" and "vision" in str.lower(hdr_version):
                     if hash0 - hash2 < cutoff:
                         logger.info("HDR Banner: "+i.title+" dolby-vision banner exists moving on")
                     elif hash0 - hash3 < cutoff:
@@ -332,17 +294,17 @@ def posters4k():
                         dolby_vision()
                     else:
                         dolby_vision()
-                elif "hdr10+" in hdr_version:
-                    if hash0 - hash3 < cutoff:
-                        logger.info("HDR Banner: "+i.title+" HDR10+ banner exists, moving on")
+                elif "hdr10+" in str.lower(hdr_version):
                     if hash0 - hash2 < cutoff:
-                        logger.info("HDR Banner: "+i.title+" dolby-vision banner exists moving on")
-                        recreate_poster()                        
-                        hdr10()
-                    elif hash0 - hash1 < cutoff:
-                        logger.info("HDR Banner: "+i.title+" hdr banner exists")
+                        logger.info("HDR Banner: "+i.title+" dolby-vision banner exists")
                         recreate_poster()
                         hdr10()
+                    elif hash0 - hash3 < cutoff:
+                        logger.info("HDR Banner: "+i.title+" HDR10+ banner exists")
+                    elif hash0 - hash1 < cutoff:
+                        logger.info("HDR Banner: "+i.title+" hdr banner exists moving on")
+                        recreate_poster()
+                        hdr10()                        
                     else:
                         hdr10()
                 else:
@@ -518,24 +480,24 @@ def posters4k():
                             else:                              
                                 #Check if the poster has a mini 4k banner
                                 background = Image.open(filename)
-                            try:
-                                background = background.resize(size,Image.ANTIALIAS)
-                            except OSError as e:
-                                logger.error(e)
-                                ImageFile.LOAD_TRUNCATED_IMAGES = True
-                                background = background.resize(size,Image.ANTIALIAS)
-                                ImageFile.LOAD_TRUNCATED_IMAGES = False
-                                backgroundchk = background.crop(mini_box)
-                                hash0 = imagehash.average_hash(backgroundchk)
-                                hash1 = imagehash.average_hash(chk_mini_banner)
-                                cutoff= 10
-                                if hash0 - hash1 < cutoff: 
-                                    logger.info('4k Posters: Poster has Mini 4k Banner, Skipping Backup')
-                                else:
-                                    logger.info('4k Posters: New poster detected, creating new Backup') 
-                                    os.remove(poster)
-                                    logger.info('4k Posters: Check passed, creating a backup file')
-                                    shutil.copyfile(filename, newdir+'poster_bak.png')
+                                try:
+                                    background = background.resize(size,Image.ANTIALIAS)
+                                except OSError as e:
+                                    logger.error(e)
+                                    ImageFile.LOAD_TRUNCATED_IMAGES = True
+                                    background = background.resize(size,Image.ANTIALIAS)
+                                    ImageFile.LOAD_TRUNCATED_IMAGES = False
+                                    backgroundchk = background.crop(mini_box)
+                                    hash0 = imagehash.average_hash(backgroundchk)
+                                    hash1 = imagehash.average_hash(chk_mini_banner)
+                                    cutoff= 10
+                                    if hash0 - hash1 < cutoff: 
+                                        logger.info('4k Posters: Poster has Mini 4k Banner,     Skipping Backup')
+                                    else:
+                                        logger.info('4k Posters: New poster detected, creating  new Backup') 
+                                        os.remove(poster)
+                                        logger.info('4k Posters: Check passed, creating a backup    file')
+                                        shutil.copyfile(filename, newdir+'poster_bak.png')
                         else:        
                             logger.info('4k Posters: Creating a backup file')
                             shutil.copyfile(filename, newdir+'poster_bak.png')
@@ -593,29 +555,35 @@ def posters4k():
                 hdr_version = ""
                 try:
                     hdr_version = x['media']['track'][1]['HDR_Format_String']
-                except KeyError:
+                except (KeyError, IndexError):
                     pass
                 if "dolby" not in str.lower(hdr_version):
                     try:
                         hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
-                    except KeyError:
-                        pass
+                    except (KeyError, IndexError):
+                        try:
+                            hdr_version = x['media']['track'][1]['HDR_Format_Commercial_IfAny']
+                        except (KeyError, IndexError):
+                            pass
                 audio = ""
                 while True:
-                    for f in range(10):
-                        if 'Audio' in x['media']['track'][f]['@type']:
-                            if 'Format_Commercial_IfAny' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format_Commercial_IfAny']
-                                if 'DTS' in audio:
-                                    if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
-                                        audio = 'DTS:X'
-                                break
-                            elif 'Format' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format']
-                                break
-                    if audio != "":
-                        break
-
+                    try:
+                        for f in range(10):
+                            if 'Audio' in x['media']['track'][f]['@type']:
+                                if 'Format_Commercial_IfAny' in x['media']['track'][f]:
+                                    audio = x['media']['track'][f]['Format_Commercial_IfAny']
+                                    if 'DTS' in audio:
+                                        if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
+                                            audio = 'DTS:X'
+                                    break
+                                elif 'Format' in x['media']['track'][f]:
+                                    audio = x['media']['track'][f]['Format']
+                                    break
+                        if audio != "":
+                            break
+                    except IndexError as e:
+                        logger.error(e)
+                hdr_version = str.lower(hdr_version)
                 if config[0][35] == 1:
                     get_poster()
                     if 'Dolby' and 'Atmos' in audio:
@@ -676,7 +644,7 @@ def posters4k():
     else:
         logger.info("4K/HDR Posters is disabled in the config so it will not run.")
     c.close()
-
+    
 def tv4kposter():
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
@@ -904,36 +872,54 @@ def restore_posters():
         
     def continue_restore():
         logger.info("Restore-posters: Restore backup posters starting now")
+        def restore_tmdb():
+            logger.info("RESTORE: restoring posters from TheMovieDb")
+            def get_tmdb_guid():
+                g = str(i.guids)
+                g = g[1:-1]
+                g = re.sub(r'[*?:"<>| ]',"",g)
+                g = re.sub("Guid","",g)
+                g = g.split(",")
+                f = filter(lambda a: "tmdb" in a, g)
+                g = list(f)
+                g = str(g[0])
+                gv = list([v for v in g 
+                            if v.isnumeric()])
+                g = "".join(gv)
+                return g
+            g = get_tmdb_guid()
+            tmdb_search = movie.details(movie_id=g)
+            logger.info(i.title)
+            def get_poster(poster):
+                r = requests.get(poster_url_base+poster, stream=True)
+                if r.status_code == 200:
+                    r.raw.decode_content = True
+                    with open('tmdb_poster_restore.png', 'wb') as f:
+                        shutil.copyfileobj(r.raw, f)
+                        i.uploadPoster(filepath='tmdb_poster_restore.png')
+                        os.remove('tmdb_poster_restore.png')
+            try:
+                poster = tmdb_search.poster_path
+                get_poster(poster) 
+            except TypeError:
+                logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
+                pass
         def restore():
-            def restore_tmdb():
-                logger.info("RESTORE: restoring posters from TheMovieDb")
-                tmdb_search = search.movies({"query": i.title, "year": i.year})
-                logger.info(i.title)
-                def get_poster_link():
-                    for r in tmdb_search:
-                        poster = r.poster_path
-                        return poster
-                def get_poster(poster):
-                    r = requests.get(poster_url_base+poster, stream=True)
-                    if r.status_code == 200:
-                        r.raw.decode_content = True
-                        with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
-                            i.uploadPoster(filepath='tmdb_poster_restore.png')
-                            os.remove('tmdb_poster_restore.png')
-                try:
-                    poster = get_poster_link()
-                    get_poster(poster) 
-                except TypeError:
-                    logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
-                    pass
-            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(newdir+'poster_bak.png') 
-            if backup == True:
                 logger.info("RESTORE: restoring posters from Local Backups")
                 poster = newdir+'poster_bak.png'
                 logger.info(i.title+ ' Restored')
                 i.uploadPoster(filepath=poster)
+
+
+        for i in films.search():
+            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+            backup = os.path.exists(newdir+'poster_bak.png')
+            if backup == True:
+                try:
+                    restore()
+                except OSError as e:
+                    if e.errno == 2:
+                        logger.debug(e)
             elif config[0][26] == 1 and backup == False:
                 file = re.sub(config[0][5], '/films', i.media[0].parts[0].file)          
                 m = MediaInfo.parse(file, output='JSON')
@@ -975,12 +961,7 @@ def restore_posters():
                 elif hdr_version != 'unknown':
                     restore_tmdb()
 
-        for i in films.search():
-            try:
-                restore()
-            except OSError as e:
-                if e.errno == 2:
-                    logger.debug(e)
+
     def check_connection():
         try:
             plex = PlexServer(config[0][1], config[0][2])
@@ -1186,13 +1167,11 @@ def fresh_hdr_posters():
         logger.info("Restore-posters: Restore backup posters starting now") 
         for i in films.search(hdr='true'):  
             def restore_tmdb():
-
+                g = str(i.guids[1])
+                g = re.sub(">", "", g.split("//")[1])
+                tmdb_search = movie.details(movie_id=g)
                 tmdb_search = search.movies({"query": i.title, "year": i.year})
                 logger.info(i.title)
-                def get_poster_link():
-                    for r in tmdb_search:
-                        poster = r.poster_path
-                        return poster
                 def get_poster(poster):
                     r = requests.get(poster_url_base+poster, stream=True)
                     if r.status_code == 200:
@@ -1203,7 +1182,7 @@ def fresh_hdr_posters():
                             os.remove('tmdb_poster_restore.png')
                             logger.info(i.title+' Restored from TheMovieDb')
                 try:
-                    poster = get_poster_link()
+                    poster = tmdb_search.poster_path
                     get_poster(poster) 
                 except TypeError:
                     logger.warning("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")

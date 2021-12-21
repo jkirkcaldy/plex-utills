@@ -1,6 +1,8 @@
 # plex-utills
 
-## MASSIVE UPDATE!
+For support you can join the discord server: https://discord.gg/PXWENyZ5
+
+
 ---
 The whole app now runs in a webui. This should make things easier for those who are not as comfortable in the commandline or just prefer a ui. 
 
