@@ -287,39 +287,66 @@ def posters4k():
                     elif hash0 - hash3 < cutoff:
                         logger.info("HDR Banner: "+i.title+" HDR10+ banner exists")
                         recreate_poster()
-                        dolby_vision()
+                        try:
+                            dolby_vision()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                     elif hash0 - hash1 < cutoff:
                         logger.info("HDR Banner: "+i.title+" hdr banner exists")
                         recreate_poster()
-                        dolby_vision()
+                        try:
+                            dolby_vision()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                     else:
-                        dolby_vision()
+                        try:
+                            dolby_vision()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                 elif "hdr10+" in str.lower(hdr_version):
                     if hash0 - hash2 < cutoff:
                         logger.info("HDR Banner: "+i.title+" dolby-vision banner exists")
                         recreate_poster()
-                        hdr10()
+                        try:
+                            hdr10()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                     elif hash0 - hash3 < cutoff:
                         logger.info("HDR Banner: "+i.title+" HDR10+ banner exists")
                     elif hash0 - hash1 < cutoff:
                         logger.info("HDR Banner: "+i.title+" hdr banner exists moving on")
                         recreate_poster()
-                        hdr10()                        
+                        try:
+                            hdr10()
+                        except FileNotFoundError as e:
+                            logger.error(e)                      
                     else:
-                        hdr10()
+                        try:
+                            hdr10()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                 else:
                     if hash0 - hash2 < cutoff:
                         logger.info("HDR Banner: "+i.title+" dolby-vision banner exists")
                         recreate_poster()
-                        hdr()
+                        try:
+                            hdr()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                     elif hash0 - hash3 < cutoff:
                         logger.info("HDR Banner: "+i.title+" HDR10+ banner exists")
                         recreate_poster()
-                        hdr()
+                        try:
+                            hdr()
+                        except FileNotFoundError as e:
+                            logger.error(e)
                     elif hash0 - hash1 < cutoff:
                         logger.info("HDR Banner: "+i.title+" hdr banner exists moving on")
                     else:
-                        hdr()         
+                        try:
+                            hdr()
+                        except FileNotFoundError as e:
+                            logger.error(e)        
             def add_hdr():
                 background = Image.open(tmp_poster)
                 try:
@@ -566,8 +593,8 @@ def posters4k():
                         except (KeyError, IndexError):
                             pass
                 audio = ""
-                while True:
-                    try:
+                try:
+                    while True:
                         for f in range(10):
                             if 'Audio' in x['media']['track'][f]['@type']:
                                 if 'Format_Commercial_IfAny' in x['media']['track'][f]:
@@ -581,8 +608,9 @@ def posters4k():
                                     break
                         if audio != "":
                             break
-                    except IndexError as e:
-                        logger.error(e)
+                except IndexError as e:
+                    logger.error(e)
+                    pass
                 hdr_version = str.lower(hdr_version)
                 if config[0][35] == 1:
                     get_poster()
@@ -925,20 +953,24 @@ def restore_posters():
                 m = MediaInfo.parse(file, output='JSON')
                 x = json.loads(m)
                 audio = ""
-                while True:
-                    for f in range(10):
-                        if 'Audio' in x['media']['track'][f]['@type']:
-                            if 'Format_Commercial_IfAny' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format_Commercial_IfAny']
-                                if 'DTS' in audio:
-                                    if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
-                                        audio = 'DTS:X'
-                                break
-                            elif 'Format' in x['media']['track'][f]:
-                                audio = x['media']['track'][f]['Format']
-                                break
-                    if audio != "":
-                        break
+                try:
+                    while True:
+                        for f in range(10):
+                            if 'Audio' in x['media']['track'][f]['@type']:
+                                if 'Format_Commercial_IfAny' in x['media']['track'][f]:
+                                    audio = x['media']['track'][f]['Format_Commercial_IfAny']
+                                    if 'DTS' in audio:
+                                        if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
+                                            audio = 'DTS:X'
+                                    break
+                                elif 'Format' in x['media']['track'][f]:
+                                    audio = x['media']['track'][f]['Format']
+                                    break
+                        if audio != "":
+                            break
+                except IndexError as e:
+                    logger.error(e)
+                    pass
                 try:
                     hdr_version = str.lower(x['media']['track'][1]['HDR_Format_Commercial'])
                 except KeyError:

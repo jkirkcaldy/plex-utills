@@ -9,7 +9,8 @@ COPY ./main.py .
 COPY ./requirements.txt .
 COPY ./entrypoint.sh .
 COPY ./start.sh .
-
+COPY ./dv_test.py .
+COPY ./scan_test.py .
 
 
 

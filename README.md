@@ -1,6 +1,6 @@
 # plex-utills
 
-For support you can join the discord server: https://discord.gg/PXWENyZ5
+For support you can join the discord server: https://discord.gg/z3FYhHwHMw
 
 
 ---
