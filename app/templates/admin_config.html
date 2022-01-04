@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block main %}
+
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row pb-5">
+                          <div class="col-lg-10 mx-lg-auto">
+                            
+                            <h1 class="pt-5 pb-2">
+                              Plex-Utills
+                            </h1>
+                        
+                        
+                              <p class="lead alert alert-success">Edit your config data.</p>
+                        
+                        
+                                   {% with errors = get_flashed_messages() %}
+                                       {% if errors %}
+                                           {% for err in errors %}
+                                           <div class="alert alert-danger alert-dismissible" role="alert">
+                                               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                               {{ err }}
+                                           </div>
+                                           {% endfor %}
+                                       {% endif %}
+                                   {% endwith %}
+                                   <form method="post" action="{{ url_for('admin_config_form') }}" id="update">
+                                            {{ form.csrf_token }}
+                                            {{ form.id_field(value=plex.id) }}
+
+                                            {{ wtf.form_field(form.plexurl, value=plex.plexurl) }}
+                                            {{ wtf.form_field(form.token, value=plex.token) }}
+                                            {{ wtf.form_field(form.tautulli_server, value=plex.tautulli_server) }}
+                                            {{ wtf.form_field(form.tautulli_api, value=plex.tautulli_api) }}
+
+                                            {{ wtf.form_field(form.plexpath, value=plex.plexpath) }}
+                                            {{ wtf.form_field(form.mountedpath, value=plex.mountedpath) }}
+                                            
+                                            {{ wtf.form_field(form.filmslibrary, value=plex.filmslibrary) }}
+                                            {{ wtf.form_field(form.tvlibrary, value=plex.tvlibrary) }}
+                                            {{ wtf.form_field(form.library3d, value=plex.library3d) }}                                            
+                                            
+                                            {{ wtf.form_field(form.t1, value=plex.t1) }}
+                                            {{ wtf.form_field(form.t5, value=plex.t5) }}
+                                            {{ wtf.form_field(form.t2, value=plex.t2) }}
+                                            {{ wtf.form_field(form.t4, value=plex.t4) }}
+                                            
+                                            {{ wtf.form_field(form.backup, value=plex.backup) }}
+                                            {{ wtf.form_field(form.restore_from_tmdb, value=plex.tmdb_restore) }}
+                                            {{ wtf.form_field(form.tmdb_api, value=plex.tmdb_api) }}
+
+                                            {{ wtf.form_field(form.posters4k, value=plex.posters4k) }}  
+                                            {{ wtf.form_field(form.audio_posters, value=plex.audio_posters) }}                                                                            
+                                            {{ wtf.form_field(form.films4kposters, value=plex.films4kposters) }}
+                                            {{ wtf.form_field(form.tv4kposters, value=plex.tv4kposters) }}                                            
+                                            {{ wtf.form_field(form.mini4k, value=plex.mini4k) }}
+                                            {{ wtf.form_field(form.hdr, value=plex.hdr ) }}
+                                            {{ wtf.form_field(form.new_hdr, value=plex.new_hdr ) }}
+                                            {{ wtf.form_field(form.recreate_hdr, value=plex.recreate_hdr) }}
+                                            {{ wtf.form_field(form.posters3d, value=plex.posters3d) }}
+                                            {{ wtf.form_field(form.mini3d, value=plex.mini3d) }}
+
+
+                                            {{ wtf.form_field(form.autocollections, value=plex.autocollections) }}
+                                            {{ wtf.form_field(form.tr_r_p_collection, value=plex.tr_r_p_collection) }}
+                                            {{ wtf.form_field(form.disney, value=plex.disney) }}
+                                            {{ wtf.form_field(form.pixar, value=plex.pixar) }}
+                                            {{ wtf.form_field(form.mcu_collection, value=plex.mcu_collection) }}
+                                            {{ wtf.form_field(form.default_poster, value=plex.default_poster) }}
+
+                                            {{ wtf.form_field(form.hide4k, value=plex.hide4k) }}
+                                            {{ wtf.form_field(form.transcode, value=plex.transcode) }}
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            {{ wtf.form_field(form.submit, button_map={'submit':'success'}) }}
+                                            
+                                  </form>
+                              </div>
+                            
+                          </div>
+                      </div>
+
+{% endblock %}
