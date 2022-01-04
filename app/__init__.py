@@ -2,7 +2,7 @@ from flask import Flask
 from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import posters4k, posters3d, hide4k, tv4kposter, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, dev_data, del_dev
+from app.scripts import posters4k, posters3d, hide4k, tv4kposter, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
