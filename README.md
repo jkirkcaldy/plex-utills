@@ -1,5 +1,12 @@
 # plex-utills
 
+[![Discord](https://img.shields.io/discord/353584415374573570?color=lightgrey&logo=discord&logoColor=303030&style=for-the-badge)](https://discord.gg/z3FYhHwHMw)
+[![GitHub stars](https://img.shields.io/github/stars/jkirkcaldy/plex-utills?color=lightgrey&logoColor=333333&style=for-the-badge)](https://github.com/jkirkcaldy/plex-utills/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/jkirkcaldy/plex-utills?color=lightgrey&logoColor=333333&style=for-the-badge)](https://github.com/jkirkcaldy/plex-utills/network)
+![Docker Pulls](https://img.shields.io/docker/pulls/jkirkcaldy/plex-utills?color=lightgrey&logo=docker&logoColor=333333&style=for-the-badge)
+[![Donate](https://img.shields.io/badge/Donate-PayPal?logo=paypal&logoColor=303030&style=for-the-badge&color=505050)](https://www.paypal.com/paypalme/jkirkcaldy)
+[![Open Collective backers](https://img.shields.io/opencollective/backers/themainframe?logo=opencollective&logoColor=303030&style=for-the-badge)](https://opencollective.com/themainframe)
+
 For support you can join the discord server: https://discord.gg/z3FYhHwHMw
 
 
