@@ -97,7 +97,41 @@ Plex-Utills
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                     <h1 class="h1 text-grey-800">{{ pagetitle }}</h1>
-
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="donateDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-credit-card fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Alerts -->
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="donateDropdown">
+                                <h6 class="dropdown-header bg-gray-900" >
+                                    Donate to help the development of Plex-Utills
+                                </h6>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-primary">
+                                            <i class="fab fa-paypal text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                       <span class="font-weight-bold" onclick='location="https://www.paypal.com/paypalme/jkirkcaldy"'>Donate with Paypal</span>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-success">
+                                            <i class="fas fa-donate text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="font-weight-bold" onclick='location="https://opencollective.com/themainframe"'>Donate with Open Collective</span>
+                                     </div>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
                 </nav>
                 <div class="container-fluid">
                 
@@ -114,6 +148,7 @@ Plex-Utills
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; jkirkcaldy 2021</span>
+                        
                     </div>
                 </div>
             </footer>
