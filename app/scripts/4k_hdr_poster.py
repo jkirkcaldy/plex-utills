@@ -60,11 +60,10 @@ def check_for_mini():
     cutoff= 10
     if hash0 - hash1 < cutoff:
         print(Fore.LIGHTMAGENTA_EX, 'Mini 4K banner exists, moving on...',Fore.RESET)
-    else:    
-        if mini_4k == 'true':
-            add_mini_banner()
-        else:
-            add_banner()     
+    elif mini_4k == 'true':
+        add_mini_banner()
+    else:
+        add_banner()     
         
         
 
@@ -113,14 +112,14 @@ def get_poster():
     backup = os.path.exists(newdir+'poster_bak.png')
     imgurl = i.posterUrl
     img = requests.get(imgurl, stream=True)
-    filename = "poster.png"
-
     if img.status_code == 200:
         img.raw.decode_content = True
+        filename = "poster.png"
+
         with open(filename, 'wb') as f:
             shutil.copyfileobj(img.raw, f)
         if pbak == 'true': 
-            if backup == True: 
+            if backup == True:
                 #open backup poster to compare it to the current poster. If it is similar enough it will skip, if it's changed then create a new backup and add the banner. 
                 poster = os.path.join(newdir, 'poster_bak.png')
                 b_check1 = Image.open(filename)
@@ -131,7 +130,7 @@ def get_poster():
                 if b_hash - b_hash1 < cutoff:    
                     print(Fore.GREEN, 'Backup File Exists, Skipping...', Fore.RESET)
                 else:
-                    
+
                     #Check to see if the poster has a 4k Banner
                     background = Image.open(filename)
                     background = background.resize(size,Image.ANTIALIAS)
@@ -156,7 +155,7 @@ def get_poster():
                             os.remove(poster)
                             print(Fore.CYAN, 'Check Passed, Creating a backup file', Fore.RESET)
                             dest = shutil.copyfile(filename, newdir+'poster_bak.png')
-            else:        
+            else:
                 print(Fore.BLUE, 'Creating a backup file', Fore.RESET)
                 dest = shutil.copyfile(filename, newdir+'poster_bak.png')
 
@@ -185,14 +184,14 @@ def poster_hdr():
 
 
 if HDR_BANNER == 'true':
-    for i in films.search(resolution="4k", hdr=False):
+    for _ in films.search(resolution="4k", hdr=False):
         try:
             poster_4k()
         except FileNotFoundError:
             print(Fore.RED+films.title+" Error, the 4k poster for this film could not be created.")
             print(Fore.RESET)
-            continue    
-    for i in films.search(resolution="4k", hdr=True):
+            continue
+    for _ in films.search(resolution="4k", hdr=True):
         try:
             poster_4k_hdr()
         except FileNotFoundError:
@@ -208,7 +207,7 @@ if HDR_BANNER == 'true':
             continue
 else:
     print('Creating 4k posters only')
-    for i in films.search(resolution="4k"):
+    for _ in films.search(resolution="4k"):
         try:
             poster_4k()
         except FileNotFoundError:

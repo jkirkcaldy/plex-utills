@@ -51,11 +51,10 @@ def posters3d():
         cutoff= 15
         if hash0 - hash1 < cutoff:
             logger.info('Mini 3D banner exists, moving on...')
-        else:    
-            if config[0][17] == 1:
-                add_mini_banner()
-            else:
-                add_banner()       
+        elif config[0][17] == 1:
+            add_mini_banner()
+        else:
+            add_banner()       
 
     def check_for_banner():
         background = Image.open('poster.png')
@@ -88,10 +87,10 @@ def posters3d():
         backup = os.path.exists(newdir+'poster_bak.png')
         imgurl = i.posterUrl
         img = requests.get(imgurl, stream=True)
-        filename = "poster.png"
-
         if img.status_code == 200:
             img.raw.decode_content = True
+            filename = "poster.png"
+
             with open(filename, 'wb') as f:
                 shutil.copyfileobj(img.raw, f)
             if config[0][12] == 1: 
