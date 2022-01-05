@@ -7,8 +7,9 @@ from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
 from app.models import Plex, Dev
-from app import update_scheduler, posters4k, tv4kposter, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files
+from app import update_scheduler, posters4k, tv4kposter, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters
 import threading
+
 
 
 
@@ -373,4 +374,15 @@ def help():
         newdir = re.sub(config[0][5], '/films', i.media[0].parts[0].file)
         break
     return render_template('help.html', pagetitle='Help', plex=plex, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, pageheadding='Help')
+
+@app.route('/webhook',methods=['POST'])
+def recently_added():
+    def get_title():
+        if request.method == 'POST':
+            data = request.json
+            title = data['title']
+            return title
+    webhooktitle = get_title()
+    recently_added_posters(webhooktitle)
+    return('index.html')
 

@@ -1,17 +1,14 @@
 from flask import Flask
-from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import posters4k, posters3d, hide4k, tv4kposter, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files
+from app.scripts import posters4k, posters3d, hide4k, tv4kposter, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
 import logging
-from logging.handlers import RotatingFileHandler
 import shutil
 from plexapi.server import PlexServer
 import re
-from time import sleep
 import plexapi
 
 setup_logger('SYS', r"/logs/application_log.log")
@@ -136,9 +133,6 @@ def update_scheduler():
   if config[0][18] == 1:
     scheduler.add_job('autocollections', func=autocollections, trigger='cron', hour=t2.split(":")[0], minute=t2.split(":")[1])
     log.info("Auto Collections schedule created for "+ t2)
-  #if config[0][19] == 1:
-  #  scheduler.add_job('pixar', func=pixar, trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
-  #  log.info("Pixar Collection schedule created for "+ t3)
   try:
       plex = PlexServer(config[0][1], config[0][2])
       films = plex.library.section(config[0][3])
