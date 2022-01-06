@@ -53,7 +53,7 @@ banner_new_hdr = Image.open("app/img/hdr.png")
 atmos = Image.open("app/img/atmos.png")
 dtsx = Image.open("app/img/dtsx.png")
 atmos_box = Image.open("app/img/chk_atmos.png")
-dtsx_box = Image.open("app/img/chk_dtsx.png") 
+dtsx_box = Image.open("app/img/chk_dtsx.png")
 size = (911,1367)
 tv_size = (1280,720)
 box= (0,0,911,100)
@@ -104,9 +104,14 @@ for i in films.search(title=var2):
                 if 'Audio' in x['media']['track'][f]['@type']:
                     if 'Format_Commercial_IfAny' in x['media']['track'][f]:
                         audio = x['media']['track'][f]['Format_Commercial_IfAny']
-                        if 'DTS' in audio:
-                            if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
-                                audio = 'DTS:X'
+                        if (
+                            'DTS' in audio
+                            and 'XLL X'
+                            in x['media']['track'][f][
+                                "Format_AdditionalFeatures"
+                            ]
+                        ):
+                            audio = 'DTS:X'
                         break
                     elif 'Format' in x['media']['track'][f]:
                         audio = x['media']['track'][f]['Format']
@@ -115,5 +120,4 @@ for i in films.search(title=var2):
                 break
     except IndexError as e:
         print(e)
-        pass
     print(i.title+" - "+audio+" - "+hdr_version)

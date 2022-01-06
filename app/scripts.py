@@ -128,11 +128,10 @@ def recently_added_posters(webhooktitle):
                 cutoff= 10
                 if hash0 - hash1 < cutoff:
                     logger.info('4k Posters: Mini 4k banner exists, moving on')
-                else:    
-                    if config[0][14] == 1:
-                        add_mini_banner()
-                    else:
-                        add_banner()  
+                elif config[0][14] == 1:
+                    add_mini_banner()
+                else:
+                    add_banner()  
             def check_for_banner():
                 background = Image.open(tmp_poster)
                 try:
@@ -205,8 +204,8 @@ def recently_added_posters(webhooktitle):
                             f = filter(lambda a: "tmdb" in a, g)
                             g = list(f)
                             g = str(g[0])
-                            gv = list([v for v in g 
-                                        if v.isnumeric()])
+                            gv = [v for v in g 
+                                            if v.isnumeric()]
                             g = "".join(gv)
                             return g
                         g = get_tmdb_guid()
@@ -383,8 +382,7 @@ def recently_added_posters(webhooktitle):
                             tmdb_search = search.movies({"query": i.title, "year": i.year})
                             def get_poster_link():
                                 for r in tmdb_search:
-                                    poster = r.poster_path
-                                    return poster
+                                    return r.poster_path
                             def get_poster(poster):
                                 r = requests.get(poster_url_base+poster, stream=True)
 
@@ -405,7 +403,7 @@ def recently_added_posters(webhooktitle):
                 backup = os.path.exists(newdir+'poster_bak.png')
                 imgurl = i.posterUrl
                 img = requests.get(imgurl, stream=True)
-                filename = tmp_poster              
+                filename = tmp_poster
                 try:
                     if img.status_code == 200:
                         img.raw.decode_content = True
@@ -465,12 +463,11 @@ def recently_added_posters(webhooktitle):
                                     shutil.copyfile(filename, newdir+'poster_bak.png')
                                 except IOError as e:
                                     logger.error(e)
-                        
+
                     else:
                         logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
                 except OSError as e:
                     logger.error(e)
-                    pass
             
 
 
@@ -714,11 +711,10 @@ def posters4k():
                 cutoff= 10
                 if hash0 - hash1 < cutoff:
                     logger.info('4k Posters: Mini 4k banner exists, moving on')
-                else:    
-                    if config[0][14] == 1:
-                        add_mini_banner()
-                    else:
-                        add_banner()  
+                elif config[0][14] == 1:
+                    add_mini_banner()
+                else:
+                    add_banner()  
             def check_for_mini_tv():
                 background = Image.open(tv_poster)
                 background = background.resize(tv_size,Image.ANTIALIAS)
@@ -808,8 +804,8 @@ def posters4k():
                             f = filter(lambda a: "tmdb" in a, g)
                             g = list(f)
                             g = str(g[0])
-                            gv = list([v for v in g 
-                                        if v.isnumeric()])
+                            gv = [v for v in g 
+                                            if v.isnumeric()]
                             g = "".join(gv)
                             return g
                         g = get_tmdb_guid()
@@ -986,8 +982,7 @@ def posters4k():
                             tmdb_search = search.movies({"query": i.title, "year": i.year})
                             def get_poster_link():
                                 for r in tmdb_search:
-                                    poster = r.poster_path
-                                    return poster
+                                    return r.poster_path
                             def get_poster(poster):
                                 r = requests.get(poster_url_base+poster, stream=True)
 
@@ -1008,7 +1003,7 @@ def posters4k():
                 backup = os.path.exists(newdir+'poster_bak.png')
                 imgurl = i.posterUrl
                 img = requests.get(imgurl, stream=True)
-                filename = tmp_poster              
+                filename = tmp_poster
                 try:
                     if img.status_code == 200:
                         img.raw.decode_content = True
@@ -1068,12 +1063,11 @@ def posters4k():
                                     shutil.copyfile(filename, newdir+'poster_bak.png')
                                 except IOError as e:
                                     logger.error(e)
-                        
+
                     else:
                         logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
                 except OSError as e:
                     logger.error(e)
-                    pass
             def get_TVposter():   
                 newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
                 backup = os.path.exists(newdir+'poster_bak.png')
@@ -1429,11 +1423,10 @@ def posters3d():
             cutoff= 15
             if hash0 - hash1 < cutoff:
                 logger.info('3D Posters: Mini 3D banner exists, moving on...')
-            else:    
-                if config[0][17] == 1:
-                    add_mini_banner()
-                else:
-                    add_banner()       
+            elif config[0][17] == 1:
+                add_mini_banner()
+            else:
+                add_banner()       
 
         def check_for_banner():
             background = Image.open('/tmp/poster.png')
@@ -1466,10 +1459,10 @@ def posters3d():
             backup = os.path.exists(newdir+'poster_bak.png')
             imgurl = i.posterUrl
             img = requests.get(imgurl, stream=True)
-            filename = "/tmp/poster.png"
-
             if img.status_code == 200:
                 img.raw.decode_content = True
+                filename = "/tmp/poster.png"
+
                 with open(filename, 'wb') as f:
                     shutil.copyfileobj(img.raw, f)
                 if config[0][12] == 1: 
@@ -1530,8 +1523,8 @@ def restore_posters():
                 f = filter(lambda a: "tmdb" in a, g)
                 g = list(f)
                 g = str(g[0])
-                gv = list([v for v in g 
-                            if v.isnumeric()])
+                gv = [v for v in g 
+                                if v.isnumeric()]
                 g = "".join(gv)
                 return g
             g = get_tmdb_guid()
@@ -1873,7 +1866,6 @@ def autocollections():
     added = films.search(sort='titleSort')
     def popular():
         p_collection = []
-        m_collection = []
         for i in range(3):
             i += 1
             popular = discover.discover_movies({
@@ -1889,8 +1881,7 @@ def autocollections():
                     for i in in_library:
                         if len(in_library) != 0:
                             i.addCollection('Popular')
-        for m in films.search(collection='Popular'): 
-            m_collection.append((m.title, m.year))
+        m_collection = [(m.title, m.year) for m in films.search(collection='Popular')]
         not_in_collection = list(set(m_collection) - set(p_collection))
         for m in films.search(collection='Popular'):
             if m.title in not_in_collection:
@@ -1898,13 +1889,12 @@ def autocollections():
         logger.info("Popular Collection has finished")        
     def top_rated():
         tr_collection = []
-        trm_collection = []
         for i in range(3):
             i += 1
             top_rated = movie.top_rated({
                 "page": i,
             })
-            
+
             for x in top_rated:
                 title= x.title
                 y = x.release_date.split("-")
@@ -1913,17 +1903,14 @@ def autocollections():
                 for i in in_library:
                     if len(in_library) != 0:
                         i.addCollection('Top Rated')
-        for m in films.search(collection='Top Rated'):  
-            trm_collection.append(m.title)
+        trm_collection = [m.title for m in films.search(collection='Top Rated')]
         not_in_collection = list(set(trm_collection) - set(tr_collection))
         for m in films.search(collection='Top Rated'):
             if m.title in not_in_collection:
-                m.removeCollection('Top Rated')  
+                m.removeCollection('Top Rated')
         logger.info("Top Rated Collection has finished")
     def recommended():
-        if config[0][33] == '':
-            pass
-        else:
+        if config[0][33] != '':
             try:
                 tautulli_api = RawAPI(base_url=config[0][32], api_key=config[0][33])
                 i=tautulli_api.get_home_stats(stats_type='plays', stat_id='top_movies')
@@ -1942,12 +1929,8 @@ def autocollections():
                     for i in in_library:
                         if len(in_library) != 0:
                             i.addCollection('Recommended')
-                r_collection = []
-                rm_collection = []
-                for m in films.search(collection='Recommended'):  
-                    rm_collection.append(m.title)
-                for r in rec:
-                    r_collection.append(r.title)
+                rm_collection = [m.title for m in films.search(collection='Recommended')]
+                r_collection = [r.title for r in rec]
                 not_in_collection = list(set(rm_collection) - set(r_collection))
                 for m in films.search(collection='Recommended'):
                     if m.title in not_in_collection:
@@ -2081,13 +2064,11 @@ def remove_unused_backup_files():
         hash2 = imagehash.average_hash(chk_dolby_vision)
         hash3 = imagehash.average_hash(chk_hdr10)
         cutoff= 10
-        if hash0 - hash2 < cutoff:
-            pass
-        elif hash0 - hash1 < cutoff:
-            pass                        
-        elif hash0 - hash3 < cutoff:
-            pass
-        else:
+        if (
+            hash0 - hash2 >= cutoff
+            and hash0 - hash1 >= cutoff
+            and hash0 - hash3 >= cutoff
+        ):
             logger.info(i.title+' No banners found')
             try:
                 os.remove(b_poster)
@@ -2099,9 +2080,7 @@ def remove_unused_backup_files():
         hash0 = imagehash.average_hash(backgroundchk)
         hash1 = imagehash.average_hash(dtsx_box)
         cutoff= 10
-        if hash0 - hash1 < cutoff:
-            pass
-        else:
+        if hash0 - hash1 >= cutoff:
             hdr_check
     def atmos_check():
         background = Image.open(tmp_poster)
@@ -2109,9 +2088,7 @@ def remove_unused_backup_files():
         hash0 = imagehash.average_hash(backgroundchk)
         hash1 = imagehash.average_hash(atmos_box)
         cutoff= 10
-        if hash0 - hash1 < cutoff:
-            pass
-        else:
+        if hash0 - hash1 >= cutoff:
             dts_check()       
     def check_for_mini():
         background = Image.open(tmp_poster)
@@ -2126,9 +2103,7 @@ def remove_unused_backup_files():
         hash0 = imagehash.average_hash(backgroundchk)
         hash1 = imagehash.average_hash(chk_mini_banner)
         cutoff= 10
-        if hash0 - hash1 < cutoff:
-            pass
-        else:    
+        if hash0 - hash1 >= cutoff:
             atmos_check()
             
     def check_for_banner():
@@ -2144,9 +2119,7 @@ def remove_unused_backup_files():
         hash0 = imagehash.average_hash(backgroundchk)
         hash1 = imagehash.average_hash(chk_banner)
         cutoff= 5
-        if hash0 - hash1 < cutoff:
-            pass
-        else:
+        if hash0 - hash1 >= cutoff:
             check_for_mini()  
     def get_poster():
         newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'

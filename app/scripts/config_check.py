@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3
 import os
-import subprocess 
+import subprocess
 from subprocess import Popen, PIPE, STDOUT
 from configparser import ConfigParser
 import subprocess
@@ -11,7 +11,7 @@ from datetime import datetime
 import re
 from colorama import Fore, Back, Style
 import socket
-from urllib import parse 
+from urllib import parse
 from plexapi.server import PlexServer
 
 config_object = ConfigParser()
@@ -51,67 +51,31 @@ try:
 except :
     print('Cannot access your Plex account, please make sure that your Plex URL and Token are correct')
     exit()
-if pbak == 'true':
-    pass
-elif pbak == 'false':
-    pass
-else:
+if pbak not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if HDR_BANNER == 'true':
-    pass
-elif HDR_BANNER == 'false':
-    pass
-else:
+if HDR_BANNER not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if mini_4k == 'true':
-    pass
-elif mini_4k == 'false':
-    pass
-else:
+if mini_4k not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if hdr_4k_posters == 'true':
-    pass
-elif hdr_4k_posters == 'false':
-    pass
-else:
+if hdr_4k_posters not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if poster_3d == 'true':
-    pass
-elif poster_3d == 'false':
-    pass
-else:
+if poster_3d not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if Disney == 'true':
-    pass
-elif Disney == 'false':
-    pass
-else:
+if Disney not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if Pixar == 'true':
-    pass
-elif Pixar == 'false':
-    pass
-else:
+if Pixar not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.') 
 
-if hide_4k == 'true':
-    pass
-elif hide_4k == 'false':
-    pass
-else:
+if hide_4k not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.')    
 
-if optimise == 'true':
-    pass
-elif optimise == 'false':
-    pass
-else:
+if optimise not in ['true', 'false']:
     raise ValueError('SYNTAX ERROR: Please enter either "true" or "false" to set the script behaviour.')   
 
 
@@ -119,33 +83,23 @@ else:
 a = re.compile("^[0-9]{2}:[0-9]{2}$")
 if a.match(t1) and hdr_4k_posters == 'true':
     pass
-elif hdr_4k_posters != 'true':
-    pass
-else:
+elif hdr_4k_posters == 'true':
     raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
 if a.match(t5) and poster_3d == 'true':
     pass
-elif poster_3d != 'true':
-    pass
-else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')     
+elif poster_3d == 'true':
+    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
 if a.match(t2) and Disney == 'true':
     pass
-elif Disney != 'true':
-    pass
-else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM') 
+elif Disney == 'true':
+    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
 if a.match(t3) and Pixar == 'true':
     pass
-elif Pixar != 'true':
-    pass
-else:
-    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM') 
+elif Pixar == 'true':
+    raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')
 if a.match(t4) and hide_4k == 'true':
     pass
-elif hide_4k != 'true':
-    pass
-else:
+elif hide_4k == 'true':
     raise ValueError('Please make sure that your scheduled times are written in the format HH:MM')  
 
 print('Config check passed')

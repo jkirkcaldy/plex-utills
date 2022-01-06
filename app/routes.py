@@ -380,8 +380,7 @@ def recently_added():
     def get_title():
         if request.method == 'POST':
             data = request.json
-            title = data['title']
-            return title
+            return data['title']
     webhooktitle = get_title()
     recently_added_posters(webhooktitle)
     return('index.html')

@@ -29,13 +29,15 @@ for i in films.search():
     for root, dirs, files in os.walk(dir):
         for name in files:
             filename = os.path.join(root, name)
-            if os.stat(filename).st_mtime > now - (xdays * 86400):
-                if os.stat(filename).st_size > xsize:
-                    print('checking', i.title)
-                    command = "ffmpeg -v error -i \"" + filename + "\" -c:v rawvideo -map 0:1 -f null - 2>&1"
-                    output = os.popen(command).read()
-                    print(output)
-                    if output.lower().find('error') == -1:
-                        print(i.title, 'is OK!')
-                    else:
-                        print('Oh Bugger!', filename, 'is completely buggered')
+            if (
+                os.stat(filename).st_mtime > now - (xdays * 86400)
+                and os.stat(filename).st_size > xsize
+            ):
+                print('checking', i.title)
+                command = "ffmpeg -v error -i \"" + filename + "\" -c:v rawvideo -map 0:1 -f null - 2>&1"
+                output = os.popen(command).read()
+                print(output)
+                if output.lower().find('error') == -1:
+                    print(i.title, 'is OK!')
+                else:
+                    print('Oh Bugger!', filename, 'is completely buggered')
