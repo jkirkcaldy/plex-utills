@@ -7,7 +7,7 @@ Installation
 ------------
 
 Docker
-======
+------
 
 Docker Settings:
 ----------------
@@ -100,7 +100,7 @@ This is what your setup should look like: |unraid-settings|
 --------------
 
 Synology
-========
+--------
 
 To install on synology, first make sure you have installed docker on
 your synology server. Ther are many tutoials on teh web for how to do
@@ -150,8 +150,7 @@ a new browser window and enter : In my case the server is running on IP
 address 10.254.100.81 and the container is using port 49158 (my ports
 changed when taking the images)
 
-So I entrer `http://10.254.100.81:49158 <http://10.254.100.81:49158>`__
-into my browser window and I get the plex-utills webui
+So I enter http://10.254.100.81:49158 into my browser window and I get the plex-utills webui
 
 |image8|
 
