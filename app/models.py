@@ -1,4 +1,3 @@
-from plexapi.config import reset_base_headers
 from app import db
 
 
@@ -11,6 +10,7 @@ class Plex(db.Model):
     filmslibrary = db.Column(db.String)
     library3d = db.Column(db.String)
     plexpath = db.Column(db.String)
+    manualplexpath = db.Column(db.Integer)
     mountedpath = db.Column(db.String)
     # Schedules
     t1 = db.Column(db.String)
@@ -43,8 +43,10 @@ class Plex(db.Model):
     mcu_collection = db.Column(db.Integer)
     tr_r_p_collection = db.Column(db.Integer)
     audio_posters = db.Column(db.Integer)
+    loglevel = db.Column(db.Integer)
+    manualplexpathfield = db.Column(db.String)
     
-    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters):
+    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield):
         self.plexurl = plexurl
         self.token = token
         self.filmslibrary = filmslibrary
@@ -80,6 +82,9 @@ class Plex(db.Model):
         self.tautulli_api    = tautulli_api
         self.tr_r_p_collection = tr_r_p_collection
         self.audio_posters = audio_posters
+        self.loglevel = loglevel
+        self.manualplexpath = manualplexpath
+        self.manualplexpathfield = manualplexpathfield
 
 class Dev(db.Model):
     __tablename__ = 'plex_utills_dev'

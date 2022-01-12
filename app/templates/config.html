@@ -47,7 +47,9 @@
                                             <h2>Schedules</h2>
                                             <p></p>
                                             <hr class="sidebar-divider">
-                                            <p>These must be set, even if you disable a script.</p>
+                                            <p>These can be set as eithe a time format (HH:MM) or in a standard cron format.
+                                            <a href='https://codebeautify.org/crontab-format'>Click here for cron formatting help</a></p>
+                                            <p></p>
                                             
                                             {{ wtf.form_field(form.t1, value=plex.t1) }}
                                             {{ wtf.form_field(form.t5, value=plex.t5) }}

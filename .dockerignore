@@ -9,4 +9,4 @@ LICENSE
 config.ini
 app.db
 *.log
-test.py
+test*.py

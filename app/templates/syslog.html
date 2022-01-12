@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block main %}
+                        <!-- ENTER your content here -->  
+                        <div class="container">
+
+                            <div>                 
+                                <div>
+                                    <h2 align="center">Log file Output:</h2>
+                                    <div class="logging_window" id='logging_window'>
+                                        <pre id="output"></pre>
+                                        <script>
+                                            setInterval(function updateScroll(){
+                                                var element = document.getElementById  ("logging_window");
+                                                element.scrollTop = element.scrollHeight;
+                                            }, 1000);
+                                            setInterval(function read_log(){
+                                                fetch("{{ url_for('syslog_stream')  }}")
+                                                .then(x => x.text())
+                                                .then(y => document.getElementById("output").innerHTML = y); 
+                                            }, 1000);
+                                        </script>
+                                    </div>                            
+                                </div>
+                            </div>
+                        </div>                            
+                        <!--END of your content-->                            
+
+{% endblock %}

@@ -27,13 +27,15 @@
                                    <form method="post" action="{{ url_for('admin_config_form') }}" id="update">
                                             {{ form.csrf_token }}
                                             {{ form.id_field(value=plex.id) }}
-
+                                            {{ wtf.form_field(form.loglevel, value=plex.loglevel) }}
                                             {{ wtf.form_field(form.plexurl, value=plex.plexurl) }}
                                             {{ wtf.form_field(form.token, value=plex.token) }}
                                             {{ wtf.form_field(form.tautulli_server, value=plex.tautulli_server) }}
                                             {{ wtf.form_field(form.tautulli_api, value=plex.tautulli_api) }}
 
                                             {{ wtf.form_field(form.plexpath, value=plex.plexpath) }}
+                                            {{ wtf.form_field(form.manualplexpath, value=plex.manualplexpath) }}
+                                            {{ wtf.form_field(form.manualplexpathfield, value=plex.manualplexpathfield) }}
                                             {{ wtf.form_field(form.mountedpath, value=plex.mountedpath) }}
                                             
                                             {{ wtf.form_field(form.filmslibrary, value=plex.filmslibrary) }}

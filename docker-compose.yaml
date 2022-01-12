@@ -10,3 +10,5 @@ services:
             - <your config location>:/config
         environment: 
             - TZ=Europe/London
+        ports:
+            - 80:80

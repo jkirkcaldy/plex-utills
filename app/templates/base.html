@@ -67,7 +67,7 @@ Plex-Utills
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('script_logs')  }}">
               <i class="fas fa-fw fa-file"></i>
-              <span>Logs</span></a>
+              <span>Script Logs</span></a>
         </li>               
         <hr class="sidebar-divider">
         <li class="nav-item">
@@ -84,6 +84,11 @@ Plex-Utills
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('application_logs')  }}">
               <i class="fas fa-fw fa-file"></i>
+              <span>Application Logs</span></a>
+        </li>               
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('system_logs')  }}">
+              <i class="fas fa-fw fa-file"></i>
               <span>System Logs</span></a>
         </li> 
         <hr class="sidebar-divider">              
@@ -91,7 +96,12 @@ Plex-Utills
           <a class="nav-link" href="{{ url_for('help')  }}">
               <i class="fas fa-fw fa-life-ring"></i>
               <span>Help</span></a>
-        </li>         
+        </li>   
+            <!-- Sidebar Message -->
+            <div class="sidebar-card d-none d-lg-flex">
+                <p class="text-center mb-2"><strong>Plex-Utills</strong> Version</p>
+                <p class="text-center mb-2">{{ version }}</p>
+            </div>     
   </ul>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
