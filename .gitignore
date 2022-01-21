@@ -108,6 +108,6 @@ dev_config.ini
 .config.ini
 config.ini
 */app.db
-
+*/posters/*
 poster.png
 test*.py
