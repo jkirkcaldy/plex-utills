@@ -50,7 +50,9 @@
                                             {{ wtf.form_field(form.backup, value=plex.backup) }}
                                             {{ wtf.form_field(form.restore_from_tmdb, value=plex.tmdb_restore) }}
                                             {{ wtf.form_field(form.tmdb_api, value=plex.tmdb_api) }}
-
+                                            
+                                            {{ wtf.form_field(form.skip_media_info, value=plex.skip_media_info) }}
+                                            
                                             {{ wtf.form_field(form.posters4k, value=plex.posters4k) }}  
                                             {{ wtf.form_field(form.audio_posters, value=plex.audio_posters) }}                                                                            
                                             {{ wtf.form_field(form.films4kposters, value=plex.films4kposters) }}

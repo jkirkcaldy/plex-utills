@@ -71,11 +71,6 @@ Plex-Utills
         </li>               
         <hr class="sidebar-divider">
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('run_migrate')  }}">
-              <i class="fas fa-fw fa-wrench"></i>
-              <span>Migrate Config</span></a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
               <i class="fas fa-fw fa-film"></i>
               <span>Recreate HDR Banners</span></a>
@@ -97,6 +92,11 @@ Plex-Utills
               <i class="fas fa-fw fa-life-ring"></i>
               <span>Help</span></a>
         </li>   
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('get_films')  }}">
+                <i class="fas fa-fw fa-table"></i>
+                <span>Film Database</span></a>
+          </li>          
             <!-- Sidebar Message -->
             <div class="sidebar-card d-none d-lg-flex">
                 <p class="text-center mb-2"><strong>Plex-Utills</strong> Version</p>

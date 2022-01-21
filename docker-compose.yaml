@@ -10,5 +10,10 @@ services:
             - <your config location>:/config
         environment: 
             - TZ=Europe/London
+            - mysql_user = 
+            - mysql_pass = 
+            - mysql_url = 
+            - mysql_port = 
+            - mysql_database = 
         ports:
             - 80:80

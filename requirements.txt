@@ -16,3 +16,4 @@ gunicorn
 pymediainfo
 tautulli
 croniter
+mysql-connector-python

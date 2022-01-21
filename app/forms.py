@@ -25,6 +25,7 @@ class AddRecord_config(FlaskForm):
 
 class AddRecord_config_options(FlaskForm):
     id_field = HiddenField()
+    skip_media_info = SelectField('Skip scanning with Media Info. Disabling this option also disables audio and HDR10+ banners', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     posters4k = SelectField('Enable the global 4K Poster script ', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     audio_posters = SelectField('Enable Dolby Atmos and DTS:X labels on the posters', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     films4kposters = SelectField('Enable 4K Posters For Films', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
@@ -48,6 +49,7 @@ class AddRecord_config_options(FlaskForm):
 class admin_config(FlaskForm):
     id_field = HiddenField()
     loglevel = SelectField('Log Level', [InputRequired()],   choices=[('0', 'Info'), ('1', 'Debug')])
+    skip_media_info = SelectField('Skip scanning with Media Info. Disabling this option also disables audio and HDR10+ banners', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     plexurl = StringField('Plex URL', [ InputRequired(), URL(message='This must be a correct URL')])
     token = StringField('Token', [ InputRequired() ])
     filmslibrary = StringField('Films Library, either a single library or comma separated (no spaces)', [ InputRequired() ])

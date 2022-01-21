@@ -1,8 +1,9 @@
-from app import db
+from app import db, mydb
 
 
 class Plex(db.Model):
     __tablename__ = 'plex_utills'
+    __bind_key__ = 'db1'
     # plex and docker config
     id = db.Column(db.Integer, primary_key=True)
     plexurl = db.Column(db.String)
@@ -45,8 +46,9 @@ class Plex(db.Model):
     audio_posters = db.Column(db.Integer)
     loglevel = db.Column(db.Integer)
     manualplexpathfield = db.Column(db.String)
+    skip_media_info = db.Column(db.Integer)
     
-    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield):
+    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield, skip_media_info):
         self.plexurl = plexurl
         self.token = token
         self.filmslibrary = filmslibrary
@@ -85,11 +87,27 @@ class Plex(db.Model):
         self.loglevel = loglevel
         self.manualplexpath = manualplexpath
         self.manualplexpathfield = manualplexpathfield
+        self.skip_media_info = skip_media_info
 
-class Dev(db.Model):
-    __tablename__ = 'plex_utills_dev'
+class film_table(db.Model):
+    __tablename__ = 'films'
+    __bind_key__ = 'db2'
     id = db.Column(db.Integer, primary_key=True)
-    file = db.Column(db.String)
-    hdr = db.Column(db.String)
+    title = db.Column(db.String)
+    guid = db.Column(db.String)
+    guids = db.Column(db.String)
+    size = db.Column(db.String)
     res = db.Column(db.String)
+    hdr = db.Column(db.String)
     audio = db.Column(db.String)
+    poster = db.Column(db.BLOB)
+    checked = db.Column(db.Integer)
+
+    def to_dict(self):
+        return {
+            'title': self.title,
+            'res': self.res,
+            'hdr': self.hdr,
+            'audio': self.audio,
+            'checked': self.checked
+        }

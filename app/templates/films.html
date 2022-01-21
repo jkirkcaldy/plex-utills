@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Film</th>
+        <th>Resolution</th>
+        <th>HDR Version</th>
+        <th>Audio Track</th>
+        <th>Checked</th>
+      </tr>
+    </thead>
+   <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+{% block scripts %}
+<script>
+
+  $(document).ready(function () {
+    $('#data').DataTable({
+      ajax: '/api/data',
+      ServerSide: true,
+      columns: [
+        {data: 'title'},
+        {data: 'res'},
+        {data: 'hdr'},
+        {data: 'audio'},
+        {data: 'checked'}
+      ],
+    });
+  });
+</script>
+{% endblock %}

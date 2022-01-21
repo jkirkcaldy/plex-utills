@@ -1,32 +1,44 @@
 import logging
 from flask import render_template, flash, request
-from flask.wrappers import Response
-from werkzeug.wrappers import response
-
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
-from app.models import Plex, Dev
-from app import update_scheduler, posters4k, tv4kposter, posters3d, hide4k, migrate, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script
+from app.models import Plex, film_table
+from app.scripts import posters4k, tv4kposter, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database
 import threading
 import datetime
+from app import update_scheduler
+import os
 
 date = datetime.datetime.now()
-date = date.strftime("%y.%m.%d")
+date = date.strftime("%y.%m.%d-%H%M")
 
 
 
 setup_logger('SYS', r"/logs/application_log.log")
 log = logging.getLogger('SYS')
 
-version = 'Dev: '+date
-
+def get_version():
+    with open('./version') as f: s = f.read()
+    return s
+version = get_version()
 
 @app.route('/')
 @app.route('/index', methods=["GET"])
 def index():
     plex = Plex.query.filter(Plex.id == '1').all()
     return render_template('index.html', plex=plex, pagetitle='Home', version=version)
+
+@app.route('/view_script_logs')
+def script_logs():
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+@app.route("/script_log_stream", methods=["GET"])
+def script_stream():
+    def script_generate():
+        with open('/logs/script_log.log', "rb") as f:
+            while chunk := f.read(1024 * 10):
+                yield chunk
+    return app.response_class(script_generate(), mimetype='text/plain')
 
 @app.route('/run_scripts', methods=["GET"])
 def run_scripts():
@@ -36,12 +48,12 @@ def run_scripts():
 @app.route('/remove_backups', methods=['GET'])
 def run_remove_backups():
     threading.Thread(target=remove_unused_backup_files).start()   
-    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+    return script_logs()
 
 @app.route('/test')
 def run_test():
     threading.Thread(target=test_script).start()
-    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+    return script_logs()
 
 
 @app.route('/posters4k', methods=['GET'])
@@ -68,11 +80,22 @@ def run_disney():
 def run_pixar():
     threading.Thread(target=autocollections.pixar).start()
     return(render_template('script_log_viewer.html', pagetitle='Script Logs', version=version))
+
+@app.route('/preseed')
+def preseed():
+    threading.Thread(target=fill_database).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
 @app.route('/restore', methods=['GET'])
 def run_restore():   
     threading.Thread(target=restore_posters).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
-    
+
+@app.route('/restore_from_database', methods=['GET'])
+def run_restore_from_database():   
+    threading.Thread(target=restore_from_database).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+      
 @app.route('/recreate_hdr')
 def run_recreate_hdr():   
     return render_template("/recreate_hdr.html", pagetitle='Recreate HDR Posters', version=version)
@@ -87,26 +110,6 @@ def run_autocollections():
     threading.Thread(target=autocollections).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
-@app.route('/migrate')
-def run_migrate():
-    return render_template('migrate.html', pagetitle='Config Migration', version=version)
-
-@app.route('/start_migrate', methods=['GET', 'POST'])
-def start_migrate():
-    migrate()
-    message = 'The database has been migrated, please go to the config page to double check your config has migrated correctly.'
-    return render_template('result.html', message=message, pagetitle='Config migrated', version=version)
-
-@app.route('/view_script_logs')
-def script_logs():
-    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
-@app.route("/script_log_stream", methods=["GET"])
-def script_stream():
-    def script_generate():
-        with open('/logs/script_log.log', "rb") as f:
-            while chunk := f.read(1024 * 10):
-                yield chunk
-    return app.response_class(script_generate(), mimetype='text/plain') 
 
 
 
@@ -185,6 +188,7 @@ def config_options():
     if request.method=='GET':
         plex = Plex.query.filter(Plex.id == '1').first()
         form = AddRecord_config_options()
+        form.skip_media_info.default = plex.skip_media_info
         form.posters4k.default = plex.posters4k
         form.mini4k.default = plex.mini4k
         form.hdr.default = plex.hdr
@@ -227,6 +231,7 @@ def config_options():
         plex.autocollections = request.form['autocollections']
         plex.tr_r_p_collection = request.form['tr_r_p_collection']
         plex.audio_posters = request.form['audio_posters']
+        plex.skip_media_info = request.form['skip_media_info']
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
@@ -248,6 +253,7 @@ def admin_config_form():
     if request.method=='GET':
         plex = Plex.query.filter(Plex.id == '1').first()
         form = admin_config()
+        form.skip_media_info.default = plex.skip_media_info
         form.manualplexpath.default = plex.manualplexpath
         form.loglevel.default = plex.loglevel
         form.backup.default = plex.backup
@@ -313,6 +319,7 @@ def admin_config_form():
         plex.manualplexpath = request.form['manualplexpath']
         plex.manualplexpathfield = request.form['manualplexpathfield']
         plex.mountedpath = request.form['mountedpath']
+        plex.skip_media_info = request.form['skip_media_info']
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
@@ -429,3 +436,53 @@ def recently_added():
     hide4k()
     recently_added_posters(webhooktitle)
     return 'ok', 200
+
+@app.route('/films')
+def get_films():
+    #films = film_table.query.all()
+    return render_template('films.html', pagetitle='Films', version=version)#, films=films)
+
+@app.route('/api/data')
+def data():
+    query = film_table.query
+ 
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            film_table.title.like(f'%{search}%'),
+            film_table.res.like(f'%{search}%'),
+            film_table.hdr.like(f'%{search}%'),
+            film_table.audio.like(f'%{search}%'),
+        ))
+ 
+    total_filtered = query.count()
+ 
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name not in ['title', 'res', 'hdr', 'audio']:
+            col_name = 'title'
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(film_table, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+ 
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+ 
+ 
+    return {
+        'data': [films.to_dict() for films in film_table.query],
+        'recordsFiltered': total_filtered,
+        'recordsTotal': film_table.query.count(),
+        'draw': request.args.get('draw', type=int),
+    }
