@@ -2039,4 +2039,35 @@ def fill_database():
         except IndexError:
             pass 
 
-        
+def add_labels():
+    from app.models import Plex, film_table
+    from app import db
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    def run_script():
+        logger.info('Adding Film Labels')
+        for i in films.search():
+            guid = str(i.guid)
+            r = film_table.query.filter(film_table.guid == guid).all()
+    
+            if 'Dolby Atmos' in r[0].audio:
+                i.addLabel(label='Dolby Atmos', locked=False)  
+            elif 'Dolby Vision' in r[0].hdr:
+                i.addLabel(label='Dolby Vision', locked=False) 
+            elif 'DTS:X' in r[0].audio:
+                i.addLabel(label='DTS:X', locked=False)
+            elif 'HDR10+' in r[0].hdr:
+                i.addLabel(label='HDR10+', locked=False)
+            elif 'HDR' in r[0].hdr:
+                i.addLabel(label='HDR', locked=False)
+        logger.info('Labels Added')
+    lib = config[0].filmslibrary.split(',')
+    logger.debug(lib)
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    films = plex.library.section(lib[l])
+                    run_script()
+        except IndexError:
+            pass 

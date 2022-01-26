@@ -4,7 +4,7 @@ from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
 from app.models import Plex, film_table
-from app.scripts import posters4k, tv4kposter, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database
+from app.scripts import posters4k, tv4kposter, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database, add_labels
 import threading
 import datetime
 from app import update_scheduler
@@ -85,6 +85,11 @@ def run_pixar():
 def preseed():
     threading.Thread(target=fill_database).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+@app.route('/add_labels')
+def add_labels():
+    threading.Thread(target=add_labels).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
 
 @app.route('/restore', methods=['GET'])
 def run_restore():   
@@ -360,10 +365,10 @@ def help():
     
     
     try:
-        os.remove('app/static/img/poster.png')
-        os.remove('app/static/img/poster_bak.png')
+        os.remove('./app/static/img/poster.png')
+        os.remove('./app/static/img/poster_bak.png')
     except FileNotFoundError as e:
-        log.debug(e)
+        pass #log.debug(e)
     
     plex = Plex.query.filter(Plex.id == '1').all()
     
@@ -379,12 +384,15 @@ def help():
         message = "Can not connect to your plex server, please check your config"
         return render_template('error.html', pagetitle="Error - Connection Error", pageheading="Connection Error", error=e, message=message, version=version), 500
 
-    imgdir = './app/static/img'
-    imgdir_exists = os.path.exists(imgdir)
-    if imgdir_exists == False:
-        os.mkdir('./app/static/img')
+    def convert_data(data, file_name):
+        with open(file_name, 'wb') as file:
+            file.write(data)
     
     def get_poster():
+        imgdir = './app/static/img'
+        imgdir_exists = os.path.exists(imgdir)
+        if imgdir_exists == False:
+            os.mkdir('./app/static/img')
         if config[0][37] == 1:
             newdir = os.path.dirname(re.sub(config[0][38], '/films', i.media[0].parts[0].file))+'/'
         else:
@@ -400,20 +408,22 @@ def help():
             with open(filename, 'wb') as f:
                 shutil.copyfileobj(img.raw, f) 
         shutil.copy(filename, './app/static/img/poster.png')
-        if backup == True:
-            poster_bak = os.path.join(newdir+'poster_bak.png')
-            log.debug(poster_bak)
-            try:
-                shutil.copy(poster_bak, './app/static/img/poster_bak.png')
-            except PermissionError as e:
-                log.debug(e)
-        
+        try:
+            guid = str(i.guid)
+            r = film_table.query.filter(film_table.guid == guid).all()
+            ablob = r[0].poster
+            poster = './app/static/img/poster_bak.png'
+            convert_data(ablob, poster)
+        except TypeError as e:
+            log.error(repr(e)) 
+
     for i in films.search(limit='1'):
         get_poster()
         log.debug('Running help script')
         plex_filepath = i.media[0].parts[0].file
         filmtitle = i.title
         log.debug(config[0][37])
+        
         if config[0][37] == 1:
             newdir = re.sub(config[0][38], '/films', i.media[0].parts[0].file)
         else:
