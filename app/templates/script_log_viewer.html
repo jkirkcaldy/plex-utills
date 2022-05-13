@@ -12,7 +12,7 @@
                                             setInterval(function updateScroll(){
                                                 var element = document.getElementById  ("logging_window");
                                                 element.scrollTop = element.scrollHeight;
-                                            }, 1000);
+                                            }, 1);
                                             setInterval(function read_log(){
                                                 fetch("{{ url_for('script_stream')  }}")
                                                 .then(x => x.text())

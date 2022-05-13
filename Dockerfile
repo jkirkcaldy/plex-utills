@@ -2,6 +2,7 @@ FROM python:3.9-bullseye
 
 LABEL maintainer="JKirkcaldy"
 LABEL support = "https://github.com/jkirkcaldy/plex-utills"
+LABEL discord = https://discord.gg/z3FYhHwHMw
 
 WORKDIR /app
 COPY ./app ./app
@@ -26,7 +27,7 @@ VOLUME [ "/config" ]
 VOLUME [ "/logs" ]
 RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb
 RUN dpkg -i repo-mediaarea_1.0-19_all.deb
-RUN apt-get update && apt-get install -y supervisor mediainfo nginx \
+RUN apt-get update && apt-get install -y supervisor mediainfo nginx nano \
 && rm -rf /var/lib/apt/lists/*
 COPY supervisord-debian.conf /etc/supervisor/conf.d/supervisord.conf
 COPY app/static/dockerfiles/default /etc/nginx/sites-enabled/default
@@ -38,8 +39,9 @@ ENV LISTEN_PORT 80
 ENV mysql_user=plex-utills 
 ENV mysql_pass=plex-utills
 ENV mysql_url=plex-utills
-ENV mysql_port =plex-utills
+ENV mysql_port=plex-utills
 ENV mysql_database=plex-utills
+
 RUN chmod +x start.sh
 RUN chmod +x entrypoint.sh
 

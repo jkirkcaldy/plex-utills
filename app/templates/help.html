@@ -60,14 +60,26 @@
                           <td>{{ filmtitle }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Plex Path</th>
+                            <th scope="row" rowspan='2'>Plex Path</th>
                             <td>{{ plex_filepath }}</td>
                         </tr>
                         <tr>
-                          <th scope="row">Plex-utills path</th>
+                          <td>This is the path where your Plex Server sees your media</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" rowspan='2'>Plex-utills path</th>
                           <td>{{ newdir }}</td>
-                        </tr>                        
-                        
+                        </tr>   
+                        <tr>
+                          <td>This is the path where Plex-Utills expects to see your media sees your media</td>
+                        </tr>                     
+                        <tr>
+                          <th scope="row" rowspan='2'>/films Content</th>
+                          <td>{{ mpath }}</td>
+                        </tr>      
+                        <tr>
+                          <td>This is the content of your /films directory inside Plex-utills. This is useful for figuring out whether you need to use the manual override for your plexpath.</td>
+                        </tr>                   
                       </table>
 
                         <div class='container'>

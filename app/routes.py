@@ -1,5 +1,5 @@
 import logging
-from flask import render_template, flash, request
+from flask import render_template, flash, request, redirect
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
@@ -58,7 +58,7 @@ def run_test():
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():
-    threading.Thread(target=posters4k).start()   
+    threading.Thread(target=posters4k, name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
@@ -86,7 +86,7 @@ def preseed():
     threading.Thread(target=fill_database).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/add_labels')
-def add_labels():
+def start_add_labels():
     threading.Thread(target=add_labels).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
@@ -356,29 +356,23 @@ def internal_server_error(e):
 
 @app.route('/help')
 def help():
-    import sqlite3
     import os
     from plexapi.server import PlexServer
     import re
     import requests
-    import shutil
-    
-    
+    import shutil 
     try:
         os.remove('./app/static/img/poster.png')
         os.remove('./app/static/img/poster_bak.png')
     except FileNotFoundError as e:
         pass #log.debug(e)
     
-    plex = Plex.query.filter(Plex.id == '1').all()
-    
-    conn = sqlite3.connect('/config/app.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM plex_utills")
-    config = c.fetchall()
+    config = Plex.query.filter(Plex.id == '1')
+    plexserver = PlexServer(config[0].plexurl, config[0].token)
+    mpath = [f for f in os.listdir('/films') if not f.startswith('.')]
+
     try:
-        plexserver = PlexServer(config[0][1], config[0][2])
-        films = plexserver.library.section(config[0][3])
+        films = plexserver.library.section(config[0].filmslibrary)
     except requests.exceptions.ConnectionError as e:
         log.error(e)
         message = "Can not connect to your plex server, please check your config"
@@ -393,10 +387,10 @@ def help():
         imgdir_exists = os.path.exists(imgdir)
         if imgdir_exists == False:
             os.mkdir('./app/static/img')
-        if config[0][37] == 1:
-            newdir = os.path.dirname(re.sub(config[0][38], '/films', i.media[0].parts[0].file))+'/'
+        if config[0].manualplexpath == 1:
+            newdir = os.path.dirname(re.sub(config[0].manualplexpath, '/films', i.media[0].parts[0].file))+'/'
         else:
-            newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
         log.debug(i.media[0].parts[0].file)
         log.debug(newdir)
         backup = os.path.exists(newdir+'poster_bak.png')
@@ -422,14 +416,14 @@ def help():
         log.debug('Running help script')
         plex_filepath = i.media[0].parts[0].file
         filmtitle = i.title
-        log.debug(config[0][37])
+        log.debug(config[0].manualplexpath)
         
-        if config[0][37] == 1:
-            newdir = re.sub(config[0][38], '/films', i.media[0].parts[0].file)
+        if config[0].manualplexpath == 1:
+            newdir = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
         else:
-            newdir = re.sub(config[0][5], '/films', i.media[0].parts[0].file)
+            newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
     log.debug(newdir)
-    return render_template('help.html', pagetitle='Help', plex=plex, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, pageheadding='Help', version=version)
+    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, pageheadding='Help', version=version)
 
 @app.route('/webhook',methods=['POST'])
 def recently_added():
@@ -443,8 +437,8 @@ def recently_added():
                 return data['movie']['title']
     webhooktitle = get_title()
     log.info('Webhook recieved for: '+webhooktitle)
-    hide4k()
-    recently_added_posters(webhooktitle)
+    threading.Thread(target=hide4k, name='hide4K_Webhook').start()
+    threading.Thread(target=recently_added_posters(webhooktitle), name='4k_posters_webhook').start()
     return 'ok', 200
 
 @app.route('/films')

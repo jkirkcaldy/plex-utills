@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import posters4k, posters3d, hide4k, setup_logger, autocollections
+from app.scripts import posters4k, posters3d, hide4k, setup_logger, autocollections, fill_database
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
@@ -15,8 +15,9 @@ import time
 from apscheduler.triggers.cron import CronTrigger
 from croniter import croniter
 from logging.handlers import RotatingFileHandler
-
-
+import threading
+import signal
+import time
 
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
@@ -24,12 +25,17 @@ log = logging.getLogger('Application')
 import mysql.connector
 
 
+mysql_user = 'plex-utills'
+mysql_pass = 'plex-utills'
+mysql_url = '10.120.0.2'
+mysql_port = '3306'
+mysql_database = 'plex-utills'
 
-mysql_user = os.environ['mysql_user']
-mysql_pass = os.environ['mysql_pass']
-mysql_url = os.environ['mysql_url']
-mysql_port = os.environ['mysql_port']
-mysql_database = os.environ['mysql_database']
+#mysql_user = os.environ['mysql_user']
+#mysql_pass = os.environ['mysql_pass']
+#mysql_url = os.environ['mysql_url']
+#mysql_port = os.environ['mysql_port']
+#mysql_database = os.environ['mysql_database']
 
 mydb = mysql.connector.connect(
   host=mysql_url,
@@ -370,13 +376,20 @@ def update_scheduler():
     except (plexapi.exceptions.NotFound, OSError) as e:
         log.error(e)
 
+class TimeOutException(Exception):
+   pass
 
 class Plex_utills(Flask):
     def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
         if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
           with self.app_context():
+            from app.scripts import maintenance
+            
+            scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
             setup_helper()
-        super(Plex_utills, self).run(host=host, port=port, debug=debug, **options)
+            #threading.Thread(target=fill_database, daemon=True).start()
+            #posters4k()
+        super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=debug, **options)
 
 timezone = str(tzlocal.get_localzone())
 class Config:
@@ -406,10 +419,7 @@ app.config['SQLALCHEMY_BINDS'] = {
     'db1': 'sqlite:///' + db_name,
     'db2': 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user=mysql_user, password=mysql_pass, server=mysql_url, database=mysql_database)
 }
-#SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

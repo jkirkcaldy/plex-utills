@@ -11,9 +11,13 @@ from logging.handlers import RotatingFileHandler
 from tmdbv3api import TMDb, Search, Movie, Discover
 from pymediainfo import MediaInfo
 import json
-from tautulli.api import RawAPI
+from tautulli import RawAPI
 import unicodedata
 from flask_sqlalchemy import sqlalchemy
+import signal
+import time
+
+
 
 def setup_logger(logger_name, log_file):
     import sqlite3
@@ -50,6 +54,7 @@ search = Search()
 movie = Movie()
 discover = Discover()
 
+ 
 
 def recently_added_posters(webhooktitle):
     from app.models import Plex, film_table
@@ -57,6 +62,8 @@ def recently_added_posters(webhooktitle):
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
 
+
+    
     def run_script(): 
         banner_4k = Image.open("app/img/4K-Template.png")
         mini_4k_banner = Image.open("app/img/4K-mini-Template.png")
@@ -165,7 +172,6 @@ def recently_added_posters(webhooktitle):
             logger.debug(i.title+' '+hdr+' '+audio)  
             pblob = backup_poster(tmp_poster)
             if backup == True or True not in banners:
-
                 film = film_table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=pblob, checked='1')
                 db.session.add(film)
                 db.session.commit()
@@ -286,6 +292,23 @@ def recently_added_posters(webhooktitle):
             background.save(tmp_poster)
             return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr
 
+        def get_plex_hdr():
+            ekey = i.key
+            m = plex.fetchItems(ekey)
+            for m in m:
+                try:
+                    if m.media[0].parts[0].streams[0].DOVIPresent == True:
+                        hdr_version='Dolby Vision'
+                        i.addLabel('Dolby Vision', locked=False)
+                    elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
+                        hdr_version='HDR'
+                        i.addLabel('HDR', locked=False)
+                    else:
+                        hdr_version = 'None'
+                    return hdr_version
+                except IndexError:
+                    pass
+
         def decision_tree(tmp_poster):
 
             wide_banner = banners[0]
@@ -313,8 +336,7 @@ def recently_added_posters(webhooktitle):
             ) or (
                 audio_banner == False
                 and config[0].audio_posters == 1
-            ):  
-                
+            ):     
                 def database_decision(r):
                     try:
                         audio = r[0].audio
@@ -326,6 +348,10 @@ def recently_added_posters(webhooktitle):
                                 scan = scan_files()
                                 audio = scan[0]
                                 hdr = scan[1]
+                                logger.debug(title+' - '+hdr)
+                                if hdr == "":
+                                    hdr = get_plex_hdr() 
+                                    logger.debug(title+' - '+hdr)                               
                                 updateTable(hdr, audio, tmp_poster)
                                 
                             if not r[0].poster and True not in banners:
@@ -336,6 +362,9 @@ def recently_added_posters(webhooktitle):
                             scan = scan_files()
                             audio = scan[0]
                             hdr = scan[1]
+                            logger.debug(hdr)
+                            if hdr == "":
+                                hdr = get_plex_hdr()
                             updateTable(hdr, audio, tmp_poster)
                     except IndexError as e:
                         logger.error(repr(e))
@@ -364,7 +393,12 @@ def recently_added_posters(webhooktitle):
                             dolby_vision(tmp_poster)
                         elif "HDR10+" in hdr and config[0].new_hdr == 1:
                             hdr10(tmp_poster)
-                        elif hdr != "" and config[0].new_hdr == 1:
+                        elif hdr == "None":
+                            pass
+                        elif (
+                            hdr != ""
+                            and config[0].new_hdr == 1
+                        ):
                             hdrp(tmp_poster)
                     elif 'Dolby Vision' in hdr:
                         i.addLabel('Dolby Vision', locked=False)
@@ -385,25 +419,10 @@ def recently_added_posters(webhooktitle):
                     logger.debug(i.title+' Has banner') 
             rechk_banners = check_banners(tmp_poster)
             if True not in rechk_banners:
-                os.remove(tmp_poster)
-
-        def get_plex_hdr():
-            ekey = i.key
-            m = plex.fetchItems(ekey)
-            for m in m:
                 try:
-                    if m.media[0].parts[0].streams[0].DOVIPresent == True:
-                        hdr_version='Dolby Vision'
-                        i.addLabel('Dolby Vision', locked=False)
-                    elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
-                        hdr_version='HDR'
-                        i.addLabel('HDR', locked=False)
-                    else:
-                        hdr_version = 'None'
-                    return hdr_version
-                except IndexError:
+                    os.remove(tmp_poster)
+                except:
                     pass
-
         def check_for_new_poster(tmp_poster):
             def convert_data(data, file_name):
                 with open(file_name, 'wb') as file:
@@ -458,20 +477,22 @@ def recently_added_posters(webhooktitle):
                     logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
             except OSError as e:
                 logger.error(e)
+            except Exception as e:
+                logger.error(e)
 
         for i in films.search(title=webhooktitle):
             logger.info(i.title)
-            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
-            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-            tmp_poster = get_poster()
+            #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+            #tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+            #tmp_poster = get_poster()            
             title = i.title
             guid = str(i.guid)
             guids = str(i.guids)
             size = i.media[0].parts[0].size
-            res = i.media[0].videoResolution
+            res = i.media[0].videoResolution         
             r = film_table.query.filter(film_table.guid == guid).all()
             try:
-                if r[0].checked == '1' and r[0].size == size:
+                if r[0].checked == '1' and r[0].size != size:
                     logger.info(title+' has been processed and the file has not changed, skiping')
                 else:
                     logger.debug(i.title+' Checking for Banners')
@@ -479,11 +500,17 @@ def recently_added_posters(webhooktitle):
                     check_for_new_poster(tmp_poster)
                     decision_tree(tmp_poster)
                     upload_poster(tmp_poster)
-            except AttributeError:
+            except:
+                
+                t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                tmp_poster = get_poster()
+                logger.debug('Poster retrieved')
                 banners = check_banners(tmp_poster)
                 check_for_new_poster(tmp_poster)
                 decision_tree(tmp_poster)
                 upload_poster(tmp_poster)
+               
         logger.info('4k Poster script has finished')
     lib = config[0].filmslibrary.split(',')
     logger.debug(lib)
@@ -730,6 +757,23 @@ def posters4k():
             background.save(tmp_poster)
             return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr
 
+        def get_plex_hdr():
+            ekey = i.key
+            m = plex.fetchItems(ekey)
+            for m in m:
+                try:
+                    if m.media[0].parts[0].streams[0].DOVIPresent == True:
+                        hdr_version='Dolby Vision'
+                        i.addLabel('Dolby Vision', locked=False)
+                    elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
+                        hdr_version='HDR'
+                        i.addLabel('HDR', locked=False)
+                    else:
+                        hdr_version = 'None'
+                    return hdr_version
+                except IndexError:
+                    pass
+
         def decision_tree(tmp_poster):
 
             wide_banner = banners[0]
@@ -769,6 +813,10 @@ def posters4k():
                                 scan = scan_files()
                                 audio = scan[0]
                                 hdr = scan[1]
+                                logger.debug(title+' - '+hdr)
+                                if hdr == "":
+                                    hdr = get_plex_hdr() 
+                                    logger.debug(title+' - '+hdr)                               
                                 updateTable(hdr, audio, tmp_poster)
                                 
                             if not r[0].poster and True not in banners:
@@ -779,6 +827,9 @@ def posters4k():
                             scan = scan_files()
                             audio = scan[0]
                             hdr = scan[1]
+                            logger.debug(hdr)
+                            if hdr == "":
+                                hdr = get_plex_hdr()
                             updateTable(hdr, audio, tmp_poster)
                     except IndexError as e:
                         logger.error(repr(e))
@@ -807,7 +858,12 @@ def posters4k():
                             dolby_vision(tmp_poster)
                         elif "HDR10+" in hdr and config[0].new_hdr == 1:
                             hdr10(tmp_poster)
-                        elif hdr != "" and config[0].new_hdr == 1:
+                        elif hdr == "None":
+                            pass
+                        elif (
+                            hdr != ""
+                            and config[0].new_hdr == 1
+                        ):
                             hdrp(tmp_poster)
                     elif 'Dolby Vision' in hdr:
                         i.addLabel('Dolby Vision', locked=False)
@@ -828,25 +884,10 @@ def posters4k():
                     logger.debug(i.title+' Has banner') 
             rechk_banners = check_banners(tmp_poster)
             if True not in rechk_banners:
-                os.remove(tmp_poster)
-
-        def get_plex_hdr():
-            ekey = i.key
-            m = plex.fetchItems(ekey)
-            for m in m:
                 try:
-                    if m.media[0].parts[0].streams[0].DOVIPresent == True:
-                        hdr_version='Dolby Vision'
-                        i.addLabel('Dolby Vision', locked=False)
-                    elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
-                        hdr_version='HDR'
-                        i.addLabel('HDR', locked=False)
-                    else:
-                        hdr_version = 'None'
-                    return hdr_version
-                except IndexError:
+                    os.remove(tmp_poster)
+                except:
                     pass
-
         def check_for_new_poster(tmp_poster):
             def convert_data(data, file_name):
                 with open(file_name, 'wb') as file:
@@ -901,20 +942,22 @@ def posters4k():
                     logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
             except OSError as e:
                 logger.error(e)
+            except Exception as e:
+                logger.error(e)
 
-        for i in films.search():
+        for i in films.search(title=''):
             logger.info(i.title)
-            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
-            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-            tmp_poster = get_poster()
+            #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+            #tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+            #tmp_poster = get_poster()            
             title = i.title
             guid = str(i.guid)
             guids = str(i.guids)
             size = i.media[0].parts[0].size
-            res = i.media[0].videoResolution
+            res = i.media[0].videoResolution         
             r = film_table.query.filter(film_table.guid == guid).all()
             try:
-                if r[0].checked == '1' and r[0].size == size:
+                if r[0].checked == '1' and r[0].size != size:
                     logger.info(title+' has been processed and the file has not changed, skiping')
                 else:
                     logger.debug(i.title+' Checking for Banners')
@@ -922,11 +965,21 @@ def posters4k():
                     check_for_new_poster(tmp_poster)
                     decision_tree(tmp_poster)
                     upload_poster(tmp_poster)
-            except AttributeError:
+            except:
+                
+                t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                tmp_poster = get_poster()
+                logger.debug('Poster retrieved')
                 banners = check_banners(tmp_poster)
                 check_for_new_poster(tmp_poster)
                 decision_tree(tmp_poster)
                 upload_poster(tmp_poster)
+        dirpath = '/tmp/'
+        for root, dirs, files in os.walk(dirpath):
+            for file in files:
+                if file.endswith('.png'):
+                    os.remove(dirpath+file)       
         logger.info('4k Poster script has finished')
     lib = config[0].filmslibrary.split(',')
     logger.debug(lib)
@@ -1333,7 +1386,7 @@ def hide4k():
 
 
             added = films.search(resolution='4k', sort='addedAt')
-            b = films.search(label='untranscodable', sort='addedAt')
+            b = films.search('untranscodable', sort='addedAt')
             def add_untranscodable():
                 for movie in added:
                     resolutions = {m.videoResolution for m in movie.media}
@@ -1995,7 +2048,7 @@ def fill_database():
                         logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
                 except OSError as e:
                     logger.error(e)
-            
+                    
             t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
             tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
             tmp_poster = get_poster()
@@ -2018,16 +2071,22 @@ def fill_database():
                     audio = ''
                     insert_intoTable(hdr, audio, tmp_poster)  
         for i in films.search():
-            logger.info(i.title)
+            logger.debug(i.title)
             title = i.title
             guid = str(i.guid)
             guids = str(i.guids)
             size = i.media[0].parts[0].size
             res = i.media[0].videoResolution
             r = film_table.query.filter(film_table.guid == guid).all()
-            if not r or r[0].size != size:
+            if not r:
                 main()
-        logger.info('Database has been seeded')
+            else:
+                if r[0].size != size:
+                    logger.info(title+' is already in the database')
+                else:
+                    main()
+                
+        logger.debug('Database has been seeded')
     lib = config[0].filmslibrary.split(',')
     logger.debug(lib)
     if len(lib) <= 2:
@@ -2040,26 +2099,26 @@ def fill_database():
             pass 
 
 def add_labels():
+
     from app.models import Plex, film_table
-    from app import db
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
     def run_script():
         logger.info('Adding Film Labels')
         for i in films.search():
             guid = str(i.guid)
-            r = film_table.query.filter(film_table.guid == guid).all()
-    
+            r = film_table.query.filter(film_table.guid == guid)
+            logger.debug(i.title+" "+r[0].audio+" "+r[0].hdr)
             if 'Dolby Atmos' in r[0].audio:
-                i.addLabel(label='Dolby Atmos', locked=False)  
-            elif 'Dolby Vision' in r[0].hdr:
-                i.addLabel(label='Dolby Vision', locked=False) 
+                i.addLabel('Dolby Atmos', locked=False)  
             elif 'DTS:X' in r[0].audio:
-                i.addLabel(label='DTS:X', locked=False)
+                i.addLabel('DTS:X', locked=False)                
+            if 'Dolby Vision' in r[0].hdr:
+                i.addLabel('Dolby Vision', locked=False) 
             elif 'HDR10+' in r[0].hdr:
-                i.addLabel(label='HDR10+', locked=False)
+                i.addLabel('HDR10+', locked=False)
             elif 'HDR' in r[0].hdr:
-                i.addLabel(label='HDR', locked=False)
+                i.addLabel('HDR', locked=False)
         logger.info('Labels Added')
     lib = config[0].filmslibrary.split(',')
     logger.debug(lib)
@@ -2071,3 +2130,31 @@ def add_labels():
                     run_script()
         except IndexError:
             pass 
+
+def maintenance():
+    from app.models import Plex, film_table
+    from app import db
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+
+    def run_script(): 
+        r = film_table.query.filter(film_table.title == 'test').all()
+        for f in r:
+            #print(f.id)
+            film = films.search(guid=f.guid)
+            if film == "" or not film:
+                print('deleting rows ',f.id)
+                row = film_table.query.get(f.id)
+                db.session.delete(row)
+                db.session.commit()
+                print('deleted rows')
+    lib = config[0].filmslibrary.split(',')
+    logger.debug(lib)
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    films = plex.library.section(lib[l])
+                    run_script()
+        except IndexError:
+            pass          

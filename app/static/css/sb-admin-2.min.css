@@ -9156,6 +9156,7 @@ body.sidebar-toggled footer.sticky-footer{
 .logging_window{
     display: block;
     padding: 9.5px;
+    padding-bottom: 10px;
     font-size: 13px;
     line-height: 1.42857143;
     color: #333;
@@ -9164,16 +9165,16 @@ body.sidebar-toggled footer.sticky-footer{
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: auto;
-    max-width: 95%;
+    width: 100%;
+
     margin: auto;
     margin-bottom: 32px;
-    overflow: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
     max-height: 750px;
-    height: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    height: 100%;
+
+
 
 } 
 .logging_window::-webkit-scrollbar {
