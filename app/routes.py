@@ -3,19 +3,19 @@ from flask import render_template, flash, request, redirect
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
-from app.models import Plex, film_table
-from app.scripts import posters4k, tv4kposter, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database, add_labels
+from app.models import Plex, film_table, ep_table
+#from app.scripts import posters4k, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database, add_labels, restore_single, tv_episode_poster
 import threading
 import datetime
 from app import update_scheduler
 import os
-
+from app import scripts
 date = datetime.datetime.now()
 date = date.strftime("%y.%m.%d-%H%M")
 
 
 
-setup_logger('SYS', r"/logs/application_log.log")
+scripts.setup_logger('SYS', r"/logs/application_log.log")
 log = logging.getLogger('SYS')
 
 def get_version():
@@ -47,72 +47,78 @@ def run_scripts():
 
 @app.route('/remove_backups', methods=['GET'])
 def run_remove_backups():
-    threading.Thread(target=remove_unused_backup_files).start()   
+    threading.Thread(target=scripts.remove_unused_backup_files).start()   
     return script_logs()
 
 @app.route('/test')
 def run_test():
-    threading.Thread(target=test_script).start()
+    threading.Thread(target=scripts.test_script).start()
     return script_logs()
 
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():
-    threading.Thread(target=posters4k, name='4K Poster Script').start()   
+    threading.Thread(target=scripts.posters4k, name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
-    threading.Thread(target=tv4kposter).start()   
+    threading.Thread(target=scripts.tv_episode_poster).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)    
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
-    threading.Thread(target=posters3d).start()
+    threading.Thread(target=scripts.posters3d).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/hide4k', methods=['GET'])
 def run_hide4k():   
-    threading.Thread(target=hide4k).start()
+    threading.Thread(target=scripts.hide4k).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/disney', methods=['GET'])
 def run_disney():   
-    threading.Thread(target=autocollections.disney).start()
+    threading.Thread(target=scripts.autocollections.disney).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/pixar', methods=['GET'])
 def run_pixar():
-    threading.Thread(target=autocollections.pixar).start()
+    threading.Thread(target=scripts.autocollections.pixar).start()
     return(render_template('script_log_viewer.html', pagetitle='Script Logs', version=version))
 
 @app.route('/preseed')
 def preseed():
-    threading.Thread(target=fill_database).start()
+    threading.Thread(target=scripts.fill_database).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/add_labels')
 def start_add_labels():
-    threading.Thread(target=add_labels).start()
+    threading.Thread(target=scripts.add_labels).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 
 @app.route('/restore', methods=['GET'])
 def run_restore():   
-    threading.Thread(target=restore_posters).start()
+    threading.Thread(target=scripts.restore_posters).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 @app.route('/restore_from_database', methods=['GET'])
 def run_restore_from_database():   
-    threading.Thread(target=restore_from_database).start()
+    threading.Thread(target=scripts.restore_from_database).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
       
+@app.route('/restore_tv', methods=['GET'])
+def run_episode_restore():   
+    threading.Thread(target=scripts.restore_episodes_from_database).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
+
 @app.route('/recreate_hdr')
 def run_recreate_hdr():   
     return render_template("/recreate_hdr.html", pagetitle='Recreate HDR Posters', version=version)
 
 @app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
-    threading.Thread(target=fresh_hdr_posters).start()
+    threading.Thread(target=scripts.fresh_hdr_posters).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 @app.route('/autocollections')
 def run_autocollections():   
-    threading.Thread(target=autocollections).start()
+    threading.Thread(target=scripts.autocollections).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 
@@ -437,8 +443,8 @@ def recently_added():
                 return data['movie']['title']
     webhooktitle = get_title()
     log.info('Webhook recieved for: '+webhooktitle)
-    threading.Thread(target=hide4k, name='hide4K_Webhook').start()
-    threading.Thread(target=recently_added_posters(webhooktitle), name='4k_posters_webhook').start()
+    threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
+    threading.Thread(target=scripts.recently_added_posters(webhooktitle), name='4k_posters_webhook').start()
     return 'ok', 200
 
 @app.route('/films')
@@ -490,3 +496,67 @@ def data():
         'recordsTotal': film_table.query.count(),
         'draw': request.args.get('draw', type=int),
     }
+
+
+@app.route('/episodes')
+def get_episodes():
+    return render_template('episodes.html', pagetitle='Films', version=version)
+
+
+@app.route('/api/episodes')
+def ep_data():
+    query = ep_table.query
+ 
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            ep_table.title.like(f'%{search}%'),
+            ep_table.res.like(f'%{search}%'),
+            ep_table.hdr.like(f'%{search}%'),
+            ep_table.audio.like(f'%{search}%'),
+        ))
+ 
+    total_filtered = query.count()
+ 
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name not in ['title', 'res', 'hdr', 'audio']:
+            col_name = 'title'
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(ep_table, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+ 
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+ 
+ 
+    return {
+        'data': [eps.to_dict() for eps in ep_table.query],
+        'recordsFiltered': total_filtered,
+        'recordsTotal': ep_table.query.count(),
+        'draw': request.args.get('draw', type=int),
+    }
+
+@app.route('/restore/film/<path:var>')
+def restore_poster(var=""):
+    #print(var)
+    scripts.restore_single(var)
+    message = 'Sent poster to be restored.'
+    return render_template('result.html', message=message, pagetitle='Restored', version=version)
+@app.route('/restore/episode/<path:var>')
+def restore_episode_poster(var=""):
+    #print(var)
+    scripts.restore_episode_from_database(var)
+    message = 'Sent poster to be restored.'
+    return render_template('result.html', message=message, pagetitle='Restored', version=version)

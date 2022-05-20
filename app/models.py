@@ -1,5 +1,5 @@
-from app import db, mydb
-
+from app import db#, mydb
+import re
 
 class Plex(db.Model):
     __tablename__ = 'plex_utills'
@@ -91,7 +91,7 @@ class Plex(db.Model):
 
 class film_table(db.Model):
     __tablename__ = 'films'
-    __bind_key__ = 'db2'
+    __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     guid = db.Column(db.String)
@@ -100,7 +100,7 @@ class film_table(db.Model):
     res = db.Column(db.String)
     hdr = db.Column(db.String)
     audio = db.Column(db.String)
-    poster = db.Column(db.BLOB)
+    poster = db.Column(db.String)
     checked = db.Column(db.Integer)
 
     def to_dict(self):
@@ -109,5 +109,30 @@ class film_table(db.Model):
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
+            'poster': "<a href='restore/film/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
+            'checked': self.checked
+        }
+
+class ep_table(db.Model):
+    __tablename__ = 'episodes'
+    __bind_key__ = 'db1'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String)
+    guid = db.Column(db.String)
+    guids = db.Column(db.String)
+    size = db.Column(db.String)
+    res = db.Column(db.String)
+    hdr = db.Column(db.String)
+    audio = db.Column(db.String)
+    poster = db.Column(db.String)
+    checked = db.Column(db.Integer)
+
+    def to_dict(self):
+        return {
+            'title': self.title,
+            'res': self.res,
+            'hdr': self.hdr,
+            'audio': self.audio,
+            'poster': "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
             'checked': self.checked
         }

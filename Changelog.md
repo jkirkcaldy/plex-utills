@@ -1,50 +1,22 @@
 # Changelog
 ## Version 21.12
 
-### Collections:
-#### Added:
-* Autocollection for Marvel Cinematic Universe
-* Popular, Top Rated and Recommended collections
-    * Requires TheMovieDB api key for this to work.
-    * Popular is based on popular movies on TheMovieDb
-    * Top Rated is based on the top rated on TheMovieDb
-    * Recommended requires Tautulli to work
-        * Takes the most popular movie as seen on the Tautulli home page and finds the recommended movies from TheMovieDB
-* Config options added to enable/disable each collection
-
-#### Changes:
-* Changed the logic behind the colleciton creation. Collections are now Smart collections so the script doesn't need to be re-run for Films to be added. 
-    * Smart collection creation is almost instant
-    * Existing Disney/Pixar collections will be converted into Smart collections.
-    * If you have a Collection called 'Marvel Cinematic Universe' this will be converted into a smart collection
-    * Option to use a default poster for Disney, Pixar and Marvel Cinematic Universe. 
-    * Exisiting artwork for these collections will be transfered to new smart collections unless default collection artwork is enabled in the config. 
-* Collections are handled as a single script. Individual scripts can be enabled/disabled in the config page. 
+#### Changes
+* plex-Utills now no longer needs write access to your media. 
+    * The scripts now only need access to your media for the media info scan. If you disable this in the config then no access is required at all. 
+* you can search through all the data plex-utills has stored for your films and TV shows. Clicking on the poster will restore that poster. Useful if a banner has applied incorrectly or you want to try a new banner. this should force the film to be processed again next time the script is run. 
 
 ### Posters 4K:
-#### Added:
-* Dolby Atmos and DTS:X banners for your films.
-
 #### Changes:
-* The script now saves the temp posters to RAM rather than to disk. This should help with corrupted posters.
-* Posters are uploaded once rather than after addiong each individual banner. (4k/HDR banners are handled separately from Audio banners as audio banners are applied to all your films, not just 4k or HDR versions.)
-* Dolby vision detection has been re-worked for updates to Media Info so should work porperly now. 
-* Truncated images are logged
-* Temp posters are created with the film title to avoid uploading the incorrect posters to other films. 
+* poster backups are now stored in a backup folder next to your config files.
+    * Posters are assigned a random string as a filename and this is stored in the database. 
+    * restores are now super quick as files are all uploaded locally. 
+    * TMDB fall back is still there if requred. 
+* information to speed up subsiquent scans is now stored in the database, this means that media doesn't need to be scanned again unless a change in the file is detected. 
+* media info scans are only required for audio banners and HDR10+ banners. HDR and Dolby Vision banners can be done with metadata provided by plex.
+
+### TV posters finally got some love
+* Now the tv poster script works for adding banners to your episodes. 
+* As people will likely have far more TV episodes the scan will only run on 4K and HDR files. But audio posters will still be applied on these files if enabled.
 
 
-### Misc Changes:
-#### Front end
-* Moved Help page so it is on the side menu
-* Config page is now split into server config and options. New options added. 
-* Javascript for viewing the logs pages changed, as well with slight tweaks to CSS. 
-
-#### Backend
-* Reworked how the web pages are rendered
-* New config options will be added to the database
-    * All new options default to empty or false.
-* Dev page for debugging HDR detection and audio codec detection. 
-* TZ variable removed from Unraid template. Should be configured automatically.
-
-#### Misc
-* Some typos fixed.

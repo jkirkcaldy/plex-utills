@@ -70,12 +70,7 @@ Plex-Utills
               <span>Script Logs</span></a>
         </li>               
         <hr class="sidebar-divider">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('run_recreate_hdr')  }}">
-              <i class="fas fa-fw fa-film"></i>
-              <span>Recreate HDR Banners</span></a>
-        </li>  
-        <hr class="sidebar-divider">              
+             
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('application_logs')  }}">
               <i class="fas fa-fw fa-file"></i>
@@ -96,7 +91,12 @@ Plex-Utills
             <a class="nav-link" href="{{ url_for('get_films')  }}">
                 <i class="fas fa-fw fa-table"></i>
                 <span>Film Database</span></a>
-          </li>          
+          </li>     
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('get_episodes')  }}">
+                <i class="fas fa-fw fa-table"></i>
+                <span>TV Database</span></a>
+          </li>                 
             <!-- Sidebar Message -->
             <div class="sidebar-card d-none d-lg-flex">
                 <p class="text-center mb-2"><strong>Plex-Utills</strong> Version</p>

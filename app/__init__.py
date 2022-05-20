@@ -1,7 +1,8 @@
+from gc import collect
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import posters4k, posters3d, hide4k, setup_logger, autocollections, fill_database
+from app.scripts import posters4k, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
@@ -22,7 +23,7 @@ import time
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
 
-import mysql.connector
+#import mysql.connector
 
 
 mysql_user = 'plex-utills'
@@ -30,20 +31,20 @@ mysql_pass = 'plex-utills'
 mysql_url = '10.120.0.2'
 mysql_port = '3306'
 mysql_database = 'plex-utills'
-
+b_dir = '/config/backup/' 
 #mysql_user = os.environ['mysql_user']
 #mysql_pass = os.environ['mysql_pass']
 #mysql_url = os.environ['mysql_url']
 #mysql_port = os.environ['mysql_port']
 #mysql_database = os.environ['mysql_database']
 
-mydb = mysql.connector.connect(
-  host=mysql_url,
-  user=mysql_user,
-  password=mysql_pass,
-  port=mysql_port,
-  database=mysql_database
-)
+#mydb = mysql.connector.connect(
+#  host=mysql_url,
+#  user=mysql_user,
+#  password=mysql_pass,
+#  port=mysql_port,
+#  database=mysql_database
+#)
 def setup_helper():
     def continue_setup():
         def add_new_columns():
@@ -150,34 +151,14 @@ def setup_helper():
             except (sqlite3.OperationalError, IndexError) as e:
                 log.debug(repr(e))         
             c.close()
-        def add_database():
-            try:
-                c = mydb.cursor() 
-                c.execute("CREATE DATABASE films CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")
-                mydb.commit()
-            except mysql.connector.errors.ProgrammingError as e:
-                log.debug(repr(e))
-        def add_new_table():
-            log.debug('Adding new table')
-            try:
-                c = mydb.cursor() 
-                table = """CREATE TABLE `films` (
-                    `ID` INT NOT NULL AUTO_INCREMENT,
-                    `Title` TEXT,
-                    `GUID` TEXT NOT NULL,
-                    `GUIDS` TEXT NOT NULL,
-                    `size` TEXT,
-                    `res` TEXT,
-                    `hdr` TEXT,
-                    `audio` TEXT,
-                    `poster` LONGBLOB,
-                    `checked` INT,
-                    PRIMARY KEY (`ID`)
-                    ); """
-                c.execute(table)
-                mydb.commit()
-            except mysql.connector.errors.ProgrammingError as e:
-                log.debug(repr(e))
+        #def add_database():
+        #    try:
+        #        c = mydb.cursor() 
+        #        c.execute("CREATE DATABASE films CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")
+        #        mydb.commit()
+        #    except mysql.connector.errors.ProgrammingError as e:
+        #        log.debug(repr(e))
+
  
         def update_plex_path():
             log.debug('update plex path')
@@ -270,12 +251,56 @@ def setup_helper():
         add_new_columns()
         update_plex_path()
         update_database()
-        add_database()
+        #add_database()
         add_new_table()
     def create_table():
           shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
           log.debug('Copying table')
           continue_setup()
+    def add_new_table():
+        log.debug('Adding new table')
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor() 
+            table = """CREATE TABLE "films" (
+                    	"ID"	INTEGER NOT NULL UNIQUE,
+                    	"Title"	TEXT NOT NULL,
+                    	"GUID"	TEXT NOT NULL,
+                    	"GUIDS"	TEXT NOT NULL,
+                    	"size"	TEXT,
+                    	"res"	TEXT,
+                    	"hdr"	TEXT,
+                    	"audio"	TEXT,
+                    	"poster"	TEXT NOT NULL,
+                    	"checked"	INTEGER,
+                    	PRIMARY KEY("ID" AUTOINCREMENT)
+                    ); """
+            c.execute(table)
+            conn.commit()
+        except Exception as e:
+            log.debug(repr(e))
+    def add_ep_table():
+        log.debug('Adding new table')
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor() 
+            table = """CREATE TABLE "episodes" (
+                    	"ID"	INTEGER NOT NULL UNIQUE,
+                    	"Title"	TEXT NOT NULL,
+                    	"GUID"	TEXT NOT NULL,
+                    	"GUIDS"	TEXT NOT NULL,
+                    	"size"	TEXT,
+                    	"res"	TEXT,
+                    	"hdr"	TEXT,
+                    	"audio"	TEXT,
+                    	"poster"	TEXT NOT NULL,
+                    	"checked"	INTEGER,
+                    	PRIMARY KEY("ID" AUTOINCREMENT)
+                    ); """
+            c.execute(table)
+            conn.commit()
+        except Exception as e:
+            log.debug(repr(e))            
     def table_check():
         try:
             conn = sqlite3.connect('/config/app.db')
@@ -286,8 +311,35 @@ def setup_helper():
         except sqlite3.OperationalError as e:
             log.debug(repr(e))
             create_table()
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor()
+            c.execute("SELECT * FROM films")
+            c.close()
+            continue_setup()
+        except sqlite3.OperationalError as e:
+            log.debug(repr(e))
+            add_new_table() 
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor()
+            c.execute("SELECT * FROM episodes")
+            c.close()
+            continue_setup()
+        except sqlite3.OperationalError as e:
+            log.debug(repr(e))
+            add_ep_table()                         
     log.debug('Running setup Helper')
     table_check()
+
+    if os.path.exists(b_dir+'/films'):
+        log.info('Backup directory exists')
+    else:
+        os.makedirs(b_dir+'/films')
+    if os.path.exists(b_dir+'/tv/episodes'):
+        log.info('Backup directory exists')
+    else:
+        os.makedirs(b_dir+'/tv/episodes')
 
 def update_scheduler():
     
@@ -313,9 +365,9 @@ def update_scheduler():
     t5 = config[0][11]
     if config[0][13] == 1:
         if check_schedule_format(t1) == 'time trigger':
-            scheduler.add_job('posters4k', func=posters4k, trigger='cron', hour=t1.split(":")[0], minute=t1.split(":")[1])
+            scheduler.add_job('posters4k', func=collective4k, trigger='cron', hour=t1.split(":")[0], minute=t1.split(":")[1])
         elif check_schedule_format(t1) == 'cron':
-            scheduler.add_job('posters4k', func=posters4k, trigger=CronTrigger.from_crontab(t1))
+            scheduler.add_job('posters4k', func=collective4k, trigger=CronTrigger.from_crontab(t1))
         log.info("4K/HDR Posters schedule created for "+ t1)
     if config[0][16] == 1:
         if check_schedule_format(t5) == 'time trigger':
@@ -376,8 +428,6 @@ def update_scheduler():
     except (plexapi.exceptions.NotFound, OSError) as e:
         log.error(e)
 
-class TimeOutException(Exception):
-   pass
 
 class Plex_utills(Flask):
     def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
@@ -414,10 +464,11 @@ app.secret_key = '_3:WBH)qdY2WDe-_/h9r6)BD(Mp$SX' #os.urandom(42)
 Bootstrap(app)
 
 db_name = '/config/app.db'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_BINDS'] = {
     'db1': 'sqlite:///' + db_name,
-    'db2': 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user=mysql_user, password=mysql_pass, server=mysql_url, database=mysql_database)
+    #'db2': 'mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user=mysql_user, password=mysql_pass, server=mysql_url, database=mysql_database)
 }
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
