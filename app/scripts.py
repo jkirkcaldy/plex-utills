@@ -74,11 +74,11 @@ def recently_added_posters(webhooktitle):
         atmos = Image.open("app/img/atmos.png")
         dtsx = Image.open("app/img/dtsx.png")
 
-        size = (911,1367)
-        bannerbox= (0,0,911,100)
-        mini_box = (0,0,150,125)
-        hdr_box = (0,605,225,731)
-        a_box = (0,731,225,803)
+        size = (2000,3000)
+        bannerbox= (0,0,2000,246)
+        mini_box = (0,0,350,275)
+        hdr_box = (0,1342,493,1608)
+        a_box = (0,1608,493,1766)
 
         cutoff = 10        
         def hdrp(tmp_poster):
@@ -182,7 +182,7 @@ def recently_added_posters(webhooktitle):
                 newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
             else:
                 newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(r[0].poster)
+            backup = os.path.exists('static', '/config', r[0].poster)
             logger.debug('Updating '+i.title+' in database')
             logger.debug(i.title+' '+hdr+' '+audio)   
             b_file = backup_poster(tmp_poster)
@@ -224,7 +224,7 @@ def recently_added_posters(webhooktitle):
                 return b_file
 
         def check_banners(tmp_poster):
-            size = (911,1367)
+            size = (2000,3000)
             try:
                 background = Image.open(tmp_poster)
                 background = background.resize(size,Image.LANCZOS)
@@ -437,7 +437,7 @@ def recently_added_posters(webhooktitle):
             if r:
                 new_poster = 'False'
                 try:
-                    poster_file = r[0].poster
+                    poster_file = re.sub('static', '/config', r[0].poster)
                     try:
                         bak_poster = Image.open(poster_file)
                         bak_poster_hash = imagehash.average_hash(bak_poster)
@@ -568,11 +568,11 @@ def posters4k():
         atmos = Image.open("app/img/atmos.png")
         dtsx = Image.open("app/img/dtsx.png")
 
-        size = (911,1367)
-        bannerbox= (0,0,911,100)
-        mini_box = (0,0,150,125)
-        hdr_box = (0,605,225,731)
-        a_box = (0,731,225,803)
+        size = (2000,3000)
+        bannerbox= (0,0,2000,246)
+        mini_box = (0,0,350,275)
+        hdr_box = (0,1342,493,1608)
+        a_box = (0,1608,493,1766)
 
         cutoff = 10        
         def hdrp(tmp_poster):
@@ -676,7 +676,7 @@ def posters4k():
                 newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
             else:
                 newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(r[0].poster)
+            backup = os.path.exists('static', '/config', r[0].poster)
             logger.debug('Updating '+i.title+' in database')
             logger.debug(i.title+' '+hdr+' '+audio)   
             b_file = backup_poster(tmp_poster)
@@ -710,7 +710,7 @@ def posters4k():
                 logger.debug(i.title+" No banners detected so adding backup file to database")
                 try:
                     if r[0].poster:
-                        b_file = r[0].poster
+                        b_file = re.sub('static', '/config', r[0].poster)
                     else:
                         b_file = b_dir+'films/'+fname+'.png'
                 except:
@@ -719,7 +719,7 @@ def posters4k():
                 return b_file
 
         def check_banners(tmp_poster):
-            size = (911,1367)
+            size = (2000,3000)
             try:
                 background = Image.open(tmp_poster)
                 background = background.resize(size,Image.LANCZOS)
@@ -932,7 +932,7 @@ def posters4k():
             if r:
                 new_poster = 'False'
                 try:
-                    poster_file = r[0].poster
+                    poster_file = re.sub('static', '/config', r[0].poster)
                     try:
                         bak_poster = Image.open(poster_file)
                         bak_poster_hash = imagehash.average_hash(bak_poster)
@@ -1174,7 +1174,7 @@ def tv_episode_poster():
         logger.debug(ep.title+" No banners detected so adding backup file to database")
         try:
             if r[0].poster:
-                b_file = r[0].poster
+                b_file = re.sub('static', '/config', r[0].poster)
             else:
                 b_file = b_dir+'tv/episodes/'+fname+'.png'
         except:
@@ -1282,7 +1282,7 @@ def tv_episode_poster():
         def database_decision(r):
             if r:
                 if r[0].poster:
-                    b_file = r[0].poster
+                    b_file = re.sub('static', '/config', r[0].poster)
                 else:
                     b_file = backup_poster(tmp_poster)
 
@@ -1389,7 +1389,7 @@ def tv_episode_poster():
         if r:
             new_poster = 'False'
             try:
-                poster_file = r[0].poster
+                poster_file = re.sub('static', '/config', r[0].poster)
                 try:
                     bak_poster = Image.open(poster_file)
                     bak_poster_hash = imagehash.average_hash(bak_poster)
@@ -1556,7 +1556,7 @@ def restore_episodes_from_database():
             hdr = r[0].hdr
             if (resolution == '4k' or hdr != 'None'):
                 try:
-                    b_file = r[0].poster
+                    b_file = re.sub('static', '/config', r[0].poster)
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
                         i.uploadPoster(filepath=b_file)
@@ -1633,7 +1633,7 @@ def restore_episode_from_database(var):
             hdr = r[0].hdr
             if (resolution == '4k' or hdr != 'None'):
                 try:
-                    b_file = r[0].poster
+                    b_file = re.sub('static', '/config', r[0].poster)
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
                         i.uploadPoster(filepath=b_file)
@@ -1753,201 +1753,7 @@ def posters3d():
         logger.info("3D Posters: 3D Poster Script has finished.")
     else:
         logger.warning('3D Posters script is not enabled in the config so will not run')
-
-def restore_posters():
-    from app.models import Plex
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
-    tmdb.api_key = config[0].tmdb_api
-
-    plex = PlexServer(config[0].plexurl, config[0].token)
-    def run_script():
-
         
-        def continue_restore():
-            logger.info("Restore-posters: Restore backup posters starting now")
-            def restore_tmdb():
-                logger.info("RESTORE: restoring posters from TheMovieDb")
-                def get_tmdb_guid():
-                    g = str(i.guids)
-                    g = g[1:-1]
-                    g = re.sub(r'[*?:"<>| ]',"",g)
-                    g = re.sub("Guid","",g)
-                    g = g.split(",")
-                    f = filter(lambda a: "tmdb" in a, g)
-                    g = list(f)
-                    g = str(g[0])
-                    gv = [v for v in g if v.isnumeric()]
-                    g = "".join(gv)
-                    return g
-                g = get_tmdb_guid()
-                tmdb_search = movie.details(movie_id=g)
-                logger.info(i.title)
-                def get_poster(poster):
-                    r = requests.get(poster_url_base+poster, stream=True)
-                    if r.status_code == 200:
-                        r.raw.decode_content = True
-                        with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
-                            i.uploadPoster(filepath='tmdb_poster_restore.png')
-                            os.remove('tmdb_poster_restore.png')
-                try:
-                    poster = tmdb_search.poster_path
-                    get_poster(poster) 
-                except TypeError:
-                    logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
-                    pass
-            def restore():
-                    logger.info("RESTORE: restoring posters from Local Backups")
-                    poster = newdir+'poster_bak.png'
-                    logger.info(i.title+ ' Restored')
-                    i.uploadPoster(filepath=poster)
-
-
-            for i in films.search():
-                i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
-                newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-                backup = os.path.exists(newdir+'poster_bak.png')
-                if backup == True:
-                    try:
-                        restore()
-                    except OSError as e:
-                        if e.errno == 2:
-                            logger.debug(e)
-
-                elif config[0].tmdb_restore == 1 and backup == False:
-                    def get_poster():
-                        logger.debug(i.title+' Getting poster')
-                        imgurl = i.posterUrl
-                        img = requests.get(imgurl, stream=True)
-                        filename = tmp_poster
-                        try:
-                            if img.status_code == 200:
-                                img.raw.decode_content = True
-                                with open(filename, 'wb') as f:
-                                    shutil.copyfileobj(img.raw, f)
-                                return tmp_poster 
-                            else:
-                                logger.info("4k Posters: "+films.title+ 'cannot find the poster for             this film')
-                        except OSError as e:
-                            logger.error(e)
-                        except Exception as e:
-                            logger.error(e)
-                    def check_banners(tmp_poster):
-                        size = (911,1367)
-                        try:
-                            background = Image.open(tmp_poster)
-                            background = background.resize(size,Image.LANCZOS)
-                        except OSError as e:
-                            logger.error(e)
-                            ImageFile.LOAD_TRUNCATED_IMAGES = True
-                            background = background.resize(size,Image.LANCZOS)
-                            ImageFile.LOAD_TRUNCATED_IMAGES = False
-
-                        # Wide banner box
-                        bannerchk = background.crop(bannerbox)
-                        # Mini Banner Box
-                        minichk = background.crop(mini_box)
-                        # Audio Box
-                        audiochk = background.crop(a_box)
-                        # HDR Box
-                        hdrchk = background.crop(hdr_box)
-
-                        # POSTER HASHES
-                        # Wide Banner
-                        poster_banner_hash = imagehash.average_hash(bannerchk)
-                        # Mini Banner
-                        poster_mini_hash = imagehash.average_hash(minichk)
-                        # Audio Banner
-                        poster_audio_hash = imagehash.average_hash(audiochk)
-                        # HDR Banner
-                        poster_hdr_hash = imagehash.average_hash(hdrchk)
-
-                        # General Hashes
-                        chk_banner = Image.open("app/img/chk-4k.png")
-                        chk_banner_hash = imagehash.average_hash(chk_banner)
-
-                        chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
-                        chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
-
-                        chk_hdr = Image.open("app/img/chk_hdr.png")
-                        chk_hdr_hash = imagehash.average_hash(chk_hdr)
-
-                        chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
-                        chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
-
-                        chk_hdr10 = Image.open("app/img/chk_hdr10.png")
-                        chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
-
-                        chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
-                        chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
-
-                        atmos_box = Image.open("app/img/chk_atmos.png")
-                        chk_atmos_hash = imagehash.average_hash(atmos_box)
-
-                        dtsx_box = Image.open("app/img/chk_dtsx.png")
-                        chk_dtsx_hash = imagehash.average_hash(dtsx_box)
-
-                        wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
-
-                        if poster_banner_hash - chk_banner_hash < cutoff:
-                            wide_banner = True
-                        if poster_mini_hash - chk_mini_banner_hash < cutoff:
-                            mini_banner = True
-                        if (
-                            poster_audio_hash - chk_atmos_hash < cutoff
-                            or poster_audio_hash - chk_dtsx_hash < cutoff
-                        ):
-                            audio_banner = True
-                        if poster_hdr_hash - chk_hdr_hash < cutoff:
-                            old_hdr = True
-                        if (
-                            poster_hdr_hash - chk_new_hdr_hash < cutoff 
-                            or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
-                            or poster_hdr_hash - chk_hdr10_hash < cutoff
-                        ):
-                            hdr_banner = True
-                        background.save(tmp_poster)
-                        return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr                    
-                    t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
-                    tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                    tmp_poster = get_poster() 
-                    banners = check_banners(tmp_poster)
-                    if True in banners:
-                        restore_tmdb()
-
-        def check_connection():
-            try:
-                plex = PlexServer(config[0].plexurl, config[0].token)
-            except requests.exceptions.ConnectionError as e:
-                logger.error(e)
-                logger.error('Cannot connect to your plex server. Please double check your config is correct.')
-            else:
-                continue_restore()                
-        check_connection()
-        
-        for i in films.search():
-            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
-            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.join(newdir+'poster_bak.png')            
-            try:
-                os.remove(backup)
-            except PermissionError as e:
-                logger.error(e)
-            except FileNotFoundError as e:
-                logger.error(e)
-        
-    lib = config[0].filmslibrary.split(',')
-    if len(lib) <= 2:
-        try:
-            while True:
-                for l in range(10):
-                    films = plex.library.section(lib[l])
-                    run_script()
-        except IndexError:
-            pass        
-    logger.info('Restore Completed.')
-
 def restore_from_database():
     from app.models import Plex, film_table
     from app import db
@@ -1967,7 +1773,7 @@ def restore_from_database():
         newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/poster_bak.png'
         r = film_table.query.filter(film_table.guid == guid).all()
         try:
-            b_file = r[0].poster
+            b_file = re.sub('static', '/config', r[0].poster)
             i.uploadPoster(filepath=b_file)
             row = r[0].id
             film = film_table.query.get(row)
@@ -2583,7 +2389,7 @@ def fill_database():
                     logger.debug(i.title+" No banners detected so adding backup file to database")
                     #try:
                     #    if r[0].poster:
-                    #        b_file = r[0].poster
+                    #        b_file = re.sub('static', '/config', r[0].poster)
                     #    else:
                     #        b_file = b_dir+'films/'+fname+'.png'
                     #except:
@@ -2607,11 +2413,11 @@ def fill_database():
                 atmos = Image.open("app/img/atmos.png")
                 dtsx = Image.open("app/img/dtsx.png")
 
-                size = (911,1367)
-                bannerbox= (0,0,911,100)
-                mini_box = (0,0,150,125)
-                hdr_box = (0,605,225,731)
-                a_box = (0,731,225,803)
+                size = (2000,3000)
+                bannerbox= (0,0,2000,246)
+                mini_box = (0,0,350,275)
+                hdr_box = (0,1342,493,1608)
+                a_box = (0,1608,493,1766)
 
                 cutoff = 10 
 
@@ -2856,9 +2662,236 @@ def maintenance():
         except IndexError:
             pass 
 
+    def clean_tmp_files():
+        logger.debug('Removing any old tmp poster files')
+        dir_path = os.path.dirname('/tmp/')
+        for files in os.walk(dir_path):
+            for file in files:
+                if file.endswith('.png'):
+                    os.remove(file)
+    clean_tmp_files()
 def collective4k():
     posters4k()
     from time import sleep
     sleep(5)
     logger.info('Starting 4k Tv poster script')
     tv_episode_poster()
+
+def restore_posters():
+    from app.models import Plex
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    tmdb.api_key = config[0].tmdb_api
+
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    size = (2000,3000)
+    bannerbox= (0,0,2000,246)
+    mini_box = (0,0,350,275)
+    hdr_box = (0,1342,493,1608)
+    a_box = (0,1608,493,1766)
+    cutoff = 10
+    def run_script():
+
+        
+        def continue_restore():
+            logger.info("Restore-posters: Restore backup posters starting now")
+            def restore_tmdb():
+                logger.info("RESTORE: restoring posters from TheMovieDb")
+                def get_tmdb_guid():
+                    g = str(i.guids)
+                    g = g[1:-1]
+                    g = re.sub(r'[*?:"<>| ]',"",g)
+                    g = re.sub("Guid","",g)
+                    g = g.split(",")
+                    f = filter(lambda a: "tmdb" in a, g)
+                    g = list(f)
+                    g = str(g[0])
+                    gv = [v for v in g if v.isnumeric()]
+                    g = "".join(gv)
+                    return g
+                g = get_tmdb_guid()
+                tmdb_search = movie.details(movie_id=g)
+                logger.info(i.title)
+                def get_poster(poster):
+                    r = requests.get(poster_url_base+poster, stream=True)
+                    if r.status_code == 200:
+                        r.raw.decode_content = True
+                        with open('tmdb_poster_restore.png', 'wb') as f:
+                            shutil.copyfileobj(r.raw, f)
+                            i.uploadPoster(filepath='tmdb_poster_restore.png')
+                            os.remove('tmdb_poster_restore.png')
+                try:
+                    poster = tmdb_search.poster_path
+                    get_poster(poster) 
+                except TypeError:
+                    logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
+                    pass
+            def restore():
+                    logger.info("RESTORE: restoring posters from Local Backups")
+                    poster = newdir+'poster_bak.png'
+                    logger.info(i.title+ ' Restored')
+                    i.uploadPoster(filepath=poster)
+
+            def get_plex_hdr():
+                ekey = i.key
+                m = plex.fetchItems(ekey)
+                for m in m:
+                    try:
+                        if 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
+                            hdr_version='HDR'
+                        else:
+                            hdr_version = 'None'
+                        return hdr_version
+                    except IndexError:
+                        pass
+            for i in films.search(sort='titleSort:desc'):
+                try:
+                    i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
+                    newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
+                    backup = os.path.exists(newdir+'poster_bak.png')
+                    if backup == True:
+                        try:
+                            restore()
+                        except OSError as e:
+                            if e.errno == 2:
+                                logger.debug(e)
+
+                    elif config[0].tmdb_restore == 1 and backup == False:
+                        def get_poster():
+                            logger.debug(i.title+' Getting poster')
+                            imgurl = i.posterUrl
+                            img = requests.get(imgurl, stream=True)
+                            filename = tmp_poster
+                            try:
+                                if img.status_code == 200:
+                                    img.raw.decode_content = True
+                                    with open(filename, 'wb') as f:
+                                        shutil.copyfileobj(img.raw, f)
+                                    return tmp_poster 
+                                else:
+                                    logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
+                            except OSError as e:
+                                logger.error(e)
+                            except Exception as e:
+                                logger.error(e)
+                        def check_banners(tmp_poster):
+                            try:
+                                background = Image.open(tmp_poster)
+                                background = background.resize(size,Image.LANCZOS)
+                            except OSError as e:
+                                logger.error(e)
+                                ImageFile.LOAD_TRUNCATED_IMAGES = True
+                                background = background.resize(size,Image.LANCZOS)
+                                ImageFile.LOAD_TRUNCATED_IMAGES = False
+
+                            # Wide banner box
+                            bannerchk = background.crop(bannerbox)
+                            # Mini Banner Box
+                            minichk = background.crop(mini_box)
+                            # Audio Box
+                            audiochk = background.crop(a_box)
+                            # HDR Box
+                            hdrchk = background.crop(hdr_box)
+
+                            # POSTER HASHES
+                            # Wide Banner
+                            poster_banner_hash = imagehash.average_hash(bannerchk)
+                            # Mini Banner
+                            poster_mini_hash = imagehash.average_hash(minichk)
+                            # Audio Banner
+                            poster_audio_hash = imagehash.average_hash(audiochk)
+                            # HDR Banner
+                            poster_hdr_hash = imagehash.average_hash(hdrchk)
+
+                            # General Hashes
+                            chk_banner = Image.open("app/img/chk-4k.png")
+                            chk_banner_hash = imagehash.average_hash(chk_banner)
+
+                            chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
+                            chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
+
+                            chk_hdr = Image.open("app/img/chk_hdr.png")
+                            chk_hdr_hash = imagehash.average_hash(chk_hdr)
+
+                            chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
+                            chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
+
+                            chk_hdr10 = Image.open("app/img/chk_hdr10.png")
+                            chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
+
+                            chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
+                            chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
+
+                            atmos_box = Image.open("app/img/chk_atmos.png")
+                            chk_atmos_hash = imagehash.average_hash(atmos_box)
+
+                            dtsx_box = Image.open("app/img/chk_dtsx.png")
+                            chk_dtsx_hash = imagehash.average_hash(dtsx_box)
+
+                            wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
+
+                            if poster_banner_hash - chk_banner_hash < cutoff:
+                                wide_banner = True
+                            if poster_mini_hash - chk_mini_banner_hash < cutoff:
+                                mini_banner = True
+                            if (
+                                poster_audio_hash - chk_atmos_hash < cutoff
+                                or poster_audio_hash - chk_dtsx_hash < cutoff
+                            ):
+                                audio_banner = True
+                            if poster_hdr_hash - chk_hdr_hash < cutoff:
+                                old_hdr = True
+                            if (
+                                poster_hdr_hash - chk_new_hdr_hash < cutoff 
+                                or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
+                                or poster_hdr_hash - chk_hdr10_hash < cutoff
+                            ):
+                                hdr_banner = True
+                            background.save(tmp_poster)
+                            return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr                    
+                        t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                        tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                        tmp_poster = get_poster() 
+                        banners = check_banners(tmp_poster)
+                        hdr = get_plex_hdr()
+                        if True in banners or i.media[0].videoResolution  == '4k' or hdr != 'None':
+                            restore_tmdb()
+                        try:
+                            os.remove(tmp_poster)
+                        except:
+                            pass
+                except Exception as e:
+                    logger.warning(repr(e))
+                    pass
+
+        def check_connection():
+            try:
+                plex = PlexServer(config[0].plexurl, config[0].token)
+            except requests.exceptions.ConnectionError as e:
+                logger.error(e)
+                logger.error('Cannot connect to your plex server. Please double check your config is correct.')
+            else:
+                continue_restore()                
+        check_connection()
+        
+        for i in films.search():
+            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
+            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
+            backup = os.path.join(newdir+'poster_bak.png')            
+            try:
+                os.remove(backup)
+            except PermissionError as e:
+                logger.error(e)
+            except FileNotFoundError as e:
+                logger.error(e)
+        
+    lib = config[0].filmslibrary.split(',')
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    films = plex.library.section(lib[l])
+                    run_script()
+        except IndexError:
+            pass        
+    logger.info('Restore Completed.')    
