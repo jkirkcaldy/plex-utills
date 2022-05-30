@@ -14,7 +14,7 @@ COPY ./version .
 
 # Install requirements
 #RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python3 pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
 EXPOSE 5000
