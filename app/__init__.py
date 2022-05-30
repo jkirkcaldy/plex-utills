@@ -430,7 +430,7 @@ def update_scheduler():
 
 
 class Plex_utills(Flask):
-    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
+    def run(self, host=None, port=None, debug=True, load_dotenv=True, **options):
         if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
           with self.app_context():
             from app.scripts import maintenance
@@ -442,7 +442,7 @@ class Plex_utills(Flask):
         super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=debug, **options)
 
 timezone = str(tzlocal.get_localzone())
-class Config:
+class Config: 
     SCHEDULER_API_ENABLED = True
     SCHEDULER_TIMEZONE = timezone
 
@@ -475,3 +475,5 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 from app import routes
+
+

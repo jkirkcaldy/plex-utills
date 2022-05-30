@@ -33,6 +33,19 @@
                                 <td>{{ plex.t1 }}</td>
                                 <td style="display:none;">{{ plex.posters4k }}</td>
                               </tr>
+
+                              <tr>          
+                                <th socpe="row"><a href="{{ url_for('run_tvposters4k') }}" class="btn btn-primary btn-icon-split" id="posters4k">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">TV 4K/HDR Posters</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t1 }}</td>
+                                <td style="display:none;">{{ plex.posters4k }}</td>
+                              </tr> 
+
                               <tr>
                                 <th socpe="row"><a href="{{ url_for('run_posters3d') }}" class="btn btn-primary btn-icon-split" id="posters3d">
                                   <span class="icon text-white-50">

@@ -10,14 +10,12 @@ COPY ./main.py .
 COPY ./requirements.txt .
 COPY ./entrypoint.sh .
 COPY ./start.sh .
-COPY ./dv_test.py .
-COPY ./scan_test.py .
 COPY ./version .
 
 
 
 # Install requirements
-
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 80
@@ -27,7 +25,7 @@ VOLUME [ "/config" ]
 VOLUME [ "/logs" ]
 RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb
 RUN dpkg -i repo-mediaarea_1.0-19_all.deb
-RUN apt-get update && apt-get install -y supervisor mediainfo nginx nano \
+RUN apt-get update && apt-get install -y supervisor mediainfo nginx ffmpeg libsm6 libxext6 nano \
 && rm -rf /var/lib/apt/lists/*
 COPY supervisord-debian.conf /etc/supervisor/conf.d/supervisord.conf
 COPY app/static/dockerfiles/default /etc/nginx/sites-enabled/default

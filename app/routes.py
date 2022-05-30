@@ -58,7 +58,7 @@ def run_test():
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():
-    threading.Thread(target=scripts.posters4k, name='4K Poster Script').start()   
+    threading.Thread(target=scripts.collective4k, name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
@@ -384,9 +384,6 @@ def help():
         message = "Can not connect to your plex server, please check your config"
         return render_template('error.html', pagetitle="Error - Connection Error", pageheading="Connection Error", error=e, message=message, version=version), 500
 
-    def convert_data(data, file_name):
-        with open(file_name, 'wb') as file:
-            file.write(data)
     
     def get_poster():
         imgdir = './app/static/img'
@@ -408,17 +405,13 @@ def help():
             with open(filename, 'wb') as f:
                 shutil.copyfileobj(img.raw, f) 
         shutil.copy(filename, './app/static/img/poster.png')
-        try:
-            guid = str(i.guid)
-            r = film_table.query.filter(film_table.guid == guid).all()
-            ablob = r[0].poster
-            poster = './app/static/img/poster_bak.png'
-            convert_data(ablob, poster)
-        except TypeError as e:
-            log.error(repr(e)) 
+        guid = str(i.guid)
+        r = film_table.query.filter(film_table.guid == guid).all()
+        backup_poster = r[0].poster
+        return backup_poster
 
     for i in films.search(limit='1'):
-        get_poster()
+        backup_poster = get_poster()
         log.debug('Running help script')
         plex_filepath = i.media[0].parts[0].file
         filmtitle = i.title
@@ -429,7 +422,7 @@ def help():
         else:
             newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
     log.debug(newdir)
-    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, pageheadding='Help', version=version)
+    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, pageheadding='Help', version=version)
 
 @app.route('/webhook',methods=['POST'])
 def recently_added():
@@ -444,7 +437,7 @@ def recently_added():
     webhooktitle = get_title()
     log.info('Webhook recieved for: '+webhooktitle)
     threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
-    threading.Thread(target=scripts.recently_added_posters(webhooktitle), name='4k_posters_webhook').start()
+    threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
     return 'ok', 200
 
 @app.route('/films')
@@ -500,7 +493,7 @@ def data():
 
 @app.route('/episodes')
 def get_episodes():
-    return render_template('episodes.html', pagetitle='Films', version=version)
+    return render_template('episodes.html', pagetitle='Episodes', version=version)
 
 
 @app.route('/api/episodes')
@@ -560,3 +553,10 @@ def restore_episode_poster(var=""):
     scripts.restore_episode_from_database(var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
+
+@app.route('/restart_server')
+def restart_server():
+    cmd = "supervisorctl restart gunicorn"
+    os.system(cmd)
+    return 200
+    

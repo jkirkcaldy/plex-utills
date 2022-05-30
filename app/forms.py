@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, HiddenField, StringField, SelectField
-from wtforms.validators import URL, InputRequired, Length, Regexp, NumberRange
+from wtforms.validators import URL, InputRequired
 
 
 
 class AddRecord_config(FlaskForm):
     id_field = HiddenField()
-    plexurl = StringField('Plex URL', [ InputRequired(), URL(message='This must be a correct URL')])
+    plexurl = StringField('Plex URL', [ InputRequired(), URL(message='This must be a correct URL', require_tld=False)])
     token = StringField('Token', [ InputRequired() ])
     filmslibrary = StringField('Films Library, either a single library or comma separated (no spaces)', [ InputRequired() ])
     tvlibrary = StringField('TV Library')
@@ -19,7 +19,7 @@ class AddRecord_config(FlaskForm):
     backup = SelectField('Enable Poster Backups ', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     restore_from_tmdb = SelectField('Restore from TMDb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     tmdb_api = StringField("Your TMDB API key, set to none if you don't wish to use the TMDb restore feature")
-    tautulli_server = StringField('Tautulli URL', [URL(message='This must be a correct URL')])
+    tautulli_server = StringField('Tautulli URL', [URL(message='This must be a correct URL', require_tld=False)])
     tautulli_api = StringField('Tautulli API Key')
     submit = SubmitField('Save Changes ')
 
@@ -50,7 +50,7 @@ class admin_config(FlaskForm):
     id_field = HiddenField()
     loglevel = SelectField('Log Level', [InputRequired()],   choices=[('0', 'Info'), ('1', 'Debug')])
     skip_media_info = SelectField('Skip scanning with Media Info. Disabling this option also disables audio and HDR10+ banners', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
-    plexurl = StringField('Plex URL', [ InputRequired(), URL(message='This must be a correct URL')])
+    plexurl = StringField('Plex URL', [ InputRequired(), URL(message='This must be a correct URL', require_tld=False)])
     token = StringField('Token', [ InputRequired() ])
     filmslibrary = StringField('Films Library, either a single library or comma separated (no spaces)', [ InputRequired() ])
     plexpath = StringField('Plex file path - Set by script, This can not be changed', [])
@@ -67,7 +67,7 @@ class admin_config(FlaskForm):
     backup = SelectField('Enable Poster Backups ', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     restore_from_tmdb = SelectField('Restore from TMDb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     tmdb_api = StringField("Your TMDB API key, set to none if you don't wish to use the TMDb restore feature")
-    tautulli_server = StringField('Tautulli URL', [URL(message='This must be a correct URL')])
+    tautulli_server = StringField('Tautulli URL', [URL(message='This must be a correct URL', require_tld=False)])
     tautulli_api = StringField('Tautulli API Key')
     posters4k = SelectField('Enable the global 4K Poster script ', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     audio_posters = SelectField('Enable Dolby Atmos and DTS:X labels on the posters', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
