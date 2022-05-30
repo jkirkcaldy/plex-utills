@@ -13,7 +13,6 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
       DOCKER_TARGET_PLATFORM: linux/arm/v7
-
 - name: Checkout the code       
   uses: actions/checkout@v1
 
