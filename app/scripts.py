@@ -1616,12 +1616,17 @@ def autocollections():
                     i=json.loads(x)
                     top_watched=i["rows"][0]["title"]
                     tw_year=i["rows"][0]["year"]
+                    logger.debug('Top watched film is: '+top_watched)
                     a = search.movies({ "query": top_watched, "year": tw_year })
-                    for b in a:
-                        i = b.id
+                    def get_id():
+                        for b in a:
+                            i = b.id
+                            return i
+                    i = get_id()
                     rec = movie.recommendations(movie_id=i)
                     for r in rec:
                         title = r.title
+                        logger.debug(title)
                         y = r.release_date.split("-")
                         in_library = films.search(title=title, year=y[0])
                         for i in in_library:

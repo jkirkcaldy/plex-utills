@@ -1,4 +1,3 @@
-from gc import collect
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
@@ -15,36 +14,14 @@ import tzlocal
 import time
 from apscheduler.triggers.cron import CronTrigger
 from croniter import croniter
-from logging.handlers import RotatingFileHandler
 import threading
 import signal
 import time
 
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
+b_dir = 'static/backup/' 
 
-#import mysql.connector
-
-
-mysql_user = 'plex-utills'
-mysql_pass = 'plex-utills'
-mysql_url = '10.120.0.2'
-mysql_port = '3306'
-mysql_database = 'plex-utills'
-b_dir = '/config/backup/' 
-#mysql_user = os.environ['mysql_user']
-#mysql_pass = os.environ['mysql_pass']
-#mysql_url = os.environ['mysql_url']
-#mysql_port = os.environ['mysql_port']
-#mysql_database = os.environ['mysql_database']
-
-#mydb = mysql.connector.connect(
-#  host=mysql_url,
-#  user=mysql_user,
-#  password=mysql_pass,
-#  port=mysql_port,
-#  database=mysql_database
-#)
 def setup_helper():
     def continue_setup():
         def add_new_columns():
