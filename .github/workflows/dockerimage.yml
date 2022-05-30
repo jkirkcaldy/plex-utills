@@ -15,6 +15,7 @@ jobs:
       DOCKER_TARGET_PLATFORM: linux/arm/v7                 
     steps:    
     - name: Checkout the code       
+
       uses: actions/checkout@v2
     - name: Set up Docker Buildx      
       uses: crazy-max/ghaction-docker-buildx@v2   
