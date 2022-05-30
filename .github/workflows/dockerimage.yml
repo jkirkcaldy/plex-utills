@@ -23,6 +23,11 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Set up Docker Buildx      
+      uses: crazy-max/ghaction-docker-buildx@v1      
+      with:        
+        version: latest 
+
     - name: Prepare      
       if: success()      
       id: prepare      
@@ -33,4 +38,8 @@ jobs:
     - name: Run Buildx (push image)      
       if: success()      
       run: |        
-        docker buildx build \        --platform ${{ steps.prepare.outputs.docker_platform }} \        --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \        --file ./Dockerfile \        --output type=image,push=true .
+        docker buildx build \
+        --platform ${{ steps.prepare.outputs.docker_platform }} \        
+        --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \        
+        --file ./Dockerfile \        
+        --output type=image,push=true .
