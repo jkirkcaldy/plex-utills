@@ -27,7 +27,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: jkirkcaldy/plex-utills:dev
+        images: jkirkcaldy/plex-utills
 
     - name: build and push
       uses: docker/build-push-action@v2
