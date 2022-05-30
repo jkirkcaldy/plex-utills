@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-18.04    
     env:      
       DOCKER_REGISTRY: hub.docker.com
-      DOCKER_IMAGE: jkirkcaldy/plex-utills:dev      
+      DOCKER_IMAGE: jkirkcaldy/plex-utills      
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
       DOCKER_TARGET_PLATFORM: linux/arm/v7                 
