@@ -12,7 +12,7 @@ jobs:
       DOCKER_IMAGE: jkirkcaldy/plex-utills      
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
-      DOCKER_TARGET_PLATFORM: linux/arm/v7                 
+      DOCKER_TARGET_PLATFORM: linux/amd64               
     steps:    
     - name: Checkout the code       
       uses: actions/checkout@v2
