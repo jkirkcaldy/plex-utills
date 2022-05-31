@@ -56,6 +56,30 @@ discover = Discover()
 
 b_dir = 'static/backup/' 
 
+banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
+banner_4k = Image.fromarray(banner_4k)
+mini_4k_banner = cv2.imread("app/img/4K-mini-Template.png", cv2.IMREAD_UNCHANGED)
+mini_4k_banner = Image.fromarray(mini_4k_banner)
+banner_dv = cv2.imread("app/img/dolby_vision.png", cv2.IMREAD_UNCHANGED)
+banner_dv = Image.fromarray(banner_dv)
+banner_hdr10 = cv2.imread("app/img/hdr10.png", cv2.IMREAD_UNCHANGED)
+banner_hdr10 = cv2.cvtColor(banner_hdr10, cv2.COLOR_BGR2RGBA)
+banner_hdr10 = Image.fromarray(banner_hdr10)
+
+banner_new_hdr = cv2.imread("app/img/hdr.png", cv2.IMREAD_UNCHANGED)
+banner_new_hdr = Image.fromarray(banner_new_hdr)
+atmos = cv2.imread("app/img/atmos.png", cv2.IMREAD_UNCHANGED)
+atmos = Image.fromarray(atmos)
+dtsx = cv2.imread("app/img/dtsx.png", cv2.IMREAD_UNCHANGED)
+dtsx = Image.fromarray(dtsx)
+size = (2000,3000)
+bannerbox= (0,0,2000,246)
+mini_box = (0,0,350,275)
+hdr_box = (0,1342,493,1608)
+a_box = (0,1608,493,1766)
+cutoff = 10
+
+
 def posters4k(webhooktitle):
     from app.models import Plex, film_table
     from app import db
@@ -2413,6 +2437,85 @@ def restore_posters():
                     logger.info(i.title+ ' Restored')
                     i.uploadPoster(filepath=poster)
 
+            def check_banners(tmp_poster):
+                size = (2000,3000)
+                try:
+                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                    background = Image.fromarray(background)
+                    background = background.resize(size,Image.LANCZOS)
+                except OSError as e:
+                    logger.error(e)
+                    #ImageFile.LOAD_TRUNCATED_IMAGES = True
+                    #background = background.resize(size,Image.LANCZOS)
+                    #ImageFile.LOAD_TRUNCATED_IMAGES = False
+    
+                # Wide banner box
+                bannerchk = background.crop(bannerbox)
+                # Mini Banner Box
+                minichk = background.crop(mini_box)
+                # Audio Box
+                audiochk = background.crop(a_box)
+                # HDR Box
+                hdrchk = background.crop(hdr_box)
+    
+                # POSTER HASHES
+                # Wide Banner
+                poster_banner_hash = imagehash.average_hash(bannerchk)
+                # Mini Banner
+                poster_mini_hash = imagehash.average_hash(minichk)
+                # Audio Banner
+                poster_audio_hash = imagehash.average_hash(audiochk)
+                # HDR Banner
+                poster_hdr_hash = imagehash.average_hash(hdrchk)
+    
+                # General Hashes
+                chk_banner = Image.open("app/img/chk-4k.png")
+                chk_banner_hash = imagehash.average_hash(chk_banner)
+    
+                chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
+                chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
+    
+                chk_hdr = Image.open("app/img/chk_hdr.png")
+                chk_hdr_hash = imagehash.average_hash(chk_hdr)
+    
+                chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
+                chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
+    
+                chk_hdr10 = Image.open("app/img/chk_hdr10.png")
+                chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
+    
+                chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
+                chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
+    
+                atmos_box = Image.open("app/img/chk_atmos.png")
+                chk_atmos_hash = imagehash.average_hash(atmos_box)
+    
+                dtsx_box = Image.open("app/img/chk_dtsx.png")
+                chk_dtsx_hash = imagehash.average_hash(dtsx_box)
+    
+                wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
+    
+                if poster_banner_hash - chk_banner_hash < 5:
+                    wide_banner = True
+                if poster_mini_hash - chk_mini_banner_hash < 5:
+                    mini_banner = True
+                if (
+                    poster_audio_hash - chk_atmos_hash < cutoff
+                    or poster_audio_hash - chk_dtsx_hash < cutoff
+                ):
+                    audio_banner = True
+                if poster_hdr_hash - chk_hdr_hash < cutoff:
+                    old_hdr = True
+                if (
+                    poster_hdr_hash - chk_new_hdr_hash < cutoff 
+                    or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
+                    or poster_hdr_hash - chk_hdr10_hash < cutoff
+                ):
+                    hdr_banner = True
+                #background.save(tmp_poster)
+                return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr
+
             def get_plex_hdr():
                 ekey = i.key
                 m = plex.fetchItems(ekey)
@@ -2443,7 +2546,11 @@ def restore_posters():
                     elif r:
                         try:
                             poster = re.sub('static', '/config', r[0].poster)
-                            restore(poster)
+                            banners = check_banners(poster)
+                            if True not in banners:
+                                restore(poster)
+                            elif True in banners and config[0].tmdb_restore == 1:
+                                restore_tmdb()
                             row = r[0].id
                             film = film_table.query.get(row)
                             film.checked = '0'
