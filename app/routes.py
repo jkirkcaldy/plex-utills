@@ -58,7 +58,7 @@ def run_test():
 
 @app.route('/posters4k', methods=['GET'])
 def run_posters4k():
-    threading.Thread(target=scripts.collective4k, name='4K Poster Script').start()   
+    threading.Thread(target=scripts.posters4k_thread, name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
@@ -407,7 +407,10 @@ def help():
         shutil.copy(filename, './app/static/img/poster.png')
         guid = str(i.guid)
         r = film_table.query.filter(film_table.guid == guid).all()
-        backup_poster = r[0].poster
+        if r:
+            backup_poster = r[0].poster
+        else:
+            backup_poster = '/static/img/poster_not_found.png'
         return backup_poster
 
     for i in films.search(limit='1'):

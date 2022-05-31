@@ -418,6 +418,84 @@ def posters4k(webhooktitle):
 
             logger.debug(banners)
 
+            def database_decision(banners):
+                try:
+                    audio = r[0].audio
+                    hdr = r[0].hdr
+                    if str(r[0].guid) == guid:
+                        logger.debug(title+' GUID Match')
+                        if str(r[0].size) != str(size):
+                            logger.debug(title+" has changed, rescanning")
+                            scan = scan_files()
+                            audio = scan[0]
+                            hdr = scan[1]
+                            logger.debug(title+' - '+hdr)
+                            if hdr == "":
+                                hdr = get_plex_hdr() 
+                                logger.debug(title+' - '+hdr)                               
+                            updateTable(hdr, audio, tmp_poster, banners)
+                        else:
+                            updateTable(hdr, audio, tmp_poster, banners)
+                            
+                        if not r[0].poster and True not in banners:
+                            updateTable(hdr, audio, tmp_poster, banners)
+                        else:
+                            logger.debug(title+' is the same')
+                    else:
+                        scan = scan_files()
+                        audio = scan[0]
+                        hdr = scan[1]
+                        logger.debug(hdr)
+                        if hdr == "":
+                            hdr = get_plex_hdr()
+                        updateTable(hdr, audio, tmp_poster, banners)
+                except Exception as e:
+                    #logger.error(repr(e))
+                    scan = scan_files()
+                    audio = scan[0]
+                    hdr = scan[1]
+                    try:
+                        insert_intoTable(hdr, audio, tmp_poster, banners)
+                    except Exception as e:
+                        logger.debug(hdr+' '+audio+' '+tmp_poster)
+                        logger.warning(repr(e))
+                        updateTable(hdr, audio, tmp_poster, banners)
+                return audio, hdr
+
+            def banner_decision():
+                if audio_banner == False:
+                    if 'Atmos' in audio and config[0].audio_posters == 1:
+                        atmos_poster(tmp_poster)
+                    elif audio == 'DTS:X' and config[0].audio_posters == 1:
+                        dtsx_poster(tmp_poster)
+                elif 'Atmos' in audio:
+                    i.addLabel('Dolby Atmos', locked=False)
+                elif audio == 'DTS:X':
+                    i.addLabel('DTS:X', locked=False)
+                if hdr_banner == False and config[0].hdr == 1:
+                    if 'Dolby Vision' in hdr and config[0].new_hdr == 1:
+                        dolby_vision(tmp_poster)
+                    elif "HDR10+" in hdr and config[0].new_hdr == 1:
+                        hdr10(tmp_poster)
+                    elif hdr == "None":
+                        pass
+                    elif (
+                        hdr != ""
+                        and config[0].new_hdr == 1
+                    ):
+                        hdrp(tmp_poster)
+                elif 'Dolby Vision' in hdr:
+                    i.addLabel('Dolby Vision', locked=False)
+                elif 'HDR10+' in hdr:
+                    i.addLabel('HDR10+', locked=False)
+                elif hdr != '':
+                    i.addLabel('HDR', locked=False)                
+                
+                if res == '4k' and config[0].films4kposters == 1:
+                    if wide_banner == mini_banner == False:
+                        add_banner(tmp_poster)
+                    else:
+                        logger.debug(i.title+' Has banner') 
             # If there are no HDR banners and media info skip is enabled
             if (
                 hdr_banner == False 
@@ -437,91 +515,26 @@ def posters4k(webhooktitle):
                 audio_banner == False
                 and config[0].audio_posters == 1
             ):     
-                def database_decision(banners):
-                    try:
-                        audio = r[0].audio
-                        hdr = r[0].hdr
-                        if str(r[0].guid) == guid:
-                            logger.debug(title+' GUID Match')
-                            if str(r[0].size) != str(size):
-                                logger.debug(title+" has changed, rescanning")
-                                scan = scan_files()
-                                audio = scan[0]
-                                hdr = scan[1]
-                                logger.debug(title+' - '+hdr)
-                                if hdr == "":
-                                    hdr = get_plex_hdr() 
-                                    logger.debug(title+' - '+hdr)                               
-                                updateTable(hdr, audio, tmp_poster, banners)
-                            else:
-                                updateTable(hdr, audio, tmp_poster, banners)
-                                
-                            if not r[0].poster and True not in banners:
-                                updateTable(hdr, audio, tmp_poster, banners)
-                            else:
-                                logger.debug(title+' is the same')
-                        else:
-                            scan = scan_files()
-                            audio = scan[0]
-                            hdr = scan[1]
-                            logger.debug(hdr)
-                            if hdr == "":
-                                hdr = get_plex_hdr()
-                            updateTable(hdr, audio, tmp_poster, banners)
-                    except Exception as e:
-                        #logger.error(repr(e))
-                        scan = scan_files()
-                        audio = scan[0]
-                        hdr = scan[1]
-                        try:
-                            insert_intoTable(hdr, audio, tmp_poster, banners)
-                        except Exception as e:
-                            logger.debug(hdr+' '+audio+' '+tmp_poster)
-                            logger.warning(repr(e))
-                            updateTable(hdr, audio, tmp_poster, banners)
-                    return audio, hdr
 
-                def banner_decision():
-                    if audio_banner == False:
-                        if 'Atmos' in audio and config[0].audio_posters == 1:
-                            atmos_poster(tmp_poster)
-                        elif audio == 'DTS:X' and config[0].audio_posters == 1:
-                            dtsx_poster(tmp_poster)
-                    elif 'Atmos' in audio:
-                        i.addLabel('Dolby Atmos', locked=False)
-                    elif audio == 'DTS:X':
-                        i.addLabel('DTS:X', locked=False)
-                    if hdr_banner == False:
-                        if 'Dolby Vision' in hdr and config[0].new_hdr == 1:
-                            dolby_vision(tmp_poster)
-                        elif "HDR10+" in hdr and config[0].new_hdr == 1:
-                            hdr10(tmp_poster)
-                        elif hdr == "None":
-                            pass
-                        elif (
-                            hdr != ""
-                            and config[0].new_hdr == 1
-                        ):
-                            hdrp(tmp_poster)
-                    elif 'Dolby Vision' in hdr:
-                        i.addLabel('Dolby Vision', locked=False)
-                    elif 'HDR10+' in hdr:
-                        i.addLabel('HDR10+', locked=False)
-                    elif hdr != '':
-                        i.addLabel('HDR', locked=False)                
-                    
-                    if res == '4k' and config[0].films4kposters == 1:
-                        if wide_banner == mini_banner == False:
-                            add_banner(tmp_poster)
-                        else:
-                            logger.debug(i.title+' Has banner') 
+
+
                 audio_hdr = database_decision(banners)
                 audio = audio_hdr[0]
                 hdr = audio_hdr[1]
                 banner_decision()
-
-
-
+            elif wide_banner == mini_banner == False:
+                if config[0].skip_media_info == 0:
+                    database_decision(banners)
+                else:
+                    if r:
+                        audio = r[0].audio
+                        hdr = r[0].hdr
+                        updateTable(hdr, audio, tmp_poster, banners)
+                    else:
+                        audio = i.media[0].audioCodec
+                        hdr = get_plex_hdr()
+                        insert_intoTable(hdr, audio, tmp_poster, banners)
+                    banner_decision()
 
 
         def check_for_new_poster(tmp_poster):
@@ -590,6 +603,7 @@ def posters4k(webhooktitle):
 
         def process(tmp_poster):
             banners = check_banners(tmp_poster)
+            logger.debug(banners)
             decision_tree(tmp_poster, banners)
             upload_poster(tmp_poster)
 
@@ -605,7 +619,6 @@ def posters4k(webhooktitle):
             tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
             tmp_poster = get_poster()     
             r = film_table.query.filter(film_table.guid == guid).all()
-            #try:  
             if r:
                 new_poster = check_for_new_poster(tmp_poster)
                 if r[0].checked == 0 or str(r[0].size) != str(size) or new_poster == 'True':
@@ -616,9 +629,7 @@ def posters4k(webhooktitle):
             else:
                 logger.debug(title+' not in database') 
                 process(tmp_poster)
-            #except Exception as e:
-            #    logger.error('Cannot process '+i.title)
-            #    logger.error(repr(e))
+
 
         dirpath = '/tmp/'
         for files in os.listdir(dirpath):
@@ -641,7 +652,7 @@ def tv_episode_poster():
     from app import db
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
-    tv = plex.library.section(plex.tvlibrary)
+    tv = plex.library.section(config[0].tvlibrary)
     banner_4k = Image.open("app/img/tv/4k.png")
     banner_bg = Image.open("app/img/tv/Background.png")
     banner_dv = Image.open("app/img/tv/dolby_vision.png")
@@ -1144,7 +1155,7 @@ def restore_episodes_from_database():
     from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
-    tv = plex.library.section(plex.tvlibrary)
+    tv = plex.library.section(config[0].tvlibrary)
     tmdb = TMDb()
     poster_url_base = 'https://www.themoviedb.org/t/p/original'
     search = Search()
@@ -2343,6 +2354,8 @@ def collective4k():
     sleep(5)
     logger.info('Starting 4k Tv poster script')
     tv_episode_poster()
+def posters4k_thread():
+    posters4k('')
 
 def restore_posters():
     from app.models import Plex, film_table
