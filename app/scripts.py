@@ -2530,7 +2530,7 @@ def restore_posters():
                         return hdr_version
                     except IndexError:
                         pass
-            for i in films.search(sort='titleSort', title='ralph'):
+            for i in films.search(sort='titleSort', title=''):
                 try:
                     i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                     newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
