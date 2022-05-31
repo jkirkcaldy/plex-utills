@@ -614,7 +614,7 @@ def posters4k(webhooktitle):
             filename = tmp_poster
             try:
                 if img.status_code == 200:
-                    img.raw.decode_content = True
+                    #img.raw.decode_content = True
                     with open(filename, 'wb') as f:                        
                         shutil.copyfileobj(img.raw, f)
                     return tmp_poster 
@@ -1211,7 +1211,7 @@ def restore_episodes_from_database():
         def get_poster(poster):
             r = requests.get(poster_url_base+poster, stream=True)
             if r.status_code == 200:
-                r.raw.decode_content = True
+                #r.raw.decode_content = True
                 with open('tmdb_poster_restore.png', 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
                     i.uploadPoster(filepath='tmdb_poster_restore.png')
@@ -1288,7 +1288,7 @@ def restore_episode_from_database(var):
         def get_poster(poster):
             r = requests.get(poster_url_base+poster, stream=True)
             if r.status_code == 200:
-                r.raw.decode_content = True
+                #r.raw.decode_content = True
                 with open('tmdb_poster_restore.png', 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
                     i.uploadPoster(filepath='tmdb_poster_restore.png')
@@ -1554,7 +1554,7 @@ def fresh_hdr_posters():
                 def get_poster(poster):
                     r = requests.get(poster_url_base+poster, stream=True)
                     if r.status_code == 200:
-                        r.raw.decode_content = True
+                        #r.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
                             shutil.copyfileobj(r.raw, f)
                             i.uploadPoster(filepath='tmdb_poster_restore.png')
@@ -1985,7 +1985,7 @@ def fill_database():
                 def get_poster(poster):
                     r = requests.get(poster_url_base+poster, stream=True)
                     if r.status_code == 200:
-                        r.raw.decode_content = True
+                        #r.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
                             shutil.copyfileobj(r.raw, f)
                             tmdb_poster = 'tmdb_poster_restore.png'
@@ -2418,12 +2418,14 @@ def restore_posters():
                 tmdb_search = movie.details(movie_id=g)
                 logger.info(i.title)
                 def get_poster(poster):
-                    r = requests.get(poster_url_base+poster, stream=True)
-                    if r.status_code == 200:
-                        r.raw.decode_content = True
+                    req = requests.get(poster_url_base+poster, stream=True)
+                    if req.status_code == 200:
+                        #req.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
+                            shutil.copyfileobj(req.raw, f)
                             i.uploadPoster(filepath='tmdb_poster_restore.png')
+                            if r:
+                                shutil.copy('tmdb_poster_restore.png', re.sub('static', '/config', r[0].poster))
                             os.remove('tmdb_poster_restore.png')
                 try:
                     poster = tmdb_search.poster_path
@@ -2449,7 +2451,7 @@ def restore_posters():
                     #ImageFile.LOAD_TRUNCATED_IMAGES = True
                     #background = background.resize(size,Image.LANCZOS)
                     #ImageFile.LOAD_TRUNCATED_IMAGES = False
-    
+
                 # Wide banner box
                 bannerchk = background.crop(bannerbox)
                 # Mini Banner Box
@@ -2458,7 +2460,7 @@ def restore_posters():
                 audiochk = background.crop(a_box)
                 # HDR Box
                 hdrchk = background.crop(hdr_box)
-    
+
                 # POSTER HASHES
                 # Wide Banner
                 poster_banner_hash = imagehash.average_hash(bannerchk)
@@ -2468,34 +2470,34 @@ def restore_posters():
                 poster_audio_hash = imagehash.average_hash(audiochk)
                 # HDR Banner
                 poster_hdr_hash = imagehash.average_hash(hdrchk)
-    
+
                 # General Hashes
                 chk_banner = Image.open("app/img/chk-4k.png")
                 chk_banner_hash = imagehash.average_hash(chk_banner)
-    
+
                 chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
                 chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
-    
+
                 chk_hdr = Image.open("app/img/chk_hdr.png")
                 chk_hdr_hash = imagehash.average_hash(chk_hdr)
-    
+
                 chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
                 chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
-    
+
                 chk_hdr10 = Image.open("app/img/chk_hdr10.png")
                 chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
-    
+
                 chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
                 chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
-    
+
                 atmos_box = Image.open("app/img/chk_atmos.png")
                 chk_atmos_hash = imagehash.average_hash(atmos_box)
-    
+
                 dtsx_box = Image.open("app/img/chk_dtsx.png")
                 chk_dtsx_hash = imagehash.average_hash(dtsx_box)
-    
+
                 wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
-    
+
                 if poster_banner_hash - chk_banner_hash < 5:
                     wide_banner = True
                 if poster_mini_hash - chk_mini_banner_hash < 5:
@@ -2528,7 +2530,7 @@ def restore_posters():
                         return hdr_version
                     except IndexError:
                         pass
-            for i in films.search(sort='titleSort'):
+            for i in films.search(sort='titleSort', title='ralph'):
                 try:
                     i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                     newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
@@ -2549,12 +2551,13 @@ def restore_posters():
                             banners = check_banners(poster)
                             if True not in banners:
                                 restore(poster)
+
                             elif True in banners and config[0].tmdb_restore == 1:
                                 restore_tmdb()
                             row = r[0].id
                             film = film_table.query.get(row)
                             film.checked = '0'
-                            db.session.commit()
+                            db.session.commit()                                
                         except Exception as e:
                             logger.error("Can't restore poster from database: "+repr(e))
                             if config[0].tmdb_restore == 1:
