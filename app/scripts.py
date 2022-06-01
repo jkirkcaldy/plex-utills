@@ -1536,6 +1536,7 @@ def test_script():
 def fill_database():
     from app.models import Plex, film_table
     from app import db
+    from app import module
     config = Plex.query.filter()
     plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb.api_key = config[0].tmdb_api
@@ -1960,7 +1961,7 @@ def posters4k_thread():
 
 def restore_posters():
     from app.models import Plex, film_table
-    from app import db
+    from app import db, module
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb.api_key = config[0].tmdb_api   
