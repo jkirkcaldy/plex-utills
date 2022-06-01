@@ -205,10 +205,13 @@ def posters4k(webhooktitle):
                             module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
                         else:
                             #logger.debug(new_poster)
-                            audio = r[0].audio
-                            hdr = r[0].hdr
                             if new_poster == 'True':
+                                audio = r[0].audio
+                                hdr = r[0].hdr
                                 module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                            else:
+                                logger.debug('backing up poster')
+                                module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
                     elif not r:
                         logger.info(title+" is not in database, skip media info scan is false")
                         scan = module.scan_files(config, i, plex)
@@ -308,7 +311,6 @@ def posters4k(webhooktitle):
                     logger.error(repr(e))
                     logger.debug('Film not in database yet')
                     pass
-
 
         def process(tmp_poster):
             size = (2000, 3000)
@@ -739,7 +741,6 @@ def tv_episode_poster():
             logger.debug('Skipping: '+img_title)
 
     logger.info("tv Poster Script has finished")
-
 
 def restore_episodes_from_database():
     from app.models import Plex, ep_table

@@ -20,7 +20,7 @@ import random
 import string
 from app.scripts import logger
 
-
+logger.debug('testing')
 
 tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/original'
@@ -243,6 +243,7 @@ def scan_files(config, i, plex):
     return audio, hdr_version
 
 def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
+    logger.debug("BACKUP")
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
     else:

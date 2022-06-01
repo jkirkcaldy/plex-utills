@@ -561,5 +561,5 @@ def restore_episode_poster(var=""):
 def restart_server():
     cmd = "supervisorctl restart gunicorn"
     os.system(cmd)
-    return 200
+    return redirect('/index')
     
