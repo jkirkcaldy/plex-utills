@@ -20,7 +20,7 @@ import time
 
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
-b_dir = 'static/backup/' 
+b_dir = 'app/static/backup/' 
 
 def setup_helper():
     def continue_setup():
@@ -128,13 +128,6 @@ def setup_helper():
             except (sqlite3.OperationalError, IndexError) as e:
                 log.debug(repr(e))         
             c.close()
-        #def add_database():
-        #    try:
-        #        c = mydb.cursor() 
-        #        c.execute("CREATE DATABASE films CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")
-        #        mydb.commit()
-        #    except mysql.connector.errors.ProgrammingError as e:
-        #        log.debug(repr(e))
 
  
         def update_plex_path():
