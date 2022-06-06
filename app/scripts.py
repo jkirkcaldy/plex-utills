@@ -1,3 +1,4 @@
+from pickle import FALSE
 from PIL import Image, ImageFile
 from plexapi.server import PlexServer
 import plexapi
@@ -89,6 +90,7 @@ def posters4k(webhooktitle):
     global b_dir
     tmdb.api_key = config[0].tmdb_api
     b_dir = 'static/backup/films/'
+    blurred=False
     def run_script(): 
         def hdrp(tmp_poster):
             logger.info(i.title+" HDR Banner")
@@ -184,17 +186,18 @@ def posters4k(webhooktitle):
             logger.debug("Decision tree")
             def database_decision(banners):
                 logger.debug("Database Decision")
+                audio = hdr = ''
                 if config[0].skip_media_info == 1:
                     if str(r[0].guid) == guid and str(r[0].size) != str(size):
                         logger.debug(title+" has changed")
                         hdr = module.get_plex_hdr(i, plex)
                         audio = i.media[0].audioCodec
-                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                     elif not r:
                         logger.info(title+" is not in database, skip media info scan is true")
                         hdr = module.get_plex_hdr(i, plex)
                         audio = i.media[0].audioCodec
-                        module.insert_intoTable(guid, guids, size, res,res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                        module.insert_intoTable(guid, guids, size, res,res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                 else:
                     if r:
                         if str(r[0].guid) == guid and str(r[0].size) != str(size):
@@ -202,13 +205,13 @@ def posters4k(webhooktitle):
                             scan = module.scan_files(config, i, plex)
                             audio = scan[0]
                             hdr = scan[1]
-                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                         else:
                             #logger.debug(new_poster)
                             if new_poster == 'True':
                                 audio = r[0].audio
                                 hdr = r[0].hdr
-                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                             else:
                                 logger.debug('backing up poster')
                                 module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
@@ -217,7 +220,8 @@ def posters4k(webhooktitle):
                         scan = module.scan_files(config, i, plex)
                         audio = scan[0]
                         hdr = scan[1]
-                        module.insert_intoTable(guid, guids, size, res,res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                        print(config[0].manualplexpath)
+                        module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                     else:
                         logger.debug("error message")
                 return audio, hdr
@@ -278,9 +282,9 @@ def posters4k(webhooktitle):
                         poster = Image.open(tmp_poster)
                         poster_hash = imagehash.average_hash(poster)
                     except SyntaxError as e:
-                        logger.error(repr(e))
+                        logger.error('Check for new poster Syntax Error: '+repr(e))
                     except OSError as e:
-                        logger.error(e)
+                        logger.error('Check for new poster OSError: '+repr(e))
                         if 'FileNotFoundError'  or 'Errno 2 'in e:
                             logger.debug(i.title+' - Poster Not found')
                             #shutil.copy(tmp_poster, poster_file)
@@ -288,7 +292,7 @@ def posters4k(webhooktitle):
                             return new_poster
                         else:
                             logger.debug(i.title)
-                            logger.warning(repr(e))
+                            logger.warning('Check for new Poster: '+repr(e))
                             ImageFile.LOAD_TRUNCATED_IMAGES = True
                             bak_poster = Image.open(poster_file)
                             bak_poster_hash = imagehash.average_hash(bak_poster)
@@ -308,7 +312,7 @@ def posters4k(webhooktitle):
                         
                     
                 except Exception as e:
-                    logger.error(repr(e))
+                    logger.error('Check for new poster Exception: '+repr(e))
                     logger.debug('Film not in database yet')
                     pass
 
@@ -519,7 +523,7 @@ def tv_episode_poster(epwebhook, poster):
                 try:
                     module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                 except Exception as e:
-                    logger.warning(repr(e))
+                    logger.warning('Database decision: '+repr(e))
             
             def banner_decision(audio, hdr):
                 if True not in banners:
@@ -594,9 +598,9 @@ def tv_episode_poster(epwebhook, poster):
                     poster = Image.open(tmp_poster)
                     poster_hash = imagehash.average_hash(poster)
                 except SyntaxError as e:
-                    logger.error(repr(e))
+                    logger.error('Check for new poster Syntax Error: '+repr(e))
                 except OSError as e:
-                    logger.error(e)
+                    logger.error('Check for new poster OSError: '+repr(e))
                     if 'FileNotFoundError'  or 'Errno 2 'in e:
                         logger.debug(ep.title+' - Poster Not found')
                         shutil.copy(tmp_poster, poster_file)
@@ -604,7 +608,7 @@ def tv_episode_poster(epwebhook, poster):
                         return new_poster
                     else:
                         logger.debug(ep.title)
-                        logger.warning(repr(e))
+                        logger.warning('Check for new poster warning: '+repr(e))
                         ImageFile.LOAD_TRUNCATED_IMAGES = True
                         bak_poster = Image.open(poster_file)
                         bak_poster_hash = imagehash.average_hash(bak_poster)
@@ -754,7 +758,7 @@ def restore_episodes_from_database():
                     film.checked = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
-                    logger.error(repr(e))  
+                    logger.error('Restore from db: '+repr(e))  
 
 def restore_episode_from_database(var):
     from app.models import Plex, ep_table
@@ -830,7 +834,7 @@ def restore_episode_from_database(var):
                     film.checked = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
-                    logger.error(repr(e))  
+                    logger.error('Restore from db: '+repr(e))  
 
 def posters3d(): 
     from app.models import Plex

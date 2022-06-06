@@ -157,9 +157,9 @@ def get_poster(i, tmp_poster, title):
         else:
             logger.info("4k Posters: "+title+ 'cannot find the poster for this film')
     except OSError as e:
-        logger.error(e)
+        logger.error('Get Poster OSError: '+repr(e))
     except Exception as e:
-        logger.error(e)
+        logger.error('Get Poster Exception: '+repr(e))
 
 def get_plex_hdr(i, plex):
     ekey = i.key
@@ -331,7 +331,6 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
             else:
                 newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
             backup = os.path.exists(newdir+'poster_bak.png')            
-             
             logger.debug(title+' '+hdr+' '+audio)
             if blurred == False:  
                 b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
@@ -368,7 +367,6 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
     film.poster = b_file
     film.checked = '1'
     db.session.commit()
-
 
 def blur(tmp_poster, r, table, db):
     poster = re.sub('.png', '.blurred.png', tmp_poster)
