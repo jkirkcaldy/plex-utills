@@ -18,11 +18,9 @@
         <th>Audio Track</th>
         <th>Poster</th>
         <th>Checked</th>
+        <th>Blurred</th>
       </tr>
     </thead>
-   <tbody>
-     <td>test</td>
-  </tbody>
   </table>
 {% endblock %}
 {% block scripts %}
@@ -38,7 +36,8 @@
         {data: 'hdr'},
         {data: 'audio'},
         {data: 'poster'},
-        {data: 'checked'}
+        {data: 'checked'},
+        {data: 'blurred'}
       ],
     });
   });

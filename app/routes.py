@@ -62,7 +62,7 @@ def run_posters4k():
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
-    threading.Thread(target=scripts.tv_episode_poster).start()   
+    threading.Thread(target=scripts.tvposters4k_thread).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)    
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
@@ -89,6 +89,10 @@ def preseed():
 def start_add_labels():
     threading.Thread(target=scripts.add_labels).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+@app.route('/spoilers', methods=['GET'])
+def run_tvspoilers():
+    threading.Thread(target=scripts.spoilers).start()   
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)  
 
 
 @app.route('/restore', methods=['GET'])
@@ -434,13 +438,21 @@ def recently_added():
             data = request.json
             try:
                 if str.lower(data['server']) == 'tautulli':
-                    return data['title']
+                    title = data['title']
+                    mediatype = data['type']
+                    guid = data['id']
+                    return title, mediatype, guid
             except KeyError:
                 return data['movie']['title']
-    webhooktitle = get_title()
+    webhook = get_title()
+    print(webhook[2])
+    webhooktitle = webhook[0]
     log.info('Webhook recieved for: '+webhooktitle)
-    threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
-    threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
+    if webhook[1] == 'movie':
+        threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
+        threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
+    elif webhook[1] == 'episode':
+        threading.Thread(target=scripts.tv_episode_poster(webhook[2], ''), name='TV_webhook').start()
     return 'ok', 200
 
 @app.route('/films')

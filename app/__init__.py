@@ -265,6 +265,7 @@ def setup_helper():
                     	"audio"	TEXT,
                     	"poster"	TEXT NOT NULL,
                     	"checked"	INTEGER,
+                        "blurred"   INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """
             c.execute(table)
@@ -294,6 +295,13 @@ def setup_helper():
             conn = sqlite3.connect('/config/app.db')
             c = conn.cursor()
             c.execute("SELECT * FROM episodes")
+            try:
+                q1 = """ALTER TABLE episodes    
+                        ADD COLUMN blurred INT
+                        """   
+                c.execute(q1)
+            except sqlite3.OperationalError as e:
+                log.debug(repr(e))                
             c.close()
             continue_setup()
         except sqlite3.OperationalError as e:

@@ -54,7 +54,7 @@ search = Search()
 movie = Movie()
 discover = Discover()
 
-b_dir = 'static/backup/' 
+
 
 banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
 banner_4k = Image.fromarray(banner_4k)
@@ -321,6 +321,8 @@ def posters4k(webhooktitle):
 
 
         for i in films.search(title=webhooktitle):
+            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
+            i.title = re.sub('#', '', i.title)
             logger.info(i.title)           
             title = i.title
             guid = str(i.guid)
@@ -361,7 +363,7 @@ def posters4k(webhooktitle):
         except IndexError:
             pass
 
-def tv_episode_poster():
+def tv_episode_poster(epwebhook, poster):
     from app.models import Plex, ep_table
     from app import db
     from app import module
@@ -475,72 +477,8 @@ def tv_episode_poster():
         except OSError as e:
             logger.error('DTS:X Poster error: '+repr(e))
 
-    def check_banners(tmp_poster):
-        size = (1280,720)
-        logger.debug(img_title+' Checking for Banners')
-        try:
-            size = (1280,720)
-            background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-            background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-            background = Image.fromarray(background)
-            background = background.resize(size,Image.LANCZOS)
-        except OSError as e:
-            logger.error(e)
-    
-        # 4K banner box
-        bannerchk = background.crop(box_4k)
-        # Audio Box
-        audiochk = background.crop(a_box)
-        # HDR Box
-        hdrchk = background.crop(hdr_box)
-    
-        # POSTER HASHES
-        # 4K Banner
-        poster_banner_hash = imagehash.average_hash(bannerchk)
-        # Audio Banner
-        poster_audio_hash = imagehash.average_hash(audiochk)
-        # HDR Banner
-        poster_hdr_hash = imagehash.average_hash(hdrchk)
-    
-        # General Hashes
-        chk_4k = Image.open("app/img/tv/chk_4k.png")
-        chk_banner_hash = imagehash.average_hash(chk_4k)
-    
-        chk_hdr = Image.open("app/img/tv/chk_hdr.png")
-        chk_hdr_hash = imagehash.average_hash(chk_hdr)
-    
-        chk_dolby_vision = Image.open("app/img/tv/chk_dv.png")
-        chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
-    
-        chk_hdr10 = Image.open("app/img/tv/chk_hdr10.png")
-        chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
-    
-        atmos_box = Image.open("app/img/tv/chk_atmos.png")
-        chk_atmos_hash = imagehash.average_hash(atmos_box)
-    
-        dtsx_box = Image.open("app/img/tv/chk_dts.png")
-        chk_dtsx_hash = imagehash.average_hash(dtsx_box)
-    
-        banner_4k = audio_banner = hdr_banner = False
-    
-        if poster_banner_hash - chk_banner_hash < cutoff:
-            banner_4k = True
-        if (
-            poster_audio_hash - chk_atmos_hash < cutoff
-            or poster_audio_hash - chk_dtsx_hash < cutoff
-        ):
-            audio_banner = True
-        if (
-            poster_hdr_hash - chk_hdr_hash < cutoff 
-            or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
-            or poster_hdr_hash - chk_hdr10_hash < cutoff
-        ):
-            hdr_banner = True
-        background.save(tmp_poster)
-        return banner_4k, audio_banner, hdr_banner
-
     def decision_tree(tmp_poster):
-        banners = check_banners(tmp_poster)
+        banners = module.check_tv_banners(tmp_poster, img_title)
         banner_4k = banners[0]
         audio_banner = banners[1]
         hdr_banner = banners[2]
@@ -557,12 +495,12 @@ def tv_episode_poster():
                             scan = module.scan_files(config, i, plex)
                             audio = scan[0]
                             hdr = scan[1]                             
-                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                     else:
-                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                         
                     if not r[0].poster and True not in banners:
-                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                     else:
                         logger.debug(title+' is the same')
                 else:
@@ -572,14 +510,14 @@ def tv_episode_poster():
                     logger.debug(hdr)
                     if hdr == "":
                         hdr = module.get_plex_hdr(i, plex)
-                    module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                    module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
             else:
                 logger.debug('File not in Database')
                 scan = module.scan_files(config, i, plex)
                 audio = scan[0]
                 hdr = scan[1]
                 try:
-                    module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g)
+                    module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                 except Exception as e:
                     logger.warning(repr(e))
             
@@ -638,7 +576,7 @@ def tv_episode_poster():
                 add_banner(tmp_poster)
             else:
                 logger.debug(ep.title+' Has banner') 
-        rechk_banners = check_banners(tmp_poster)
+        rechk_banners = module.check_tv_banners(tmp_poster, img_title)
         if True not in rechk_banners:
             try:
                 os.remove(tmp_poster)
@@ -691,7 +629,8 @@ def tv_episode_poster():
             logger.debug("File not in database, doesn't need checking")
             pass
 
-    for ep in tv.search(libtype='episode'):
+    for ep in tv.search(libtype='episode', guid=epwebhook):
+        logger.debug(ep.title)
         i = ep
         img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
         resolution = ep.media[0].videoResolution
@@ -702,10 +641,14 @@ def tv_episode_poster():
             guids = str(ep.guids)
             size = ep.media[0].parts[0].size
             res = ep.media[0].videoResolution    
-
-            img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-            tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
-            tmp_poster = module.get_poster(i, tmp_poster, title)
+            if poster == "":
+                img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
+                tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+                tmp_poster = module.get_poster(i, tmp_poster, title)
+                blurred = False
+            else:
+                blurred = True
+                tmp_poster = poster
             r = ep_table.query.filter(ep_table.guid == guid).all()
             table = ep_table
             g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
@@ -718,23 +661,17 @@ def tv_episode_poster():
                             logger.info(title+' has been processed and the file has not hanged, skiping scan')
                             new_poster = check_for_new_poster(tmp_poster)
                             if new_poster == 'True':
-                                #banners = check_banners(tmp_poster)
                                 decision_tree(tmp_poster)
                                 module.upload_poster(tmp_poster, title, db, r, table, i)
                     else:
-                        #logger.debug(ep.title+' Checking for Banners')
-                        #banners = check_banners(tmp_poster)
                         decision_tree(tmp_poster)
                         module.upload_poster(tmp_poster, title, db, r, table, i)
                 else:
-                    #logger.debug(ep.title+' Checking for Banners')
                     check_for_new_poster(tmp_poster)                    
-                    #banners = check_banners(tmp_poster)
                     decision_tree(tmp_poster)
                     module.upload_poster(tmp_poster, title, db, r, table, i)
             except IndexError: 
                 check_for_new_poster(tmp_poster)
-                #banners = check_banners(tmp_poster)
                 decision_tree(tmp_poster)
                 module.upload_poster(tmp_poster, title, db, r, table, i)                   
         else:
@@ -1960,6 +1897,9 @@ def collective4k():
 def posters4k_thread():
     posters4k('')
 
+def tvposters4k_thread():
+    tv_episode_poster('', '')
+
 def restore_posters():
     from app.models import Plex, film_table
     from app import db, module
@@ -2287,3 +2227,69 @@ def restore_posters():
         except IndexError:
             pass        
     logger.info('Restore Completed.')    
+
+def spoilers():
+    from app.models import Plex, ep_table
+    from app import db
+    from app import module
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    tv = plex.library.section(config[0].tvlibrary)
+    size = (1280,720)
+    cutoff = 10
+    tmdb.api_key = config[0].tmdb_api    
+    b_dir = 'static/backup/tv/episodes/'
+    logger.info('Starting TV Spolier script')    
+
+    for ep in tv.search(libtype='episode', limit='1'):
+        i = ep
+        title = ep.title
+        guid = str(ep.guid)
+        g = guids = str(ep.guids)
+        img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
+        size = ep.media[0].parts[0].size
+        res = ep.media[0].videoResolution    
+        img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
+        tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+        table = ep_table
+        hdr = ""
+        audio = ""
+        banners = ""
+        r = ep_table.query.filter(ep_table.guid == guid).all()
+        if ep.viewCount == 0 :
+            if r:
+                if r[0].blurred != '1':
+                    logger.debug("database: "+r[0].title)
+                    tmp_poster = re.sub('static', '/config', r[0].poster)
+                    i.uploadPoster(filepath=tmp_poster)
+                    poster = module.blur(tmp_poster, r, table, db)
+                    row = r[0].id
+                    film = table.query.get(row)
+                    film.checked = '0'
+                    db.session.commit()
+                    if resolution == '4k' or hdr != 'None':
+                    #from app import scripts
+                        scripts.tv_episode_poster(guid, poster)
+
+            else:
+                module.get_poster(i, tmp_poster, title)
+                blurred = 0
+                module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
+                blur = module.blur(tmp_poster, r, table, db)
+            #else:
+            #    logger.info(img_title+" is blurred")
+        else:
+            logger.info(img_title+" is watched")
+            if r[0].blurred == 1:
+                tmp_poster = re.sub('static', '/config', r[0].poster)
+                poster = ""
+                i.uploadPoster(filepath=tmp_poster)
+                row = r[0].id
+                film = table.query.get(row)
+                film.blurred = '0'
+                film.checked = '0'
+                db.session.commit()
+                from app import scripts
+                scripts.tv_episode_poster(guid, poster)
+
+
