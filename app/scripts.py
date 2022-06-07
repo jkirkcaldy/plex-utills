@@ -697,19 +697,18 @@ def restore_episodes_from_database():
     tmdbtv = Episode()
     discover = Discover()
     tmdb.api_key = config[0].tmdb_api
+    b_dir = '/config/backup/tv/episodes/'
     def restore_tmdb(g):
         logger.info("RESTORE: restoring posters from TheMovieDb")
         tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
-        logger.info(i.title)
+        logger.debug(tmdb_search.still_path)
         def get_poster(poster):
             req = requests.get(poster_url_base+poster, stream=True)
             if req.status_code == 200:
-                #r.raw.decode_content = True
-                with open('tmdb_poster_restore.png', 'wb') as f:
+                logger.debug(b_file)
+                with open(b_file, 'wb') as f:
                     shutil.copyfileobj(req.raw, f)
-                    i.uploadPoster(filepath='tmdb_poster_restore.png')
-                    shutil.copy('tmdb_poster_restore', b_file)
-                    os.remove('tmdb_poster_restore.png')
+                    i.uploadPoster(filepath=b_file)
         try:
             poster = tmdb_search.still_path
             get_poster(poster) 
@@ -720,6 +719,7 @@ def restore_episodes_from_database():
     for i in tv.search(libtype='episode'):
         img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
         g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+        g = str(g[0].guids)
         title = i.title
         guid = str(i.guid)
         logger.info('restoring '+title)
@@ -736,14 +736,20 @@ def restore_episodes_from_database():
                     b_file = r[0].poster 
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
+                        logger.debug(b_file)
                         banners = module.check_tv_banners(b_file, img_title)
+                        logger.debug(banners)
                         if True not in banners:
+                            logger.debug('No banners detected')
                             i.uploadPoster(filepath=b_file)
                         else:
-                            g = module.get_tmdb_guid(i, g)
+                            logger.debug('Banners detected')
+                            g = module.get_tmdb_guid(g)
+                            logger.debug(g)
                             restore_tmdb(g)
                     else:
-                        g = module.get_tmdb_guid(i, g)
+                        b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
+                        g = module.get_tmdb_guid(g)
                         restore_tmdb(g)
                     row = r[0].id
                     film = ep_table.query.get(row)
@@ -753,7 +759,7 @@ def restore_episodes_from_database():
                     logger.error('Restore from db: '+repr(e))  
     logger.info('Finished restoring TV Posters')
 
-def restore_episodes_from_database(var):
+def restore_episode_from_database(var):
     from app.models import Plex, ep_table
     from app import db, module
     from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
@@ -767,18 +773,18 @@ def restore_episodes_from_database(var):
     tmdbtv = Episode()
     discover = Discover()
     tmdb.api_key = config[0].tmdb_api
+    b_dir = '/config/backup/tv/episodes/'
     def restore_tmdb(g):
         logger.info("RESTORE: restoring posters from TheMovieDb")
         tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
-        logger.info(i.title)
+        logger.debug(tmdb_search.still_path)
         def get_poster(poster):
             req = requests.get(poster_url_base+poster, stream=True)
             if req.status_code == 200:
-                #r.raw.decode_content = True
-                with open('tmdb_poster_restore.png', 'wb') as f:
+                logger.debug(b_file)
+                with open(b_file, 'wb') as f:
                     shutil.copyfileobj(req.raw, f)
-                    i.uploadPoster(filepath='tmdb_poster_restore.png')
-                    os.remove('tmdb_poster_restore.png')
+                    i.uploadPoster(filepath=b_file)
         try:
             poster = tmdb_search.still_path
             get_poster(poster) 
@@ -789,6 +795,7 @@ def restore_episodes_from_database(var):
     for i in tv.search(libtype='episode', guid=var):
         img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
         g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+        g = str(g[0].guids)
         title = i.title
         guid = str(i.guid)
         logger.info('restoring '+title)
@@ -801,21 +808,24 @@ def restore_episodes_from_database(var):
             resolution = i.media[0].videoResolution
             hdr = r[0].hdr
             if (resolution == '4k' or hdr != 'None'):
-                
                 try:
-
                     b_file = r[0].poster 
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
-                        
+                        logger.debug(b_file)
                         banners = module.check_tv_banners(b_file, img_title)
+                        logger.debug(banners)
                         if True not in banners:
+                            logger.debug('No banners detected')
                             i.uploadPoster(filepath=b_file)
                         else:
-                            g = module.get_tmdb_guid(i, g)
+                            logger.debug('Banners detected')
+                            g = module.get_tmdb_guid(g)
+                            logger.debug(g)
                             restore_tmdb(g)
                     else:
-                        g = module.get_tmdb_guid(i, g)
+                        b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
+                        g = module.get_tmdb_guid(g)
                         restore_tmdb(g)
                     row = r[0].id
                     film = ep_table.query.get(row)

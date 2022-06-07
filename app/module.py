@@ -55,9 +55,7 @@ a_box = (0,1608,493,1766)
 cutoff = 10
 
 
-def get_tmdb_guid(i, g):
-    logger.debug(g)
-    #g = str(i.guids)
+def get_tmdb_guid(g):
     g = g[1:-1]
     g = re.sub(r'[*?:"<>| ]',"",g)
     g = re.sub("Guid","",g)
@@ -67,7 +65,6 @@ def get_tmdb_guid(i, g):
     g = str(g[0])
     gv = [v for v in g if v.isnumeric()]
     g = "".join(gv)
-    logger.debug(g)
     return g
 
 def get_tmdb_poster(fname, poster):
@@ -289,7 +286,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
                         return b_file
                 else: #  p == 'False':
                     logger.debug("restoring from tmbd")
-                    g = get_tmdb_guid(i, g)
+                    g = get_tmdb_guid(g)
                     if 'films' in b_dir:
                         tmdb_search = movie.details(movie_id=g)
                         poster = tmdb_search.poster_path
@@ -383,17 +380,11 @@ def blur(tmp_poster, r, table, db):
 
 def check_tv_banners(tmp_poster, img_title):
     size = (1280,720)
-    banner_4k = Image.open("app/img/tv/4k.png")
-    banner_bg = Image.open("app/img/tv/Background.png")
-    banner_dv = Image.open("app/img/tv/dolby_vision.png")
-    banner_hdr10 = Image.open("app/img/tv/hdr10.png")
-    banner_new_hdr = Image.open("app/img/tv/hdr.png")
-    atmos = Image.open("app/img/tv/atmos.png")
-    dtsx = Image.open("app/img/tv/dtsx.png")
+    logger.debug(tmp_poster)
     size = (1280,720)
-    box_4k= (52,68,275,225)
-    hdr_box = (32,442,307,561)
-    a_box = (32,562,307,681)
+    box_4k= (42,45,290,245)
+    hdr_box = (32,440,303,559)
+    a_box = (32,560,306,685)
     cutoff = 10
     logger.debug(img_title+' Checking for Banners')
     try:
