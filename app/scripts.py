@@ -685,7 +685,7 @@ def tv_episode_poster(epwebhook, poster):
 
 def restore_episodes_from_database():
     from app.models import Plex, ep_table
-    from app import db
+    from app import db, module
     from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
@@ -697,34 +697,18 @@ def restore_episodes_from_database():
     tmdbtv = Episode()
     discover = Discover()
     tmdb.api_key = config[0].tmdb_api
-    def restore_tmdb():
+    def restore_tmdb(g):
         logger.info("RESTORE: restoring posters from TheMovieDb")
-        def get_tmdb_guid():
-            g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
-            g = str(g[0].guids)
-            print(g)
-            #g = str(r[0].guids)
-            g = g[1:-1]
-            g = re.sub(r'[*?:"<>| ]',"",g)
-            g = re.sub("Guid","",g)
-            g = g.split(",")
-            f = filter(lambda a: "tmdb" in a, g)
-            g = list(f)
-            g = str(g[0])
-            gv = [v for v in g if v.isnumeric()]
-            g = "".join(gv)
-            return g
-        g = get_tmdb_guid()
         tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
         logger.info(i.title)
-        #print(tmdb_search)
         def get_poster(poster):
-            r = requests.get(poster_url_base+poster, stream=True)
-            if r.status_code == 200:
+            req = requests.get(poster_url_base+poster, stream=True)
+            if req.status_code == 200:
                 #r.raw.decode_content = True
                 with open('tmdb_poster_restore.png', 'wb') as f:
-                    shutil.copyfileobj(r.raw, f)
+                    shutil.copyfileobj(req.raw, f)
                     i.uploadPoster(filepath='tmdb_poster_restore.png')
+                    shutil.copy('tmdb_poster_restore', b_file)
                     os.remove('tmdb_poster_restore.png')
         try:
             poster = tmdb_search.still_path
@@ -732,8 +716,10 @@ def restore_episodes_from_database():
         except TypeError:
             logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
             pass
-
+    logger.info('Restoring TV Posters')
     for i in tv.search(libtype='episode'):
+        img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
+        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
         title = i.title
         guid = str(i.guid)
         logger.info('restoring '+title)
@@ -750,19 +736,26 @@ def restore_episodes_from_database():
                     b_file = r[0].poster 
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
-                        i.uploadPoster(filepath=b_file)
+                        banners = module.check_tv_banners(b_file, img_title)
+                        if True not in banners:
+                            i.uploadPoster(filepath=b_file)
+                        else:
+                            g = module.get_tmdb_guid(i, g)
+                            restore_tmdb(g)
                     else:
-                        restore_tmdb()
+                        g = module.get_tmdb_guid(i, g)
+                        restore_tmdb(g)
                     row = r[0].id
                     film = ep_table.query.get(row)
                     film.checked = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
                     logger.error('Restore from db: '+repr(e))  
+    logger.info('Finished restoring TV Posters')
 
-def restore_episode_from_database(var):
+def restore_episodes_from_database(var):
     from app.models import Plex, ep_table
-    from app import db
+    from app import db, module
     from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
@@ -774,32 +767,16 @@ def restore_episode_from_database(var):
     tmdbtv = Episode()
     discover = Discover()
     tmdb.api_key = config[0].tmdb_api
-    def restore_tmdb():
+    def restore_tmdb(g):
         logger.info("RESTORE: restoring posters from TheMovieDb")
-        def get_tmdb_guid():
-            g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
-            g = str(g[0].guids)
-            print(g)
-            g = g[1:-1]
-            g = re.sub(r'[*?:"<>| ]',"",g)
-            g = re.sub("Guid","",g)
-            g = g.split(",")
-            f = filter(lambda a: "tmdb" in a, g)
-            g = list(f)
-            g = str(g[0])
-            gv = [v for v in g if v.isnumeric()]
-            g = "".join(gv)
-            return g
-        g = get_tmdb_guid()
         tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
         logger.info(i.title)
-        #print(tmdb_search)
         def get_poster(poster):
-            r = requests.get(poster_url_base+poster, stream=True)
-            if r.status_code == 200:
+            req = requests.get(poster_url_base+poster, stream=True)
+            if req.status_code == 200:
                 #r.raw.decode_content = True
                 with open('tmdb_poster_restore.png', 'wb') as f:
-                    shutil.copyfileobj(r.raw, f)
+                    shutil.copyfileobj(req.raw, f)
                     i.uploadPoster(filepath='tmdb_poster_restore.png')
                     os.remove('tmdb_poster_restore.png')
         try:
@@ -808,8 +785,10 @@ def restore_episode_from_database(var):
         except TypeError:
             logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
             pass
-
+    logger.info('Restoring TV Posters')
     for i in tv.search(libtype='episode', guid=var):
+        img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
+        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
         title = i.title
         guid = str(i.guid)
         logger.info('restoring '+title)
@@ -822,19 +801,29 @@ def restore_episode_from_database(var):
             resolution = i.media[0].videoResolution
             hdr = r[0].hdr
             if (resolution == '4k' or hdr != 'None'):
+                
                 try:
+
                     b_file = r[0].poster 
                     b_file = re.sub('static', '/config', b_file)
                     if b_file:
-                        i.uploadPoster(filepath=b_file)
+                        
+                        banners = module.check_tv_banners(b_file, img_title)
+                        if True not in banners:
+                            i.uploadPoster(filepath=b_file)
+                        else:
+                            g = module.get_tmdb_guid(i, g)
+                            restore_tmdb(g)
                     else:
-                        restore_tmdb()
+                        g = module.get_tmdb_guid(i, g)
+                        restore_tmdb(g)
                     row = r[0].id
                     film = ep_table.query.get(row)
                     film.checked = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
                     logger.error('Restore from db: '+repr(e))  
+    logger.info('Finished restoring TV Posters')
 
 def posters3d(): 
     from app.models import Plex
@@ -2232,7 +2221,7 @@ def restore_posters():
             pass        
     logger.info('Restore Completed.')    
 
-def spoilers():
+def spoilers(guid):
     from app.models import Plex, ep_table
     from app import db
     from app import module
@@ -2245,7 +2234,7 @@ def spoilers():
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting TV Spolier script')    
 
-    for ep in tv.search(libtype='episode', limit='1'):
+    for ep in tv.search(libtype='episode', limit='1', guid=guid):
         i = ep
         title = ep.title
         guid = str(ep.guid)
@@ -2260,28 +2249,33 @@ def spoilers():
         audio = ""
         banners = ""
         r = ep_table.query.filter(ep_table.guid == guid).all()
+        logger.debug(ep.viewCount)
         if ep.viewCount == 0 :
             if r:
-                if r[0].blurred != '1':
+                if r[0].blurred == 0:
                     logger.debug("database: "+r[0].title)
                     tmp_poster = re.sub('static', '/config', r[0].poster)
                     i.uploadPoster(filepath=tmp_poster)
                     poster = module.blur(tmp_poster, r, table, db)
+                    
                     row = r[0].id
                     film = table.query.get(row)
                     film.checked = '0'
                     db.session.commit()
-                    if resolution == '4k' or hdr != 'None':
-                    #from app import scripts
-                        scripts.tv_episode_poster(guid, poster)
-
+                    if res == '4k' or hdr != 'None':
+                        tv_episode_poster(guid, poster)
+                    else:
+                        i.uploadPoster(filepath=poster)
+                #else:
+                    #module.get_poster(i, tmp_poster, title)
+                    #blurred = 0
+                    #module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
+                    #module.blur(tmp_poster, r, table, db)
             else:
                 module.get_poster(i, tmp_poster, title)
                 blurred = 0
                 module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
-                blur = module.blur(tmp_poster, r, table, db)
-            #else:
-            #    logger.info(img_title+" is blurred")
+                module.blur(tmp_poster, r, table, db)
         else:
             logger.info(img_title+" is watched")
             if r[0].blurred == 1:
@@ -2293,7 +2287,8 @@ def spoilers():
                 film.blurred = '0'
                 film.checked = '0'
                 db.session.commit()
-                from app import scripts
-                scripts.tv_episode_poster(guid, poster)
+                tv_episode_poster(guid, poster)
+        logger.info('Spoiler script has finished')
 
-
+def spoilers_scheduled():
+    spoilers('')

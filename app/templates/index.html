@@ -79,6 +79,17 @@
                                 <td>{{ plex.t2 }}</td>
                                 <td style="display:none;">{{ plex.autocollections }}</td>
                               </tr>
+                              <tr>
+                                <th socpe="row"><a href="{{ url_for('run_tvspoilers') }}" class="btn btn-primary btn-icon-split" id="spoilers">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">TV Spoilers</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t3 }}</td>
+                                <td style="display:none;">{{ plex.spoilers }}</td>
+                              </tr>
                               <!--<tr>
                                 <th socpe="row"><a href="{{ url_for('run_pixar') }}" class="btn btn-primary btn-icon-split" id="pixar">
                                   <span class="icon text-white-50">

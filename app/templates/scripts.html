@@ -206,41 +206,23 @@
         <p>This is now the script that will create the Disney, Pixar and Marvel Cinematic Universe collections. These can be individually toggled in the config options page.</p>
     </div>
 </div>
-           <!-- <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Disney Collection</h6>
-                </div>
-                <div class="card-body">
-                    <p>
-                        <a href="{{ url_for('run_disney') }}" class="btn btn-primary btn-icon-split" id="disney">
-                            <span class="icon text-white-50">
-                              <i class="fas fa-film"></i>
-                          </span>
-                            <span class="text">Run Script</span>
-                        </a>
-                    </p>
-                    <p>Where this whole project started. A simple script, that will go through your films library and add any film from the Disney Studio into a Disney collection.</p>
-                    <p>By default, the script will auto upload a poster for this collection. To change this behaviour, click here.</p>
-                </div>
-            </div>
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Pixar Collection</h6>
-                </div>
-                <div class="card-body">
-                    <p>
-                        <a href="{{ url_for('run_pixar') }}" class="btn btn-primary btn-icon-split" id="pixar" onclick="buttonclick(this)" type="button">
-                            <span class="icon text-white-50">
-                              <i class="fas fa-film"></i>
-                          </span>
-                            <span class="text">Run Script</span>
-                        </a>
-                    </p>
-                    <p>As above only with Pixar Films</p>
-                    <p>By default, the script will auto upload a poster for this collection. To change this behaviour, click here.</p>
-                </div> 
-            </div> -->
-
-            <!--END of your content-->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Hide Spoilers</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_tvspoilers') }}" class="btn btn-primary btn-icon-split" id="spoilers">
+                <span class="icon text-white-50">
+                  <i class="fas fa-film"></i>
+              </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p>This script will go through your TV posters and blur the thumbnail for all the unwatched episodes. A Backup will be made in the database and restored once the episode has been watched.</p>
+        <p></p>
+        <p>The blur will be removed either once the script runs again as scheduled. Alternatively you can set up a Tautulli webhook that will remove the blur as soon as the episode has been watched.</p>
+    </div>
+</div>
 
 {% endblock %}

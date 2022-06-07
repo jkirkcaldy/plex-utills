@@ -87,7 +87,7 @@ def check_banners(tmp_poster, size):
         background = Image.fromarray(background)
         background = background.resize(size,Image.LANCZOS)
     except OSError as e:
-        logger.error(e)
+        logger.error('Cannot open image: '+repr(e))
     # Wide banner box
     bannerchk = background.crop(bannerbox)
     # Mini Banner Box
@@ -373,7 +373,7 @@ def blur(tmp_poster, r, table, db):
     background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
     background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
     background = Image.fromarray(background)
-    blur = background.filter(ImageFilter.GaussianBlur(100))
+    blur = background.filter(ImageFilter.GaussianBlur(30))
     blur.save(poster)
     row = r[0].id
     film = table.query.get(row)

@@ -14,7 +14,7 @@ class AddRecord_config(FlaskForm):
     t1 = StringField('4k Posters Schedule (HH:MM) or cron', [])
     t5 = StringField('3D Posters Schedule (HH:MM) or cron', [])
     t2 = StringField('Auto Collections Schedule (HH:MM) or cron', [])
-    #t3 = StringField('Pixar Collection Schedule (HH:MM)', [Regexp(r"[0-2][0-9]:[0-5][0-9]", message="Must be entered as HH:MM in 24 hour format")])
+    t3 = StringField('TV Spoiler Script (HH:MM) or cron', [])
     t4 = StringField('Hide 4k Schedule (HH:MM) or cron', [])
     backup = SelectField('Enable Poster Backups ', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     restore_from_tmdb = SelectField('Restore from TMDb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
@@ -44,6 +44,7 @@ class AddRecord_config_options(FlaskForm):
     autocollections = SelectField('Enable Automatic collection Scripts', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     tr_r_p_collection = SelectField('Enable Automatic "Top Rated", "Popular" and "Recommended" collections', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     default_poster = SelectField('Enable default collection posters', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
+    spoilers = SelectField('Enable the blur unwatched TV episodes script', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     submit = SubmitField('Save Changes ')
 
 class admin_config(FlaskForm):
@@ -62,7 +63,7 @@ class admin_config(FlaskForm):
     t1 = StringField('4k Posters Schedule (HH:MM) or cron', [])
     t5 = StringField('3D Posters Schedule (HH:MM) or cron', [])
     t2 = StringField('Auto Collections Schedule (HH:MM) or cron', [])
-    #t3 = StringField('Pixar Collection Schedule (HH:MM)', [Regexp(r"[0-2][0-9]:[0-5][0-9]", message="Must be entered as HH:MM in 24 hour format")])
+    t3 = StringField('TV Spoiler Script (HH:MM) or cron', [])
     t4 = StringField('Hide 4k Schedule (HH:MM) or cron', [])
     backup = SelectField('Enable Poster Backups ', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     restore_from_tmdb = SelectField('Restore from TMDb', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
@@ -87,4 +88,5 @@ class admin_config(FlaskForm):
     autocollections = SelectField('Enable Automatic collection Scripts', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     tr_r_p_collection = SelectField('Enable Automatic "Top Rated", "Popular" and "Recommended" collections', [InputRequired()], choices=[('0', 'False'), ('1', 'True')])
     default_poster = SelectField('Enable default collection posters', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
+    spoilers = SelectField('Enable the blur unwatched TV episodes script', [InputRequired()],   choices=[('0', 'False'), ('1', 'True')])
     submit = SubmitField('Save Changes ')    

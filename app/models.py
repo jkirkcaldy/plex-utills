@@ -16,7 +16,7 @@ class Plex(db.Model):
     # Schedules
     t1 = db.Column(db.String)
     t2 = db.Column(db.String)
-   # t3 = db.Column(db.String)
+    t3 = db.Column(db.String)
     t4 = db.Column(db.String)
     t5 = db.Column(db.String)
     # Enable various settings
@@ -47,8 +47,9 @@ class Plex(db.Model):
     loglevel = db.Column(db.Integer)
     manualplexpathfield = db.Column(db.String)
     skip_media_info = db.Column(db.Integer)
+    spoilers = db.Column(db.Integer)
     
-    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield, skip_media_info):
+    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield, skip_media_info, spoilers):
         self.plexurl = plexurl
         self.token = token
         self.filmslibrary = filmslibrary
@@ -88,6 +89,7 @@ class Plex(db.Model):
         self.manualplexpath = manualplexpath
         self.manualplexpathfield = manualplexpathfield
         self.skip_media_info = skip_media_info
+        self.spoilers = spoilers
 
 class film_table(db.Model):
     __tablename__ = 'films'

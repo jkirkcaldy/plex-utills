@@ -91,7 +91,7 @@ def start_add_labels():
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/spoilers', methods=['GET'])
 def run_tvspoilers():
-    threading.Thread(target=scripts.spoilers).start()   
+    threading.Thread(target=scripts.spoilers_scheduled).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)  
 
 
@@ -176,7 +176,7 @@ def config():
         plex.t1 = request.form['t1']
         plex.t5 = request.form['t5']
         plex.t2 = request.form['t2']
-        #plex.t3 = request.form['t3']
+        plex.t3 = request.form['t3']
         plex.t4 = request.form['t4']
         plex.backup = request.form['backup']
         plex.tmdb_restore = request.form['restore_from_tmdb']
@@ -222,6 +222,7 @@ def config_options():
         form.autocollections.default = plex.autocollections
         form.tr_r_p_collection.default = plex.tr_r_p_collection
         form.audio_posters.default = plex.audio_posters
+        form.spoilers.default = plex.spoilers
         form.process()
         return render_template('config_options.html', plex=plex, form=form, pagetitle='Config Options', version=version)
     if request.method=='POST':
@@ -247,6 +248,7 @@ def config_options():
         plex.tr_r_p_collection = request.form['tr_r_p_collection']
         plex.audio_posters = request.form['audio_posters']
         plex.skip_media_info = request.form['skip_media_info']
+        plex.spoilers = request.form['spoilers']
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
@@ -291,6 +293,7 @@ def admin_config_form():
         form.autocollections.default = plex.autocollections
         form.tr_r_p_collection.default = plex.tr_r_p_collection
         form.audio_posters.default = plex.audio_posters
+        form.spoilers.default = plex.spoilers
         form.process()
         return render_template('admin_config.html', plex=plex, form=form, pagetitle='Config Options', version=version)
     if request.method=='POST':
@@ -324,7 +327,7 @@ def admin_config_form():
         plex.t1 = request.form['t1']
         plex.t5 = request.form['t5']
         plex.t2 = request.form['t2']
-        #plex.t3 = request.form['t3']
+        plex.t3 = request.form['t3']
         plex.t4 = request.form['t4']
         plex.backup = request.form['backup']
         plex.tmdb_restore = request.form['restore_from_tmdb']
@@ -335,6 +338,7 @@ def admin_config_form():
         plex.manualplexpathfield = request.form['manualplexpathfield']
         plex.mountedpath = request.form['mountedpath']
         plex.skip_media_info = request.form['skip_media_info']
+        plex.spoilers = request.form['spoilers']
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
@@ -441,7 +445,8 @@ def recently_added():
                     title = data['title']
                     mediatype = data['type']
                     guid = data['id']
-                    return title, mediatype, guid
+                    action = data['action']
+                    return title, mediatype, guid, action
             except KeyError:
                 return data['movie']['title']
     webhook = get_title()
@@ -453,6 +458,8 @@ def recently_added():
         threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
     elif webhook[1] == 'episode':
         threading.Thread(target=scripts.tv_episode_poster(webhook[2], ''), name='TV_webhook').start()
+    elif webhook[3] == 'watched':
+        threading.Thread(target=scripts.spoilers(webhook[2]), name='Spoiler_webhook').start()
     return 'ok', 200
 
 @app.route('/films')

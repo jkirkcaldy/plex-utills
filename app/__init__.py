@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
-from app.scripts import posters4k, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
+from app.scripts import posters4k, spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
@@ -62,7 +62,10 @@ def setup_helper():
                     """                 
             query11 = """ALTER TABLE plex_utills    
                     ADD COLUMN skip_media_info INT
-                    """                                                    
+                    """    
+            query12 = """ALTER TABLE plex_utills    
+                    ADD COLUMN spoilers INT
+                    """                                                   
             try:
                 c.execute(query1)
             except sqlite3.OperationalError as e:
@@ -109,7 +112,11 @@ def setup_helper():
             try:
                 c.execute(query11)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))                 
+                log.debug(repr(e))    
+            try:
+                c.execute(query12)
+            except sqlite3.OperationalError as e:
+                log.debug(repr(e))               
             try:
                 api = config[0][32]
                 loglevel = config[0][36]
@@ -128,8 +135,6 @@ def setup_helper():
             except (sqlite3.OperationalError, IndexError) as e:
                 log.debug(repr(e))         
             c.close()
-
- 
         def update_plex_path():
             log.debug('update plex path')
             import requests
@@ -338,7 +343,7 @@ def update_scheduler():
                 return log.error('Schedule for t1 is incorrect')       
     t1 = config[0][7]
     t2 = config[0][8]
-    #t3 = config[0][9]
+    t3 = config[0][9]
     t4 = config[0][10]
     t5 = config[0][11]
     if config[0][13] == 1:
@@ -365,6 +370,11 @@ def update_scheduler():
         elif check_schedule_format(t2) == 'cron':
             scheduler.add_job('autocollections', func=autocollections, trigger=CronTrigger.from_crontab(t2))
         log.info("Auto Collections schedule created for "+ t2)
+    if config[0][40] == 1:
+        if check_schedule_format(t2) == 'time trigger':
+            scheduler.add_job('spoilers', func=spoilers_scheduled, trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
+        elif check_schedule_format(t4) == 'cron':
+            scheduler.add_job('spoilers', func=spoilers_scheduled, trigger=CronTrigger.from_crontab('0 0 * * 0'))
     for j in scheduler.get_jobs():
         log.info(j)
     def update_plex_path():
@@ -412,8 +422,9 @@ class Plex_utills(Flask):
         if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
           with self.app_context():
             from app.scripts import maintenance
-            
+            guid=''
             scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
+
             setup_helper()
             #threading.Thread(target=fill_database, daemon=True).start()
             #posters4k()
