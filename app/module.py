@@ -20,7 +20,6 @@ import random
 import string
 from app.scripts import logger
 
-logger.debug('testing')
 
 tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/original'
@@ -180,10 +179,13 @@ def upload_poster(tmp_poster, title, db, r, table, i):
         if os.path.exists(tmp_poster) == True:
             logger.debug('uploading poster')
             i.uploadPoster(filepath=tmp_poster) 
-            row = r[0].id
-            film = table.query.get(row)
-            film.checked = '1'
-            db.session.commit()                   
+            try:
+                row = r[0].id
+                film = table.query.get(row)
+                film.checked = '1'
+                db.session.commit()     
+            except IndexError as e:
+                logger.debug('Updating database to checked: '+repr(e))              
             try:
                 os.remove(tmp_poster)
             except FileNotFoundError:

@@ -20,7 +20,7 @@ import time
 
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
-b_dir = 'app/static/backup/' 
+b_dir = '/config/backup/' 
 
 def setup_helper():
     def continue_setup():
@@ -179,8 +179,9 @@ def setup_helper():
                     conn.commit()
                     c.close()
                     log.info("Setup Helper: Your plexpath has been changed from "+plexpath+" to '/films'")
-            except requests.exceptions.ConnectionError:
-                log.debug('This looks like a first run')
+            except Exception:
+                log.error(repr(e))
+                log.warning('This looks like a first run')
         def update_database():
             log.debug('update database')
             try:
@@ -224,7 +225,10 @@ def setup_helper():
                 log.error(e)
 
         add_new_columns()
-        update_plex_path()
+        try:
+            update_plex_path()
+        except:
+            log.error("first run?")
         update_database()
         #add_database()
         add_new_table()
@@ -422,12 +426,8 @@ class Plex_utills(Flask):
         if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
           with self.app_context():
             from app.scripts import maintenance
-            guid=''
             scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
-
             setup_helper()
-            #threading.Thread(target=fill_database, daemon=True).start()
-            #posters4k()
         super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=debug, **options)
 
 timezone = str(tzlocal.get_localzone())
@@ -441,8 +441,11 @@ app.config.from_object(Config())
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()   
-setup_helper()
-update_scheduler()
+try:
+    setup_helper()
+    update_scheduler()
+except:
+    log.warning("is this a first run?")
 if __name__ == "__main__":   
     app.run()
 
