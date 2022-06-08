@@ -7,7 +7,7 @@ schedule
 flask
 flask_script
 flask_sqlalchemy
-flask_bootstrap4
+Bootstrap-flask
 flask_apscheduler
 flask_wtf
 wtforms
