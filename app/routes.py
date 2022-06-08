@@ -1,5 +1,6 @@
 import logging
 from flask import render_template, flash, request, redirect
+from matplotlib.pyplot import title
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
@@ -507,7 +508,7 @@ def data():
  
  
     return {
-        'data': [films.to_dict() for films in film_table.query],
+        'data': [films.to_dict() for films in query],
         'recordsFiltered': total_filtered,
         'recordsTotal': film_table.query.count(),
         'draw': request.args.get('draw', type=int),
@@ -529,7 +530,7 @@ def ep_data():
             ep_table.title.like(f'%{search}%'),
             ep_table.res.like(f'%{search}%'),
             ep_table.hdr.like(f'%{search}%'),
-            ep_table.audio.like(f'%{search}%'),
+            ep_table.audio.like(f'%{search}%')
         ))
  
     total_filtered = query.count()
@@ -558,11 +559,14 @@ def ep_data():
  
  
     return {
-        'data': [eps.to_dict() for eps in ep_table.query],
+        'data': [title.to_dict() for title in query],
         'recordsFiltered': total_filtered,
         'recordsTotal': ep_table.query.count(),
         'draw': request.args.get('draw', type=int),
     }
+
+
+
 
 @app.route('/restore/film/<path:var>')
 def restore_poster(var=""):
@@ -610,3 +614,32 @@ def delete_database():
     conn.commit()
     c.close()
     return redirect('/films')
+
+@app.route('/delete_tv_database')
+def delete_tv_database():
+    import sqlite3
+    conn = sqlite3.connect('/config/app.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM plex_utills")
+    config = c.fetchall()
+    query1 = """DROP TABLE episodes
+        """
+    table = """CREATE TABLE "episodes" (
+            	"ID"	INTEGER NOT NULL UNIQUE,
+            	"Title"	TEXT NOT NULL,
+            	"GUID"	TEXT NOT NULL,
+            	"GUIDS"	TEXT NOT NULL,
+            	"size"	TEXT,
+            	"res"	TEXT,
+            	"hdr"	TEXT,
+            	"audio"	TEXT,
+            	"poster"	TEXT NOT NULL,
+            	"checked"	INTEGER,
+                "blurred"    INTEGER,
+            	PRIMARY KEY("ID" AUTOINCREMENT)
+            ); """
+    c.execute(query1)
+    c.execute(table)
+    conn.commit()
+    c.close()
+    return redirect('/episodes')

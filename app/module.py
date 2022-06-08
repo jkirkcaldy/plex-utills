@@ -65,6 +65,18 @@ def get_tmdb_guid(g):
     gv = [v for v in g if v.isnumeric()]
     g = "".join(gv)
     return g
+    
+def tmdb_poster_path(b_dir, i, g, episode, season):
+    if 'film' in b_dir:
+        tmdb_search = movie.details(movie_id=g)
+        logger.info(i.title)
+        poster = tmdb_search.poster_path
+        return poster
+    elif 'episodes' in b_dir:
+        logger.debug(g+':'+season+'_'+episode)
+        tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
+        poster = tmdb_search.still_path 
+        return poster
 
 def get_tmdb_poster(fname, poster):
     req = requests.get(poster_url_base+poster, stream=True)
@@ -241,7 +253,7 @@ def scan_files(config, i, plex):
         logger.debug(i.title+' '+repr(e))
     return audio, hdr_version
 
-def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
+def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season):
     logger.debug("BACKUP")
     logger.debug(banners)
     fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
@@ -307,10 +319,9 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
             if config[0].tmdb_restore == 1:
                 try:
                     logger.info('Poster has banners, creating a backup from TheMovieDB')
-                    g = get_tmdb_guid(str(i.guids))
-                    tmdb_search = movie.details(movie_id=g)
-                    logger.info(i.title)
-                    poster = tmdb_search.poster_path
+                    g = get_tmdb_guid(str(g))
+
+                    poster = tmdb_poster_path(b_dir, i, g, episode, season)
                     b_file = get_tmdb_poster(fname, poster)
                     b_file = re.sub('static', '/config', b_file)
                     return b_file
@@ -321,8 +332,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
             else:
                 logger.warning("This didn't work")
 
-
-def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred):
+def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
     else:
@@ -330,7 +340,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     backup = os.path.exists(newdir+'poster_bak.png')            
     logger.debug(title+' '+hdr+' '+audio)
     if blurred == False:  
-        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
+        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season)
     else:
         title = re.sub(r'[\\/*?:"<>| ]', '_', title)
         tmp_poster = re.sub(' ','_', '/tmp/'+title+'_poster.png')
@@ -342,12 +352,12 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     db.session.add(film)
     db.session.commit()
 
-def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred):
+def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     logger.debug('Updating '+title+' in database')
     logger.debug(title+' '+hdr+' '+audio)  
     logger.debug(banners) 
     if blurred == False:
-        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
+        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season)
         logger.debug(b_file)
         if 'config' in b_file:
             b_file = re.sub('/config', 'static', b_file)
