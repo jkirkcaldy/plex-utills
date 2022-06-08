@@ -2293,6 +2293,8 @@ def spoilers(guid):
 
                 module.get_poster(i, tmp_poster, title)
                 blurred = 0
+                season = str(i.parentIndex)
+                episode = str(i.index)
                 module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                 module.blur(tmp_poster, r, table, db)
         else:

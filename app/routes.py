@@ -1,6 +1,5 @@
 import logging
 from flask import render_template, flash, request, redirect
-from matplotlib.pyplot import title
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
