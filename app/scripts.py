@@ -319,12 +319,11 @@ def posters4k(webhooktitle):
         def process(tmp_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
-            #logger.debug(banners)
             decision_tree(tmp_poster, banners)
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title=webhooktitle):
+        for i in films.search(title=webhooktitle, limit=10):
             i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
             i.title = re.sub('#', '', i.title)
             logger.info(i.title)           
@@ -2245,12 +2244,13 @@ def spoilers(guid):
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting TV Spolier script')    
 
-    for ep in tv.search(libtype='episode', limit='1', guid=guid):
+    for ep in tv.search(libtype='episode', guid=guid):
         i = ep
         title = ep.title
         guid = str(ep.guid)
         g = guids = str(ep.guids)
         img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
+        logger.info(img_title)
         size = ep.media[0].parts[0].size
         res = ep.media[0].videoResolution    
         img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
@@ -2260,10 +2260,10 @@ def spoilers(guid):
         audio = ""
         banners = ""
         r = ep_table.query.filter(ep_table.guid == guid).all()
-        logger.debug(ep.viewCount)
-        if ep.viewCount == 0 :
+        viewcount = int(ep.viewCount)
+        if ep.viewCount == 0:
             if r:
-                if r[0].blurred == 0:
+                if r[0].blurred != 1:
                     logger.debug("database: "+r[0].title)
                     tmp_poster = re.sub('static', '/config', r[0].poster)
                     i.uploadPoster(filepath=tmp_poster)
@@ -2277,12 +2277,8 @@ def spoilers(guid):
                         tv_episode_poster(guid, poster)
                     else:
                         i.uploadPoster(filepath=poster)
-                #else:
-                    #module.get_poster(i, tmp_poster, title)
-                    #blurred = 0
-                    #module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
-                    #module.blur(tmp_poster, r, table, db)
             else:
+
                 module.get_poster(i, tmp_poster, title)
                 blurred = 0
                 module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
@@ -2299,7 +2295,7 @@ def spoilers(guid):
                 film.checked = '0'
                 db.session.commit()
                 tv_episode_poster(guid, poster)
-        logger.info('Spoiler script has finished')
+    logger.info('Spoiler script has finished')
 
 def spoilers_scheduled():
     spoilers('')

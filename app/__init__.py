@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 from app.scripts import posters4k, spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
 import os
 from flask_apscheduler import APScheduler
@@ -122,6 +122,7 @@ def setup_helper():
                 loglevel = config[0][36]
                 manpp = config[0][37]
                 mediainfo = config[0][39]
+                newhdr = config[0][28]
                 if not api:
                     c.execute("UPDATE plex_utills SET tautulli_server = 'http://127.0.0.1:8181' where ID = 1")
                 if not loglevel:
@@ -131,6 +132,8 @@ def setup_helper():
                     c.execute("UPDATE plex_utills SET manualplexpathfield = 'None' WHERE ID = 1")
                 if not mediainfo or mediainfo == 'None':
                     c.execute("UPDATE plex_utills SET skip_media_info = '0' WHERE ID = 1")
+                if not newhdr or newhdr == 'None':
+                    c.execute("UPDATE plex_utills SET new_hdr = '1' WHERE ID = 1")
                 conn.commit()
             except (sqlite3.OperationalError, IndexError) as e:
                 log.debug(repr(e))         
@@ -452,8 +455,8 @@ if __name__ == "__main__":
 
 app.secret_key = '_3:WBH)qdY2WDe-_/h9r6)BD(Mp$SX' #os.urandom(42)
 
-
-Bootstrap(app)
+bootstrap = Bootstrap5(app)
+#Bootstrap(app)
 
 db_name = '/config/app.db'
 

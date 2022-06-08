@@ -244,44 +244,45 @@ def scan_files(config, i, plex):
 def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
     logger.debug("BACKUP")
     logger.debug(banners)
+    fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
     else:
         newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-    old_backup = os.path.exists(newdir+'poster_bak.png')
-    fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     try:
-        p = os.path.exists(re.sub('static', '/config', r[0].poster))
+        old_backup = os.path.exists(newdir+'poster_bak.png')
         if old_backup == True:
-            bak_file = newdir+'poster_bak.png'
             b_file = b_dir+fname+'.png'
-            re.sub('static', '/config', b_file)
-            shutil.copy(bak_file, b_file)
+            shutil.copy(newdir+'poster_bak.png', b_file)
             return b_file
-        elif True not in banners:
-            logger.debug(i.title+" No banners detected so adding backup file to database")
-            try:
-                if r[0].poster:
-                    b_file = r[0].poster
-                else:
-                    b_file = b_dir+fname+'.png'
-            except:
+    except:
+        pass
+    if True not in banners:
+        logger.debug("Poster doesn't have any banners")
+        logger.debug(i.title+" No banners detected so adding backup file to database")
+        try:
+            if r[0].poster:
+                b_file = r[0].poster
+            else:
                 b_file = b_dir+fname+'.png'
-            try:
-                b_file = re.sub('static', '/config', b_file)
-            except:
-                print("this didn't work")
-            try:
-                shutil.copy(tmp_poster, b_file)
-            except:
-                pass
-            return b_file
-        elif True in banners:
-            logger.debug('Poster has Banners')
-            if r:
+        except:
+            b_file = b_dir+fname+'.png'
+        try:
+            b_file = re.sub('static', '/config', b_file)
+        except:
+            print("this didn't work")
+        try:
+            shutil.copy(tmp_poster, b_file)
+        except:
+            pass
+        return b_file
+    elif True in banners:
+        logger.debug('Poster has Banners')
+        if r:
                 logger.debug("File is in database")
+                p = os.path.exists(re.sub('static', '/config', r[0].poster))
                 logger.debug(p)
-                if p == 'True':
+                if p == True:
                     logger.debug("poster found")
                     if 'poster_not_found' not in r[0].poster:
                         b_file = r[0].poster
@@ -301,10 +302,12 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
                     b_file = get_tmdb_poster(fname, poster)
                     b_file = re.sub('static', '/config', b_file)
                     return b_file                        
-            elif config[0].tmdb_restore == 1:
+        else:
+            logger.debug('not in database')
+            if config[0].tmdb_restore == 1:
                 try:
                     logger.info('Poster has banners, creating a backup from TheMovieDB')
-                    g = get_tmdb_guid()
+                    g = get_tmdb_guid(str(i.guids))
                     tmdb_search = movie.details(movie_id=g)
                     logger.info(i.title)
                     poster = tmdb_search.poster_path
@@ -315,34 +318,29 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g):
                     logger.error(repr(e))
                     b_file = 'static/img/poster_not_found.png'
                     return b_file
-    except (TypeError, IndexError):
-        if r:
-            logger.debug("poster exists")
-            b_file = r[0].poster
-        else:
-            b_file = b_dir+fname+'.png'
-            shutil.copy(tmp_poster, re.sub('static', '/config', b_file))
-        return b_file
+            else:
+                logger.warning("This didn't work")
+
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred):
-            if config[0].manualplexpath == 1:
-                newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
-            else:
-                newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(newdir+'poster_bak.png')            
-            logger.debug(title+' '+hdr+' '+audio)
-            if blurred == False:  
-                b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
-            else:
-                title = re.sub(r'[\\/*?:"<>| ]', '_', title)
-                tmp_poster = re.sub(' ','_', '/tmp/'+title+'_poster.png')
-                tmp_poster = get_poster(i, tmp_poster, title)
-            if 'config' in b_file:
-                b_file = re.sub('/config', 'static', b_file)
-            logger.debug('Adding '+i.title+' to database')
-            film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
-            db.session.add(film)
-            db.session.commit()
+    if config[0].manualplexpath == 1:
+        newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
+    else:
+        newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
+    backup = os.path.exists(newdir+'poster_bak.png')            
+    logger.debug(title+' '+hdr+' '+audio)
+    if blurred == False:  
+        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
+    else:
+        title = re.sub(r'[\\/*?:"<>| ]', '_', title)
+        tmp_poster = re.sub(' ','_', '/tmp/'+title+'_poster.png')
+        tmp_poster = get_poster(i, tmp_poster, title)
+    if 'config' in b_file:
+        b_file = re.sub('/config', 'static', b_file)
+    logger.debug('Adding '+i.title+' to database')
+    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
+    db.session.add(film)
+    db.session.commit()
 
 def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred):
     logger.debug('Updating '+title+' in database')

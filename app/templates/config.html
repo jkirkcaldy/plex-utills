@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block main %}
+{% from 'bootstrap/form.html' import render_form, render_field %}
+{% block content %}
 
                 <div class="container-fluid">
                     <div class="container">
@@ -28,10 +29,10 @@
                                             {{ form.csrf_token }}
                                             {{ form.id_field(value=plex.id) }}
                                             <h2>Plex Connection</h2>
-                                            {{ wtf.form_field(form.plexurl, value=plex.plexurl) }}
-                                            {{ wtf.form_field(form.token, value=plex.token) }}
-                                            {{ wtf.form_field(form.tautulli_server, value=plex.tautulli_server) }}
-                                            {{ wtf.form_field(form.tautulli_api, value=plex.tautulli_api) }}
+                                            {{ render_field(form.plexurl, value=plex.plexurl) }}
+                                            {{ render_field(form.token, value=plex.token) }}
+                                            {{ render_field(form.tautulli_server, value=plex.tautulli_server) }}
+                                            {{ render_field(form.tautulli_api, value=plex.tautulli_api) }}
                                             <p></p>
                                             <hr class="sidebar-divider">
                                             <p></p>
@@ -41,9 +42,9 @@
                                             <hr class="sidebar-divider">
                                             <p></p>
                                             
-                                            {{ wtf.form_field(form.filmslibrary, value=plex.filmslibrary) }}
-                                            {{ wtf.form_field(form.tvlibrary, value=plex.tvlibrary) }}
-                                            {{ wtf.form_field(form.library3d, value=plex.library3d) }}
+                                            {{ render_field(form.filmslibrary, value=plex.filmslibrary) }}
+                                            {{ render_field(form.tvlibrary, value=plex.tvlibrary) }}
+                                            {{ render_field(form.library3d, value=plex.library3d) }}
                                             <h2>Schedules</h2>
                                             <p></p>
                                             <hr class="sidebar-divider">
@@ -51,23 +52,23 @@
                                             <a href='https://codebeautify.org/crontab-format'>Click here for cron formatting help</a></p>
                                             <p></p>
                                             
-                                            {{ wtf.form_field(form.t1, value=plex.t1) }}
-                                            {{ wtf.form_field(form.t5, value=plex.t5) }}
-                                            {{ wtf.form_field(form.t2, value=plex.t2) }}
-                                            {{ wtf.form_field(form.t4, value=plex.t4) }}
-                                            {{ wtf.form_field(form.t3, value=plex.t3) }}
+                                            {{ render_field(form.t1, value=plex.t1) }}
+                                            {{ render_field(form.t5, value=plex.t5) }}
+                                            {{ render_field(form.t2, value=plex.t2) }}
+                                            {{ render_field(form.t4, value=plex.t4) }}
+                                            {{ render_field(form.t3, value=plex.t3) }}
                                             <h2>Backup and Restore Options</h2>
                                             <p></p>
                                             <hr class="sidebar-divider">
                                             <p>For the best experience, enable backups, this will keep all your selected posters in the event of a restore. The TMDb is there as a fallback for those who had issues with the backup or if there isn't a backup poster avaialbe. If you set the TMDb restore to false, the restore will first try to restore your posters from local versions. If it can't find the local files, the script will automatically try to restore from TMDb. </p>          
                                                                               
-                                            {{ wtf.form_field(form.backup, value=plex.backup) }}
-                                            {{ wtf.form_field(form.restore_from_tmdb, value=plex.tmdb_restore) }}
-                                            {{ wtf.form_field(form.tmdb_api, value=plex.tmdb_api) }}
+                                            {{ render_field(form.backup, value=plex.backup) }}
+                                            {{ render_field(form.restore_from_tmdb, value=plex.tmdb_restore) }}
+                                            {{ render_field(form.tmdb_api, value=plex.tmdb_api) }}
                                             <p></p>
                                             <hr class="sidebar-divider">
                                             <p></p>
-                                            {{ wtf.form_field(form.submit, button_map={'submit':'success'}) }}
+                                            {{ render_field(form.submit, button_map={'submit':'success'}) }}
                                             
                                   </form>
                               </div>
@@ -75,10 +76,7 @@
                           </div>
                       </div>
 
-                      <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Hide 4K</h6>
-                        </div>
+
                         <div class="card-body">
                             <p>
                                 <a href="/admin_config" class="btn btn-primary btn-icon-split" id="admin_config">
@@ -89,6 +87,6 @@
                                 </a>
                             </p>
                         </div>
-                    </div>                      
+                     
 
 {% endblock %}

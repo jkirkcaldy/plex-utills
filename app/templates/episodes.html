@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block main %}
+{% block content %}
 
 <div class=" mb-4">
 
@@ -22,14 +22,20 @@
       </tr>
     </thead>
   </table>
+  
 {% endblock %}
+
 {% block scripts %}
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
 <script>
 
   $(document).ready(function () {
     $('#data').DataTable({
       ajax: '/api/episodes',
-      ServerSide: true,
+
       columns: [
         {data: 'title'},
         {data: 'res'},
@@ -70,4 +76,5 @@
               row.classList.add('highlight');
       });
 </script>
+
 {% endblock %}

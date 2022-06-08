@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block main %}
+{% block content %}
 
 <div class=" mb-4">
 
@@ -20,12 +20,23 @@
         <th>Checked</th>
       </tr>
     </thead>
-   <tbody>
-     <td>test</td>
-  </tbody>
   </table>
+
+  <div class="card-body">
+    <p>
+        <a href="/delete_database" class="btn btn-primary btn-icon-split" id="delete_database">
+            <span class="icon text-white-50">
+              <i class="fas fa-cog"></i>
+          </span>
+            <span class="text">Delete database</span>
+        </a>
+    </p>
+</div>  
 {% endblock %}
 {% block scripts %}
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
 <script>
 
   $(document).ready(function () {

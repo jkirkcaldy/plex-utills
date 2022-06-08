@@ -456,9 +456,10 @@ def recently_added():
     if webhook[1] == 'movie':
         threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
         threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
-    elif webhook[1] == 'episode':
+    elif webhook[1] == 'episode' and webhook[3] != 'watched':
         threading.Thread(target=scripts.tv_episode_poster(webhook[2], ''), name='TV_webhook').start()
-    elif webhook[3] == 'watched':
+    elif webhook[1] == 'episode' and webhook[3] == 'watched':
+        print(webhook[2])
         threading.Thread(target=scripts.spoilers(webhook[2]), name='Spoiler_webhook').start()
     return 'ok', 200
 
@@ -582,3 +583,30 @@ def restart_server():
     os.system(cmd)
     return redirect('/index')
     
+@app.route('/delete_database')
+def delete_database():
+    import sqlite3
+    conn = sqlite3.connect('/config/app.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM plex_utills")
+    config = c.fetchall()
+    query1 = """DROP TABLE films
+        """
+    table = """CREATE TABLE "films" (
+            	"ID"	INTEGER NOT NULL UNIQUE,
+            	"Title"	TEXT NOT NULL,
+            	"GUID"	TEXT NOT NULL,
+            	"GUIDS"	TEXT NOT NULL,
+            	"size"	TEXT,
+            	"res"	TEXT,
+            	"hdr"	TEXT,
+            	"audio"	TEXT,
+            	"poster"	TEXT NOT NULL,
+            	"checked"	INTEGER,
+            	PRIMARY KEY("ID" AUTOINCREMENT)
+            ); """
+    c.execute(query1)
+    c.execute(table)
+    conn.commit()
+    c.close()
+    return redirect('/films')

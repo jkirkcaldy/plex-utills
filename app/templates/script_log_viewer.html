@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block main %}
+{% block content %}
                         <!-- ENTER your content here -->  
                         <div class="container">
 
@@ -8,20 +8,23 @@
                                     <h2 align="center">Log file Output:</h2>
                                     <div class="logging_window" id='logging_window'>
                                         <pre id="output"></pre>
+                                    </div>                            
+                                </div>
+                            </div>
+                        </div>                                           
+{% endblock %}                              
+{% block scripts %}          
                                         <script>
                                             setInterval(function updateScroll(){
                                                 var element = document.getElementById  ("logging_window");
                                                 element.scrollTop = element.scrollHeight;
-                                            }, 1);
+                                            }, 100);
                                             setInterval(function read_log(){
                                                 fetch("{{ url_for('script_stream')  }}")
                                                 .then(x => x.text())
                                                 .then(y => document.getElementById("output").innerHTML = y); 
                                             }, 1000);
                                         </script>
-                                    </div>                            
-                                </div>
-                            </div>
-                        </div>                            
-                        <!--END of your content-->                            
+                                                       
+
 {% endblock %}
