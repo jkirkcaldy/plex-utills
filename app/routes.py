@@ -1,5 +1,5 @@
 import logging
-from flask import render_template, flash, request, redirect
+from flask import render_template, flash, request, redirect, send_file
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
@@ -379,7 +379,7 @@ def help():
         os.remove('./app/static/img/poster.png')
         os.remove('./app/static/img/poster_bak.png')
     except FileNotFoundError as e:
-        pass #log.debug(e)
+        pass
     
     config = Plex.query.filter(Plex.id == '1')
     plexserver = PlexServer(config[0].plexurl, config[0].token)
@@ -437,35 +437,41 @@ def help():
 
 @app.route('/webhook',methods=['POST'])
 def recently_added():
-    def get_title():
-        if request.method == 'POST':
-            data = request.json
-            try:
-                if str.lower(data['server']) == 'tautulli':
-                    title = data['title']
-                    mediatype = data['type']
-                    guid = data['id']
-                    action = data['action']
-                    return title, mediatype, guid, action
-            except KeyError:
-                return data['movie']['title']
-    webhook = get_title()
-    print(webhook[2])
-    webhooktitle = webhook[0]
-    log.info('Webhook recieved for: '+webhooktitle)
-    if webhook[1] == 'movie':
-        threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
-        threading.Thread(target=scripts.posters4k(webhooktitle), name='4k_posters_webhook').start()
-    elif webhook[1] == 'episode' and webhook[3] != 'watched':
-        threading.Thread(target=scripts.tv_episode_poster(webhook[2], ''), name='TV_webhook').start()
-    elif webhook[1] == 'episode' and webhook[3] == 'watched':
-        print(webhook[2])
-        threading.Thread(target=scripts.spoilers(webhook[2]), name='Spoiler_webhook').start()
-    return 'ok', 200
+    if request.method == 'POST':
+        data = request.json
+        if 'tautulli' in data:
+            title = data['title']
+            mediatype = data['type']
+            guid = data['id']
+            action = data['action']
+            if mediatype == 'episode':
+                threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
+                return 200
+            elif action == 'watched':
+                from time import sleep
+                sleep(600)
+                threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start()                    
+                return 200
+            else:
+                threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
+                threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').start()
+                return 200
+        elif 'series' in data:
+            tv_show = data['series']['title']
+            mediatype = 'episode'
+            season = data['episodes'][0]['seasonNumber']
+            episode = data['episodes'][0]['episodeNumber']
+            guid = scripts.get_tv_guid(tv_show, season, episode)
+            threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
+            return 200
+        elif 'movie' in data:
+            movie = data['movie']['title']
+            threading.Thread(target=scripts.posters4k(movie), name='4k_posters_webhook').start()
+            return 200
+
 
 @app.route('/films')
 def get_films():
-    #films = film_table.query.all()
     return render_template('films.html', pagetitle='Films', version=version)#, films=films)
 
 @app.route('/api/data')
@@ -645,13 +651,42 @@ def delete_tv_database():
 
 @app.route('/export_support')
 def export_support():
-    import csv
+    def export_config():
+        import csv
+        import shutil
+        f = open('/logs/support.csv', 'w')
+        out = csv.writer(f)
+        out.writerow(['plexurl', 'filmslibrary', 'library3d' ,'plexpath', 'manualplexpath', 'mountedpath', 'backup', 'posters4k', 'mini4k', 'hdr', 'posters3d', 'mini3d', 'disney', 'pixar', 'hide4k', 'transcode', 'tvlibrary', 'tv4kposters', 'films4kposters', 'tmdb_restore', 'recreate_hdr', 'new_hdr', 'default_poster', 'autocollections', 'tautulli_server', 'mcu_collection', 'tr_r_p_collection', 'audio_posters', 'loglevel', 'manualplexpathfield', 'skip_media_info'])
 
-    f = open('support.csv', 'w')
-    out = csv.writer(f)
-    out.writerow(['plexurl', 'filmslibrary', 'library3d' ,'plexpath', 'manualplexpath', 'mountedpath', 'backup', 'posters4k', 'mini4k', 'hdr', 'posters3d', 'mini3d', 'disney', 'pixar', 'hide4k', 'transcode', 'tvlibrary', 'tv4kposters', 'films4kposters', 'tmdb_restore', 'recreate_hdr', 'new_hdr', 'default_poster', 'autocollections', 'tautulli_server', 'mcu_collection', 'tr_r_p_collection', 'audio_posters', 'loglevel', 'manualplexpathfield', 'skip_media_info'])
+        for item in Plex.query.all():
+            out.writerow([item.plexurl, item.filmslibrary, item.library3d, item.plexpath, item.manualplexpath, item.mountedpath, item.backup, item.posters4k, item.mini4k, item.hdr, item.posters3d, item.mini3d, item.disney, item.pixar, item.hide4k, item.transcode, item.tvlibrary, item.tv4kposters, item.films4kposters, item.tmdb_restore, item.recreate_hdr, item.new_hdr, item.default_poster, item.autocollections, item.tautulli_server, item.mcu_collection, item.tr_r_p_collection, item.audio_posters, item.loglevel, item.manualplexpathfield, item.skip_media_info])
+        f.close
+        shutil.copy('../version', '/logs/version')
+    from zipfile import ZipFile
+    def get_all_file_paths(directory):
+        file_paths = []
+        for root, directories, files in os.walk(directory):
+            for filename in files:
+                filepath = os.path.join(root, filename)
+                file_paths.append(filepath)
+        return file_paths  
 
-    for item in Plex.query.all():
-        out.writerow([item.plexurl, item.filmslibrary, item.library3d, item.plexpath, item.manualplexpath, item.mountedpath, item.backup, item.posters4k, item.mini4k, item.hdr, item.posters3d, item.mini3d, item.disney, item.pixar, item.hide4k, item.transcode, item.tvlibrary, item.tv4kposters, item.films4kposters, item.tmdb_restore, item.recreate_hdr, item.new_hdr, item.default_poster, item.autocollections, item.tautulli_server, item.mcu_collection, item.tr_r_p_collection, item.audio_posters, item.loglevel, item.manualplexpathfield, item.skip_media_info])
-    f.close
-    return redirect('/help')
+    def zip():
+        export_config()
+        directory = '/logs'    
+        file_paths = get_all_file_paths(directory)
+
+    
+        print('Following files will be zipped:')
+        for file_name in file_paths:
+            print(file_name)
+
+        with ZipFile('app/support.zip','w') as zip:
+            for file in file_paths:
+                zip.write(file)
+    zip()
+
+    os.remove('/logs/support.csv')
+    path = 'support.zip'
+    return send_file(path, as_attachment=True)
+

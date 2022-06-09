@@ -278,10 +278,15 @@ def posters4k(webhooktitle):
                 try:
                     poster_file = r[0].poster
                     poster_file = re.sub('static', '/config', poster_file)
+                    logger.debug(poster_file)
                     try:
-                        bak_poster = Image.open(poster_file)
+                        bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+                        bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+                        bak_poster = Image.fromarray(bak_poster)
                         bak_poster_hash = imagehash.average_hash(bak_poster)
-                        poster = Image.open(tmp_poster)
+                        poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                        poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+                        poster = Image.fromarray(poster)
                         poster_hash = imagehash.average_hash(poster)
                     except SyntaxError as e:
                         logger.error('Check for new poster Syntax Error: '+repr(e))
@@ -289,18 +294,11 @@ def posters4k(webhooktitle):
                         logger.error('Check for new poster OSError: '+repr(e))
                         if 'FileNotFoundError'  or 'Errno 2 'in e:
                             logger.debug(i.title+' - Poster Not found')
-                            #shutil.copy(tmp_poster, poster_file)
                             new_poster = 'True'
                             return new_poster
                         else:
                             logger.debug(i.title)
                             logger.warning('Check for new Poster: '+repr(e))
-                            ImageFile.LOAD_TRUNCATED_IMAGES = True
-                            bak_poster = Image.open(poster_file)
-                            bak_poster_hash = imagehash.average_hash(bak_poster)
-                            poster = Image.open(tmp_poster)
-                            poster_hash = imagehash.average_hash(poster)
-                            ImageFile.LOAD_TRUNCATED_IMAGES = False
 
                          
                     if poster_hash - bak_poster_hash > cutoff:
@@ -325,7 +323,7 @@ def posters4k(webhooktitle):
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title=webhooktitle):
+        for i in films.search(title=webhooktitle, limit=1):
             i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
             i.title = re.sub('#', '', i.title)
             logger.info(i.title)           
@@ -342,11 +340,14 @@ def posters4k(webhooktitle):
             table = film_table
             if r:
                 new_poster = check_for_new_poster(tmp_poster)
-                if r[0].checked == 0 or str(r[0].size) != str(size) or new_poster == 'True':
-                    logger.debug('Processing '+i.title)
-                    process(tmp_poster)                          
-                else:
-                    logger.info(title+' has been processed and the file has not changed, skiping')
+                try:
+                    if r[0].checked == 0 or str(r[0].size) != str(size) or new_poster == 'True':
+                        logger.debug('Processing '+i.title)
+                        process(tmp_poster)                          
+                    else:
+                        logger.info(title+' has been processed and the file has not changed, skiping')
+                except Exception as e:
+                    logger.error(repr(e))
             else:
                 logger.debug(title+' not in database') 
                 process(tmp_poster)
@@ -842,6 +843,7 @@ def restore_episode_from_database(var):
                     row = r[0].id
                     film = ep_table.query.get(row)
                     film.checked = '0'
+                    film.blurred = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
                     logger.error('Restore from db: '+repr(e))  
@@ -2313,3 +2315,13 @@ def spoilers(guid):
 
 def spoilers_scheduled():
     spoilers('')
+
+def get_tv_guid(tv_show, season, episode):
+    from app.models import Plex, ep_table
+    from app import db
+    from app import module
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    tv = plex.library.section(config[0].tvlibrary)
+    for ep in tv.search(filters={"show.title":tv_show, "episode.index":episode, "season.index":season}):
+        return ep.guid
