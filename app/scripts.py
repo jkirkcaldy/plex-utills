@@ -20,7 +20,6 @@ import cv2
 import random
 import string
 
-from app.module import check_tv_banners
 
 def setup_logger(logger_name, log_file):
     import sqlite3

@@ -26,7 +26,7 @@ search = Search()
 movie = Movie()
 discover = Discover()
 tmdbtv = Episode()
-
+from app.scripts import logger
  
 
 banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
