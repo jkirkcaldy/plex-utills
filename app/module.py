@@ -18,7 +18,6 @@ import unicodedata
 import cv2
 import random
 import string
-from app.scripts import logger
 
 
 tmdb = TMDb()
