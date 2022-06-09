@@ -2312,6 +2312,8 @@ def spoilers(guid):
                     film.checked = '0'
                     db.session.commit()
                     tv_episode_poster(guid, poster)
+            else:
+                logger.info("not adding to database as title is watched.")
     logger.info('Spoiler script has finished')
 
 def spoilers_scheduled():
