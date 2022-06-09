@@ -119,9 +119,9 @@ class ep_table(db.Model):
     __tablename__ = 'episodes'
     __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
-    guid = db.Column(db.String)
-    guids = db.Column(db.String)
+    title = db.Column(db.String, index=True)
+    guid = db.Column(db.String, index=True)
+    guids = db.Column(db.String, index=True)
     size = db.Column(db.String)
     res = db.Column(db.String)
     hdr = db.Column(db.String)
@@ -131,12 +131,15 @@ class ep_table(db.Model):
     blurred = db.Column(db.Integer)
 
     def to_dict(self):
+        poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
         return {
             'title': self.title,
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
-            'poster': "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
+            'poster': poster,
             'checked': self.checked,
             'blurred': self.blurred
         }
+
+       
