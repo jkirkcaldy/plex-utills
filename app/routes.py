@@ -661,7 +661,7 @@ def export_support():
         for item in Plex.query.all():
             out.writerow([item.plexurl, item.filmslibrary, item.library3d, item.plexpath, item.manualplexpath, item.mountedpath, item.backup, item.posters4k, item.mini4k, item.hdr, item.posters3d, item.mini3d, item.disney, item.pixar, item.hide4k, item.transcode, item.tvlibrary, item.tv4kposters, item.films4kposters, item.tmdb_restore, item.recreate_hdr, item.new_hdr, item.default_poster, item.autocollections, item.tautulli_server, item.mcu_collection, item.tr_r_p_collection, item.audio_posters, item.loglevel, item.manualplexpathfield, item.skip_media_info])
         f.close
-        shutil.copy('../version', '/logs/version')
+        shutil.copy('./version', '/logs/version')
     from zipfile import ZipFile
     def get_all_file_paths(directory):
         file_paths = []
