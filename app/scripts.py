@@ -323,7 +323,7 @@ def posters4k(webhooktitle):
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title=webhooktitle, limit=1):
+        for i in films.search(title=webhooktitle):
             i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
             i.title = re.sub('#', '', i.title)
             logger.info(i.title)           
