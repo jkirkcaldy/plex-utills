@@ -2301,16 +2301,17 @@ def spoilers(guid):
                 module.blur(tmp_poster, r, table, db)
         else:
             logger.info(img_title+" is watched")
-            if r[0].blurred == 1:
-                tmp_poster = re.sub('static', '/config', r[0].poster)
-                poster = ""
-                i.uploadPoster(filepath=tmp_poster)
-                row = r[0].id
-                film = table.query.get(row)
-                film.blurred = '0'
-                film.checked = '0'
-                db.session.commit()
-                tv_episode_poster(guid, poster)
+            if r:
+                if r[0].blurred == 1:
+                    tmp_poster = re.sub('static', '/config', r[0].poster)
+                    poster = ""
+                    i.uploadPoster(filepath=tmp_poster)
+                    row = r[0].id
+                    film = table.query.get(row)
+                    film.blurred = '0'
+                    film.checked = '0'
+                    db.session.commit()
+                    tv_episode_poster(guid, poster)
     logger.info('Spoiler script has finished')
 
 def spoilers_scheduled():
