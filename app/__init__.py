@@ -431,7 +431,7 @@ class Plex_utills(Flask):
             from app.scripts import maintenance
             scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
             setup_helper()
-        super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=debug, **options)
+        super(Plex_utills, self).run(host=host, port=port, debug=debug, **options)
 
 timezone = str(tzlocal.get_localzone())
 class Config: 
