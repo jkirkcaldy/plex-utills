@@ -375,13 +375,15 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
     film.checked = '1'
     db.session.commit()
 
-def blur(tmp_poster, r, table, db):
+def blur(tmp_poster, r, table, db, guid):
     poster = re.sub('.png', '.blurred.png', tmp_poster)
     background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
     background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
     background = Image.fromarray(background)
     blur = background.filter(ImageFilter.GaussianBlur(30))
     blur.save(poster)
+    from app.models import ep_table
+    r = ep_table.query.filter(ep_table.guid == guid).all()
     row = r[0].id
     film = table.query.get(row)
     film.blurred = '1'
@@ -455,7 +457,7 @@ def check_tv_banners(tmp_poster, img_title):
         or poster_hdr_hash - chk_hdr10_hash < cutoff
     ):
         hdr_banner = True
-    background.save(tmp_poster)
+    #background.save(tmp_poster)
     return banner_4k, audio_banner, hdr_banner
 
 

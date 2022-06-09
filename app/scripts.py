@@ -20,6 +20,8 @@ import cv2
 import random
 import string
 
+from app.module import check_tv_banners
+
 def setup_logger(logger_name, log_file):
     import sqlite3
     try:
@@ -2275,45 +2277,48 @@ def spoilers(guid):
         banners = ""
         r = ep_table.query.filter(ep_table.guid == guid).all()
         viewcount = int(ep.viewCount)
-        if ep.viewCount == 0:
-            if r:
-                if r[0].blurred != 1:
-                    logger.debug("database: "+r[0].title)
-                    tmp_poster = re.sub('static', '/config', r[0].poster)
-                    i.uploadPoster(filepath=tmp_poster)
-                    poster = module.blur(tmp_poster, r, table, db)
-                    
-                    row = r[0].id
-                    film = table.query.get(row)
-                    film.checked = '0'
-                    db.session.commit()
-                    if res == '4k' or hdr != 'None':
-                        tv_episode_poster(guid, poster)
-                    else:
-                        i.uploadPoster(filepath=poster)
-            else:
+        try:
+            if ep.viewCount == 0:
+                if r:
+                    if r[0].blurred != 1:
+                        logger.debug("database: "+r[0].title)
+                        tmp_poster = re.sub('static', '/config', r[0].poster)
+                        i.uploadPoster(filepath=tmp_poster)
+                        poster = module.blur(tmp_poster, r, table, db)
 
-                module.get_poster(i, tmp_poster, title)
-                blurred = 0
-                season = str(i.parentIndex)
-                episode = str(i.index)
-                module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
-                module.blur(tmp_poster, r, table, db)
-        else:
-            logger.info(img_title+" is watched")
-            if r:
-                if r[0].blurred == 1:
-                    tmp_poster = re.sub('static', '/config', r[0].poster)
-                    poster = ""
-                    i.uploadPoster(filepath=tmp_poster)
-                    row = r[0].id
-                    film = table.query.get(row)
-                    film.blurred = '0'
-                    film.checked = '0'
-                    db.session.commit()
-                    tv_episode_poster(guid, poster)
+                        row = r[0].id
+                        film = table.query.get(row)
+                        film.checked = '0'
+                        db.session.commit()
+                        if res == '4k' or hdr != 'None':
+                            tv_episode_poster(guid, poster)
+                        else:
+                            i.uploadPoster(filepath=poster)
+                else:
+                    module.get_poster(i, tmp_poster, title)
+                    banners = module.check_tv_banners(tmp_poster, img_title)
+                    blurred = 0
+                    season = str(i.parentIndex)
+                    episode = str(i.index)
+                    module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                    module.blur(tmp_poster, r, table, db, guid)
             else:
-                logger.info("not adding to database as title is watched.")
+                logger.info(img_title+" is watched")
+                if r:
+                    if r[0].blurred == 1:
+                        tmp_poster = re.sub('static', '/config', r[0].poster)
+                        poster = ""
+                        i.uploadPoster(filepath=tmp_poster)
+                        row = r[0].id
+                        film = table.query.get(row)
+                        film.blurred = '0'
+                        film.checked = '0'
+                        db.session.commit()
+                        tv_episode_poster(guid, poster)
+                else:
+                    logger.info("not adding to database as title is watched.")
+        except:
+            pass
     logger.info('Spoiler script has finished')
 
 def spoilers_scheduled():
