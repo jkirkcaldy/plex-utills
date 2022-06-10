@@ -254,10 +254,14 @@ def scan_files(config, i, plex):
         logger.debug(i.title+' '+repr(e))
     return audio, hdr_version
 
-def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season):
+def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid):
     logger.debug("BACKUP")
     logger.debug(banners)
-    fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+    if episode !='':
+        fname = t = re.sub('plex://episode/', '', guid)+'.png'
+    else:
+        fname = re.sub('plex://movie/', '', guid)+'.png'
+    #fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
     else:
@@ -341,7 +345,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     backup = os.path.exists(newdir+'poster_bak.png')            
     logger.debug(title+' '+hdr+' '+audio)
     if blurred == False:  
-        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season)
+        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
     else:
         title = re.sub(r'[\\/*?:"<>| ]', '_', title)
         tmp_poster = re.sub(' ','_', '/tmp/'+title+'_poster.png')
@@ -361,7 +365,7 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
     logger.debug(title+' '+hdr+' '+audio)  
     logger.debug(banners) 
     if blurred == False:
-        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season)
+        b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
         logger.debug(b_file)
         if 'config' in b_file:
             b_file = re.sub('/config', 'static', b_file)

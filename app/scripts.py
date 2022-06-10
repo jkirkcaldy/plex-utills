@@ -666,7 +666,7 @@ def tv_episode_poster(epwebhook, poster):
         if res == '4k' or hdr != 'None':
             if poster == "":
                 img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-                #tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+                #tmp_poster = re.sub('plex://episode/', '', guid)
                 tmp_poster = re.sub('plex://episode/', '', guid)
                 tmp_poster = module.get_poster(i, tmp_poster, title)
                 blurred = False
@@ -1344,138 +1344,6 @@ def autocollections():
         except IndexError:
             pass        
 
-def remove_unused_backup_files():
-    from app.models import Plex
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
-    def run_script():
-
-        chk_banner = Image.open("app/img/chk-4k.png")
-        chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
-        chk_hdr = Image.open("app/img/chk_hdr.png")
-        chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
-        chk_hdr10 = Image.open("app/img/chk_hdr10.png")
-        chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
-        banner_new_hdr = Image.open("app/img/hdr.png")
-        atmos_box = Image.open("app/img/chk_atmos.png")
-        dtsx_box = Image.open("app/img/chk_dtsx.png") 
-        size = (911,1367)
-        tv_size = (1280,720)
-        box= (0,0,911,100)
-        mini_box = (0,0,150,125)
-        hdr_box = (0,605,225,731)
-        a_box = (0,731,225,803)
-
-        ImageFile.LOAD_TRUNCATED_IMAGES = True
-        def hdr_check():
-            background = Image.open(tmp_poster)
-            try:
-                background = background.resize(size,Image.ANTIALIAS)
-            except OSError as e:
-                logger.error(e)
-                ImageFile.LOAD_TRUNCATED_IMAGES = True
-                background = background.resize(size,Image.ANTIALIAS)
-                ImageFile.LOAD_TRUNCATED_IMAGES = False
-            backgroundchk = background.crop(hdr_box)
-            hash0 = imagehash.average_hash(backgroundchk)
-            hash1 = imagehash.average_hash(chk_new_hdr)
-            hash2 = imagehash.average_hash(chk_dolby_vision)
-            hash3 = imagehash.average_hash(chk_hdr10)
-            cutoff= 10
-            if (
-                hash0 - hash2 >= cutoff
-                and hash0 - hash1 >= cutoff
-                and hash0 - hash3 >= cutoff
-            ):
-                logger.info(i.title+' No banners found')
-                try:
-                    os.remove(b_poster)
-                except FileNotFoundError:
-                    pass
-        def dts_check():
-            background = Image.open(tmp_poster)
-            backgroundchk = background.crop(a_box)
-            hash0 = imagehash.average_hash(backgroundchk)
-            hash1 = imagehash.average_hash(dtsx_box)
-            cutoff= 10
-            if hash0 - hash1 >= cutoff:
-                hdr_check
-        def atmos_check():
-            background = Image.open(tmp_poster)
-            backgroundchk = background.crop(a_box)
-            hash0 = imagehash.average_hash(backgroundchk)
-            hash1 = imagehash.average_hash(atmos_box)
-            cutoff= 10
-            if hash0 - hash1 >= cutoff:
-                dts_check()       
-        def check_for_mini():
-            background = Image.open(tmp_poster)
-            try:
-                background = background.resize(size,Image.ANTIALIAS)
-            except OSError as e:
-                logger.error(e)
-                ImageFile.LOAD_TRUNCATED_IMAGES = True
-                background = background.resize(size,Image.ANTIALIAS)
-                ImageFile.LOAD_TRUNCATED_IMAGES = False
-            backgroundchk = background.crop(mini_box)
-            hash0 = imagehash.average_hash(backgroundchk)
-            hash1 = imagehash.average_hash(chk_mini_banner)
-            cutoff= 10
-            if hash0 - hash1 >= cutoff:
-                atmos_check()
-
-        def check_for_banner():
-            background = Image.open(tmp_poster)
-            try:
-                background = background.resize(size,Image.ANTIALIAS)
-            except OSError as e:
-                logger.error(e)
-                ImageFile.LOAD_TRUNCATED_IMAGES = True
-                background = background.resize(size,Image.ANTIALIAS)
-                ImageFile.LOAD_TRUNCATED_IMAGES = False
-            backgroundchk = background.crop(box)
-            hash0 = imagehash.average_hash(backgroundchk)
-            hash1 = imagehash.average_hash(chk_banner)
-            cutoff= 5
-            if hash0 - hash1 >= cutoff:
-                check_for_mini()  
-        def get_poster():
-            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(newdir+'poster_bak.png')
-            imgurl = i.posterUrl
-            img = requests.get(imgurl, stream=True)
-            filename = tmp_poster              
-
-            if img.status_code == 200:
-                img.raw.decode_content = True
-                with open(filename, 'wb') as f:
-                    shutil.copyfileobj(img.raw, f)
-        logger.info('Searching for un-used backup files, this may take a while')                
-        for i in films.search():
-            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
-            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
-            p = 'poster_bak.png'
-            tmp_poster = re.sub(' ','_', '/tmp/poster.png')
-            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-            backup = os.path.exists(newdir+'poster_bak.png')
-            b_poster = newdir+p
-            if backup == True:
-                get_poster()
-                check_for_banner()
-        try:
-            os.remove(tmp_poster)
-        except FileNotFoundError:
-            pass  
-        logger.info('Search complete')    
-    lib = config[0].filmslibrary.split(',')
-    if len(lib) <= 2:
-        try:
-            while True:
-                for l in range(10):
-                    films = plex.library.section(lib[l])
-                    run_script()
-        except IndexError:
-            pass
 
 def test_script():
     from app.models import Plex, film_table
@@ -1769,7 +1637,7 @@ def fill_database():
                 except OSError as e:
                     logger.error(e)
                     
-            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+            t = re.sub('plex://movie/', '', guid)
             tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
             tmp_poster = get_poster()
             banners = check_banners(tmp_poster)
@@ -2201,7 +2069,7 @@ def restore_posters():
                                     hdr_banner = True
                                 background.save(tmp_poster)
                                 return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr                    
-                            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                            t = re.sub('plex://movie/', '', guid)
                             tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
                             tmp_poster = get_poster() 
                             banners = check_banners(tmp_poster)
@@ -2274,7 +2142,7 @@ def spoilers(guid):
         size = ep.media[0].parts[0].size
         res = ep.media[0].videoResolution    
         img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-        tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+        tmp_poster = re.sub('plex://episode/', '', guid)
         table = ep_table
         hdr = ""
         audio = ""
