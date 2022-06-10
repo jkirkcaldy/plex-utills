@@ -231,44 +231,45 @@ def posters4k(webhooktitle):
 
             def banner_decision():
                 logger.debug("Banner Decision")
-                if audio_banner == False:
-                    if {
-                        'Atmos' in audio 
-                        and config[0].audio_posters == 1
-                    }:
+                def audio_banners():
+                    if 'Atmos' in audio:
                         atmos_poster(tmp_poster)
-                    elif {
-                        audio == 'DTS:X' 
-                        and config[0].audio_posters == 1
-                        }:
+                    elif audio == 'DTS:X': 
                         dtsx_poster(tmp_poster)
-                elif 'Atmos' in audio:
-                    i.addLabel('Dolby Atmos', locked=False)
-                elif audio == 'DTS:X':
-                    i.addLabel('DTS:X', locked=False)
 
+                def hdr_banners():
+                    if 'dolby vision' in hdr:
+                        dolby_vision(tmp_poster)
+                    elif "hdr10+" in hdr:
+                        hdr10(tmp_poster)
+                    elif hdr == "none":
+                        pass
+                    elif hdr != "":
+                        hdrp(tmp_poster)
+                
+                def labels():
+                    if 'dolby vision' in hdr:
+                        i.addLabel('Dolby Vision', locked=False)
+                    elif 'hdr10+' in hdr:
+                        i.addLabel('HDR10+', locked=False)
+                    elif hdr != '':
+                        i.addLabel('HDR', locked=False)
+
+                    if 'Atmos' in audio:
+                        i.addLabel('Dolby Atmos', locked=False)
+                    elif audio == 'DTS:X':
+                        i.addLabel('DTS:X', locked=False)                        
+                if {
+                    audio_banner == False
+                    and config[0].audio_posters == 1
+                }:         
+                    audio_banners()
                 if {
                     hdr_banner == False 
                     and config[0].hdr == 1
                 }:
-                    if 'dolby vision' in hdr and config[0].new_hdr == 1:
-                        dolby_vision(tmp_poster)
-                    elif "hdr10+" in hdr and config[0].new_hdr == 1:
-                        hdr10(tmp_poster)
-                    elif hdr == "none":
-                        pass
-                    elif (
-                        hdr != ""
-                        and config[0].new_hdr == 1
-                    ):
-                        hdrp(tmp_poster)
-                elif 'dolby vision' in hdr:
-                    i.addLabel('Dolby Vision', locked=False)
-                elif 'hdr10+' in hdr:
-                    i.addLabel('HDR10+', locked=False)
-                elif hdr != '':
-                    i.addLabel('HDR', locked=False)                
-                
+                    hdr_banners()
+                labels()
                 if {
                     res == '4k' 
                     and config[0].films4kposters == 1
@@ -276,7 +277,7 @@ def posters4k(webhooktitle):
                     if wide_banner == mini_banner == False:
                         add_banner(tmp_poster)
                     else:
-                        logger.debug(i.title+' Has banner') 
+                        logger.debug(i.title+' Has banner')                 
 
 
             audio_hdr = database_decision(banners)
