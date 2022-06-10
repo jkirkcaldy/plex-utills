@@ -576,11 +576,11 @@ def tv_episode_poster(epwebhook, poster):
                                 hdrp(tmp_poster)
                         except:
                             pass
-                    elif 'dolby vision' in hdr_version:
+                    elif 'dolby vision' in hdr:
                         ep.addLabel('Dolby Vision', locked=False)
-                    elif 'hdr10+' in hdr_version:
+                    elif 'hdr10+' in hdr:
                         ep.addLabel('HDR10+', locked=False)
-                    elif hdr_version != '':
+                    elif hdr != '':
                         ep.addLabel('HDR', locked=False)
             banner_decision(audio, hdr)
         database_decision(r)             
