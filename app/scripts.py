@@ -207,7 +207,7 @@ def posters4k(webhooktitle):
                             logger.debug(title+" has changed, rescanning")
                             scan = module.scan_files(config, i, plex)
                             audio = scan[0]
-                            hdr = scan[1]
+                            hdr = str.lower(scan[1])
                             module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                         else:
                             #logger.debug(new_poster)
@@ -222,7 +222,7 @@ def posters4k(webhooktitle):
                         logger.info(title+" is not in database, skip media info scan is false")
                         scan = module.scan_files(config, i, plex)
                         audio = scan[0]
-                        hdr = scan[1]
+                        hdr = str.lower(scan[1])
                         print(config[0].manualplexpath)
                         module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                     else:
@@ -388,6 +388,8 @@ def tv_episode_poster(epwebhook, poster):
     tmdb.api_key = config[0].tmdb_api    
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting 4k Tv poster script')
+    if epwebhook != '':
+        logger.debug(epwebhook)
 
     def add_background(tmp_poster):
         logger.debug(img_title+' Adding background')
@@ -498,7 +500,7 @@ def tv_episode_poster(epwebhook, poster):
                             logger.debug(title+" has changed, rescanning")
                             scan = module.scan_files(config, i, plex)
                             audio = scan[0]
-                            hdr = scan[1]                             
+                            hdr = str.lower(scan[1])                            
                             module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                     else:
                         module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
@@ -510,7 +512,7 @@ def tv_episode_poster(epwebhook, poster):
                 else:
                     scan = module.scan_files(config, i, plex)
                     audio = scan[0]
-                    hdr = scan[1]
+                    hdr = str.lower(scan[1])
                     logger.debug(hdr)
                     if hdr == "":
                         hdr = module.get_plex_hdr(i, plex)
@@ -558,6 +560,7 @@ def tv_episode_poster(epwebhook, poster):
                 #        ep.addLabel('DTS:X', locked=False)
                     if hdr_banner == False:
                         try:
+                            logger.debug(hdr)
                             if 'dolby vision' in hdr and config[0].hdr == 1:
                                 dolby_vision(tmp_poster)
                             elif "hdr10+" in hdr and config[0].hdr == 1:
@@ -639,14 +642,16 @@ def tv_episode_poster(epwebhook, poster):
             {
                 'or': [                     # Match any of the following in this list
                     {'resolution': '4k'},
-                    {'hdr': 'true'}
+                    {'hdr': 'true'},
+                    {'guid': epwebhook}
                 ]
             },
-            {'guid': epwebhook}
+            {'guid': epwebhook},
+            {'libtype': 'episode'}
         ]
     }
 
-    for ep in tv.search(libtype='episode', filters=advancedFilters):
+    for ep in tv.search(filters=advancedFilters):
         logger.debug(ep.title)
         i = ep
         img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
@@ -1774,7 +1779,7 @@ def fill_database():
                 try:
                     scan = scan_files()
                     audio = scan[0]
-                    hdr = scan[1]
+                    hdr = str.lower(scan[1])
                     insert_intoTable(hdr, audio, tmp_poster)
                 except:
                     logger.error('Can not scan '+title+': Please check your permissions. Looping back to Plex Metadata')
