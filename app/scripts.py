@@ -217,7 +217,7 @@ def posters4k(webhooktitle):
                                 module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                             else:
                                 logger.debug('backing up poster')
-                                module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g)
+                                module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
                     elif not r:
                         logger.info(title+" is not in database, skip media info scan is false")
                         scan = module.scan_files(config, i, plex)
