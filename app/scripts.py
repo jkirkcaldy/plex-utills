@@ -242,9 +242,9 @@ def posters4k(webhooktitle):
                 elif audio == 'DTS:X':
                     i.addLabel('DTS:X', locked=False)
                 if hdr_banner == False and config[0].hdr == 1:
-                    if 'Dolby Vision' in hdr and config[0].new_hdr == 1:
+                    if 'dolby vision' in hdr and config[0].new_hdr == 1:
                         dolby_vision(tmp_poster)
-                    elif "HDR10+" in hdr and config[0].new_hdr == 1:
+                    elif "hdr10+" in hdr and config[0].new_hdr == 1:
                         hdr10(tmp_poster)
                     elif hdr == "none":
                         pass
@@ -253,9 +253,9 @@ def posters4k(webhooktitle):
                         and config[0].new_hdr == 1
                     ):
                         hdrp(tmp_poster)
-                elif 'Dolby Vision' in hdr:
+                elif 'dolby vision' in hdr:
                     i.addLabel('Dolby Vision', locked=False)
-                elif 'HDR10+' in hdr:
+                elif 'hdr10+' in hdr:
                     i.addLabel('HDR10+', locked=False)
                 elif hdr != '':
                     i.addLabel('HDR', locked=False)                
@@ -555,10 +555,10 @@ def tv_episode_poster(epwebhook, poster):
                         elif audio == 'DTS:X' and config[0].audio_posters == 1:
                             dtsx_poster(tmp_poster)
 
-                #    elif 'Atmos' in audio:
-                #        ep.addLabel('Dolby Atmos', locked=False)
-                #    elif audio == 'DTS:X':
-                #        ep.addLabel('DTS:X', locked=False)
+                    elif 'Atmos' in audio:
+                        ep.addLabel('Dolby Atmos', locked=False)
+                    elif audio == 'DTS:X':
+                        ep.addLabel('DTS:X', locked=False)
                     if hdr_banner == False:
                         try:
                             logger.debug(hdr)
@@ -570,12 +570,12 @@ def tv_episode_poster(epwebhook, poster):
                                 hdrp(tmp_poster)
                         except:
                             pass
-                #    elif 'dolby vision' in hdr_version:
-                #        ep.addLabel('Dolby Vision', locked=False)
-                #    elif 'hdr10+' in hdr_version:
-                #        ep.addLabel('HDR10+', locked=False)
-                #    elif hdr_version != '':
-                #        ep.addLabel('HDR', locked=False)
+                    elif 'dolby vision' in hdr_version:
+                        ep.addLabel('Dolby Vision', locked=False)
+                    elif 'hdr10+' in hdr_version:
+                        ep.addLabel('HDR10+', locked=False)
+                    elif hdr_version != '':
+                        ep.addLabel('HDR', locked=False)
             banner_decision(audio, hdr)
         database_decision(r)             
 
