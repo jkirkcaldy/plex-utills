@@ -650,7 +650,7 @@ def tv_episode_poster(epwebhook, poster):
         ]
     }
 
-    for ep in tv.search(episode='libtype', guid=epwebhook):
+    for ep in tv.search(libtype='episode', guid=epwebhook):
         logger.debug(ep.title)
         i = ep
         img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
