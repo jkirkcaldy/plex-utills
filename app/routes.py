@@ -440,35 +440,41 @@ def recently_added():
     if request.method == 'POST':
         data = request.json
         log.debug(data)
-        if 'tautulli' in data:
-            title = data['title']
-            mediatype = data['type']
-            guid = data['id']
-            action = data['action']
-            if mediatype == 'episode':
-                threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
+        try:
+            if 'tautulli' in data['server']:
+                title = data['title']
+                mediatype = data['type']
+                guid = data['id']
+                action = data['action']
+                log.debug(title+" "+mediatype+" "+guid+" "+action)
+                if mediatype == 'episode':
+                    threading.Thread(target=scripts.tv_episode_poster(guid, ''),    name='TV_webhook').start()
+                    return 'ok', 200
+                elif action == 'watched':
+                    from time import sleep
+                    sleep(600)
+                    threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start   ()                    
+                    return 'ok', 200
+                else:
+                    threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
+                    threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').   start()
+                    return 'ok', 200
+        except:
+            if 'series' in data:
+                tv_show = data['series']['title']
+                mediatype = 'episode'
+                season = data['episodes'][0]['seasonNumber']
+                episode = data['episodes'][0]['episodeNumber']
+                guid = scripts.get_tv_guid(tv_show, season, episode)
+                threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').    start()
                 return 'ok', 200
-            elif action == 'watched':
-                from time import sleep
-                sleep(600)
-                threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start()                    
+            elif 'movie' in data:
+                movie = data['movie']['title']
+                threading.Thread(target=scripts.posters4k(movie), name='4k_posters_webhook').   start()
                 return 'ok', 200
             else:
-                threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
-                threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').start()
-                return 'ok', 200
-        elif 'series' in data:
-            tv_show = data['series']['title']
-            mediatype = 'episode'
-            season = data['episodes'][0]['seasonNumber']
-            episode = data['episodes'][0]['episodeNumber']
-            guid = scripts.get_tv_guid(tv_show, season, episode)
-            threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
-            return 'ok', 200
-        elif 'movie' in data:
-            movie = data['movie']['title']
-            threading.Thread(target=scripts.posters4k(movie), name='4k_posters_webhook').start()
-            return 'ok', 200
+                log.error("Webhook not running")
+                return 'Error', 500
 
 
 @app.route('/films')
