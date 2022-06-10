@@ -637,19 +637,7 @@ def tv_episode_poster(epwebhook, poster):
             logger.debug("File not in database, doesn't need checking")
             pass
 
-    
-    advancedFilters = {
-        'and': [                            # Match all of the following in this list
-            {
-                'or': [                     # Match any of the following in this list
-                    {'resolution': '4k'},
-                    {'hdr': 'true'},
-                    {'guid': epwebhook}
-                ]
-            },
-            {'guid': epwebhook}
-        ]
-    }
+
 
     for ep in tv.search(libtype='episode', guid=epwebhook):
         logger.debug(ep.title)
@@ -665,9 +653,7 @@ def tv_episode_poster(epwebhook, poster):
         hdr = module.get_plex_hdr(ep, plex)
         if res == '4k' or hdr != 'None':
             if poster == "":
-                img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-                #tmp_poster = re.sub('plex://episode/', '', guid)
-                tmp_poster = re.sub('plex://episode/', '', guid)
+                tmp_poster = re.sub('plex://episode/', '', guid)+'.png'
                 tmp_poster = module.get_poster(i, tmp_poster, title)
                 blurred = False
             else:
@@ -1343,7 +1329,6 @@ def autocollections():
                     run_script()
         except IndexError:
             pass        
-
 
 def test_script():
     from app.models import Plex, film_table

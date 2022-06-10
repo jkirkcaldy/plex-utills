@@ -258,9 +258,9 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
     logger.debug("BACKUP")
     logger.debug(banners)
     if episode !='':
-        fname = t = re.sub('plex://episode/', '', guid)+'.png'
+        fname = t = re.sub('plex://episode/', '', guid)
     else:
-        fname = re.sub('plex://movie/', '', guid)+'.png'
+        fname = re.sub('plex://movie/', '', guid)
     #fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
