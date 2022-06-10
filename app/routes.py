@@ -446,16 +446,16 @@ def recently_added():
             action = data['action']
             if mediatype == 'episode':
                 threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
-                return 200
+                return 'ok', 200
             elif action == 'watched':
                 from time import sleep
                 sleep(600)
                 threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start()                    
-                return 200
+                return 'ok', 200
             else:
                 threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
                 threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').start()
-                return 200
+                return 'ok', 200
         elif 'series' in data:
             tv_show = data['series']['title']
             mediatype = 'episode'
@@ -463,11 +463,11 @@ def recently_added():
             episode = data['episodes'][0]['episodeNumber']
             guid = scripts.get_tv_guid(tv_show, season, episode)
             threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').start()
-            return 200
+            return 'ok', 200
         elif 'movie' in data:
             movie = data['movie']['title']
             threading.Thread(target=scripts.posters4k(movie), name='4k_posters_webhook').start()
-            return 200
+            return 'ok', 200
 
 
 @app.route('/films')
