@@ -385,10 +385,6 @@ def tv_episode_poster(epwebhook, poster):
     atmos = Image.open("app/img/tv/atmos.png")
     dtsx = Image.open("app/img/tv/dtsx.png")
     size = (1280,720)
-    box_4k= (52,68,275,225)
-    hdr_box = (32,442,307,561)
-    a_box = (32,562,307,681)
-    cutoff = 10
     tmdb.api_key = config[0].tmdb_api    
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting 4k Tv poster script')
@@ -523,7 +519,7 @@ def tv_episode_poster(epwebhook, poster):
                 logger.debug('File not in Database')
                 scan = module.scan_files(config, i, plex)
                 audio = scan[0]
-                hdr = scan[1]
+                hdr = str.lower(scan[1])
                 try:
                     module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                 except Exception as e:

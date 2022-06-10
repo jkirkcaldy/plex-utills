@@ -11,3 +11,4 @@ app.db
 *.log
 test*.py
 Changelog*
+*support.zip

@@ -439,6 +439,7 @@ def help():
 def recently_added():
     if request.method == 'POST':
         data = request.json
+        log.debug(data)
         if 'tautulli' in data:
             title = data['title']
             mediatype = data['type']
