@@ -1,4 +1,3 @@
-from pickle import FALSE
 from PIL import Image, ImageFile
 from plexapi.server import PlexServer
 import plexapi
@@ -203,7 +202,7 @@ def posters4k(webhooktitle):
                         module.insert_intoTable(guid, guids, size, res,res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
                 else:
                     if r:
-                        if str(r[0].guid) == guid and str(r[0].size) != str(size):
+                        if (str(r[0].guid) == guid and str(r[0].size) != str(size)):
                             logger.debug(title+" has changed, rescanning")
                             scan = module.scan_files(config, i, plex)
                             audio = scan[0]
@@ -217,7 +216,10 @@ def posters4k(webhooktitle):
                                 module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                             else:
                                 logger.debug('backing up poster')
+                                audio = r[0].audio
+                                hdr = r[0].hdr
                                 module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
+
                     elif not r:
                         logger.info(title+" is not in database, skip media info scan is false")
                         scan = module.scan_files(config, i, plex)
