@@ -229,19 +229,28 @@ def posters4k(webhooktitle):
                         logger.debug("error message")
                 return audio, hdr
 
-
             def banner_decision():
                 logger.debug("Banner Decision")
                 if audio_banner == False:
-                    if 'Atmos' in audio and config[0].audio_posters == 1:
+                    if {
+                        'Atmos' in audio 
+                        and config[0].audio_posters == 1
+                    }:
                         atmos_poster(tmp_poster)
-                    elif audio == 'DTS:X' and config[0].audio_posters == 1:
+                    elif {
+                        audio == 'DTS:X' 
+                        and config[0].audio_posters == 1
+                        }:
                         dtsx_poster(tmp_poster)
                 elif 'Atmos' in audio:
                     i.addLabel('Dolby Atmos', locked=False)
                 elif audio == 'DTS:X':
                     i.addLabel('DTS:X', locked=False)
-                if hdr_banner == False and config[0].hdr == 1:
+
+                if {
+                    hdr_banner == False 
+                    and config[0].hdr == 1
+                }:
                     if 'dolby vision' in hdr and config[0].new_hdr == 1:
                         dolby_vision(tmp_poster)
                     elif "hdr10+" in hdr and config[0].new_hdr == 1:
@@ -260,7 +269,10 @@ def posters4k(webhooktitle):
                 elif hdr != '':
                     i.addLabel('HDR', locked=False)                
                 
-                if res == '4k' and config[0].films4kposters == 1:
+                if {
+                    res == '4k' 
+                    and config[0].films4kposters == 1
+                }:
                     if wide_banner == mini_banner == False:
                         add_banner(tmp_poster)
                     else:
