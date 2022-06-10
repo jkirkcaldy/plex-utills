@@ -334,7 +334,8 @@ def posters4k(webhooktitle):
             g = guids
             size = i.media[0].parts[0].size
             res = i.media[0].videoResolution    
-            t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+            #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+            t = re.sub('plex://movie/', '', guid)
             tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
             tmp_poster = module.get_poster(i, tmp_poster, title)     
             r = film_table.query.filter(film_table.guid == guid).all()
@@ -665,7 +666,8 @@ def tv_episode_poster(epwebhook, poster):
         if res == '4k' or hdr != 'None':
             if poster == "":
                 img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-                tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+                #tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+                tmp_poster = re.sub('plex://episode/', '', guid)
                 tmp_poster = module.get_poster(i, tmp_poster, title)
                 blurred = False
             else:
