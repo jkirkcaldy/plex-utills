@@ -176,6 +176,8 @@ def get_plex_hdr(i, plex):
             if m.media[0].parts[0].streams[0].DOVIPresent == True:
                 hdr_version='Dolby Vision'
                 i.addLabel('Dolby Vision', locked=False)
+                if m.media[0].parts[0].streams[0].DOVIProfile == 5:
+                    logger.error(i.title+" is version 5")
             elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
                 hdr_version='HDR'
                 i.addLabel('HDR', locked=False)

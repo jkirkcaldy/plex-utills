@@ -646,12 +646,11 @@ def tv_episode_poster(epwebhook, poster):
                     {'guid': epwebhook}
                 ]
             },
-            {'guid': epwebhook},
-            {'libtype': 'episode'}
+            {'guid': epwebhook}
         ]
     }
 
-    for ep in tv.search(filters=advancedFilters):
+    for ep in tv.search(episode='libtype', guid=guid):
         logger.debug(ep.title)
         i = ep
         img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
@@ -661,40 +660,42 @@ def tv_episode_poster(epwebhook, poster):
         guid = str(ep.guid)
         guids = str(ep.guids)
         size = ep.media[0].parts[0].size
-        res = ep.media[0].videoResolution    
-        if poster == "":
-            img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
-            tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
-            tmp_poster = module.get_poster(i, tmp_poster, title)
-            blurred = False
-        else:
-            blurred = True
-            tmp_poster = poster
-        r = ep_table.query.filter(ep_table.guid == guid).all()
-        table = ep_table
-        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
-        g = str(g[0].guids)
-        logger.debug(g)
-        try:
-            if r[0].checked == 1:
-                logger.info(ep.title+' has been checked, checking to see if the file has    changed')
-                if str(r[0].size) == str(size):
-                        logger.info(title+' has been processed and the file has not hanged, skiping scan')
-                        new_poster = check_for_new_poster(tmp_poster)
-                        if new_poster == 'True':
-                            decision_tree(tmp_poster)
-                            module.upload_poster(tmp_poster, title, db, r, table, i)
+        res = ep.media[0].videoResolution 
+        hdr = module.get_plex_hdr(ep, plex)
+        if res == '4k' or hdr != 'None':
+            if poster == "":
+                img_title = re.sub(r'[\\/*?:"<>| ]', '_', img_title)
+                tmp_poster = re.sub(' ','_', '/tmp/'+img_title+'_poster.png')
+                tmp_poster = module.get_poster(i, tmp_poster, title)
+                blurred = False
+            else:
+                blurred = True
+                tmp_poster = poster
+            r = ep_table.query.filter(ep_table.guid == guid).all()
+            table = ep_table
+            g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+            g = str(g[0].guids)
+            logger.debug(g)
+            try:
+                if r[0].checked == 1:
+                    logger.info(ep.title+' has been checked, checking to see if the file has        changed')
+                    if str(r[0].size) == str(size):
+                            logger.info(title+' has been processed and the file has not hanged,     skiping scan')
+                            new_poster = check_for_new_poster(tmp_poster)
+                            if new_poster == 'True':
+                                decision_tree(tmp_poster)
+                                module.upload_poster(tmp_poster, title, db, r, table, i)
+                    else:
+                        decision_tree(tmp_poster)
+                        module.upload_poster(tmp_poster, title, db, r, table, i)
                 else:
+                    check_for_new_poster(tmp_poster)                    
                     decision_tree(tmp_poster)
                     module.upload_poster(tmp_poster, title, db, r, table, i)
-            else:
-                check_for_new_poster(tmp_poster)                    
+            except IndexError: 
+                check_for_new_poster(tmp_poster)
                 decision_tree(tmp_poster)
-                module.upload_poster(tmp_poster, title, db, r, table, i)
-        except IndexError: 
-            check_for_new_poster(tmp_poster)
-            decision_tree(tmp_poster)
-            module.upload_poster(tmp_poster, title, db, r, table, i)                   
+                module.upload_poster(tmp_poster, title, db, r, table, i)                   
 
 
     logger.info("tv Poster Script has finished")
