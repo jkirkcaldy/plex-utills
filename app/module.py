@@ -157,7 +157,7 @@ def get_poster(i, tmp_poster, title):
     filename = tmp_poster
     try:
         if img.status_code == 200:
-            ##img.raw.decode_content = True
+            img.raw.decode_content = True
             with open(filename, 'wb') as f:                        
                 shutil.copyfileobj(img.raw, f)
             return tmp_poster 
@@ -346,8 +346,11 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
         title = re.sub(r'[\\/*?:"<>| ]', '_', title)
         tmp_poster = re.sub(' ','_', '/tmp/'+title+'_poster.png')
         tmp_poster = get_poster(i, tmp_poster, title)
-    if 'config' in b_file:
-        b_file = re.sub('/config', 'static', b_file)
+    try:
+        if 'config' in b_file:
+            b_file = re.sub('/config', 'static', b_file)
+    except:
+        pass
     logger.debug('Adding '+i.title+' to database')
     film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
     db.session.add(film)

@@ -770,6 +770,7 @@ def restore_episodes_from_database():
                     row = r[0].id
                     film = ep_table.query.get(row)
                     film.checked = '0'
+                    film.blurred = '0'
                     db.session.commit()
                 except (TypeError, IndexError, FileNotFoundError) as e:
                     logger.error('Restore from db: '+repr(e))  
@@ -921,7 +922,7 @@ def posters3d():
             imgurl = i.posterUrl
             img = requests.get(imgurl, stream=True)
             if img.status_code == 200:
-                #img.raw.decode_content = True
+                img.raw.decode_content = True
                 filename = "/tmp/poster.png"
 
                 with open(filename, 'wb') as f:
@@ -1219,7 +1220,7 @@ def autocollections():
                     img = requests.get(imgurl, stream=True)
                     filename = "/tmp/poster.png"
                     if img.status_code == 200:
-                        #img.raw.decode_content = True
+                        img.raw.decode_content = True
                         with open(filename, 'wb') as f:
                             shutil.copyfileobj(img.raw, f)
                     c.delete()
@@ -1243,7 +1244,7 @@ def autocollections():
                     img = requests.get(imgurl, stream=True)
                     filename = "/tmp/poster.png"
                     if img.status_code == 200:
-                        #img.raw.decode_content = True
+                        img.raw.decode_content = True
                         with open(filename, 'wb') as f:
                             shutil.copyfileobj(img.raw, f)
                     c.delete()
@@ -1267,7 +1268,7 @@ def autocollections():
                     img = requests.get(imgurl, stream=True)
                     filename = "/tmp/poster.png"
                     if img.status_code == 200:
-                        #img.raw.decode_content = True
+                        img.raw.decode_content = True
                         with open(filename, 'wb') as f:
                             shutil.copyfileobj(img.raw, f)
                     c.delete()
@@ -1444,7 +1445,7 @@ def remove_unused_backup_files():
             filename = tmp_poster              
 
             if img.status_code == 200:
-                #img.raw.decode_content = True
+                img.raw.decode_content = True
                 with open(filename, 'wb') as f:
                     shutil.copyfileobj(img.raw, f)
         logger.info('Searching for un-used backup files, this may take a while')                
@@ -1757,7 +1758,7 @@ def fill_database():
                 filename = tmp_poster
                 try:
                     if img.status_code == 200:
-                        #img.raw.decode_content = True
+                        img.raw.decode_content = True
                         with open(filename, 'wb') as f:
                             shutil.copyfileobj(img.raw, f)
                         return tmp_poster 
@@ -2113,7 +2114,7 @@ def restore_posters():
                                 filename = tmp_poster
                                 try:
                                     if img.status_code == 200:
-                                        #img.raw.decode_content = True
+                                        img.raw.decode_content = True
                                         with open(filename, 'wb') as f:
                                             shutil.copyfileobj(img.raw, f)
                                         return tmp_poster 
