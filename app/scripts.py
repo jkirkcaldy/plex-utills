@@ -343,7 +343,11 @@ def posters4k(webhooktitle):
             if r:
                 new_poster = check_for_new_poster(tmp_poster)
                 try:
-                    if r[0].checked == 0 or str(r[0].size) != str(size) or new_poster == 'True':
+                    if {
+                        r[0].checked == 0
+                        or str(r[0].size) != str(size)
+                        or new_poster == True
+                        }:
                         logger.debug('Processing '+i.title)
                         process(tmp_poster)                          
                     else:
