@@ -246,7 +246,7 @@ def posters4k(webhooktitle):
                         dolby_vision(tmp_poster)
                     elif "HDR10+" in hdr and config[0].new_hdr == 1:
                         hdr10(tmp_poster)
-                    elif hdr == "None":
+                    elif hdr == "none":
                         pass
                     elif (
                         hdr != ""
