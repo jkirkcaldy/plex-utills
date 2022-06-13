@@ -268,7 +268,6 @@ def posters4k(webhooktitle):
                     else:
                         logger.debug(i.title+' Has banner')                 
 
-
             audio_hdr = database_decision(banners)
             audio = audio_hdr[0]
             hdr = audio_hdr[1]

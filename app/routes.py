@@ -613,7 +613,6 @@ def delete_database():
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
-    config = c.fetchall()
     query1 = """DROP TABLE films
         """
     table = """CREATE TABLE "films" (
@@ -633,6 +632,12 @@ def delete_database():
     c.execute(table)
     conn.commit()
     c.close()
+    file_paths = '/config/backup/films/'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f) 
     return redirect('/films')
 
 @app.route('/delete_tv_database')
@@ -641,7 +646,6 @@ def delete_tv_database():
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
     c.execute("SELECT * FROM plex_utills")
-    config = c.fetchall()
     query1 = """DROP TABLE episodes
         """
     table = """CREATE TABLE "episodes" (
@@ -662,6 +666,14 @@ def delete_tv_database():
     c.execute(table)
     conn.commit()
     c.close()
+
+    file_paths = '/config/backup/tv/episodes/'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f)
+
     return redirect('/episodes')
 
 @app.route('/export_support')
