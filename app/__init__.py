@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
-from app.scripts import posters4k, spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
+from app.scripts import posters4k, posters4k_thread, spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
@@ -17,6 +17,7 @@ from croniter import croniter
 import threading
 import signal
 import time
+import platform
 
 setup_logger('Application', r"/logs/application_log.log")
 log = logging.getLogger('Application')
@@ -378,9 +379,9 @@ def update_scheduler():
             scheduler.add_job('autocollections', func=autocollections, trigger=CronTrigger.from_crontab(t2))
         log.info("Auto Collections schedule created for "+ t2)
     if config[0][40] == 1:
-        if check_schedule_format(t2) == 'time trigger':
+        if check_schedule_format(t3) == 'time trigger':
             scheduler.add_job('spoilers', func=spoilers_scheduled, trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
-        elif check_schedule_format(t4) == 'cron':
+        elif check_schedule_format(t3) == 'cron':
             scheduler.add_job('spoilers', func=spoilers_scheduled, trigger=CronTrigger.from_crontab('0 0 * * 0'))
     for j in scheduler.get_jobs():
         log.info(j)
@@ -423,11 +424,20 @@ def update_scheduler():
     except (plexapi.exceptions.NotFound, OSError) as e:
         log.error(e)
 
-
+def sys_info():
+    log.info("System Information")
+    uname = platform.uname()
+    log.info({"System: "+uname.system,
+        "Node Name: "+uname.node,
+        "Release: "+uname.release,
+        "Version: "+uname.version,
+        "Machine: "+uname.machine})
+        
 class Plex_utills(Flask):
     def run(self, host=None, port=None, debug=True, load_dotenv=True, **options):
         if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
           with self.app_context():
+            sys_info()
             from app.scripts import maintenance
             scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
             setup_helper()

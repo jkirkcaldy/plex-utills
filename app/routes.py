@@ -207,7 +207,6 @@ def config_options():
         form.posters4k.default = plex.posters4k
         form.mini4k.default = plex.mini4k
         form.hdr.default = plex.hdr
-        form.new_hdr.default = plex.new_hdr
         form.recreate_hdr.default = plex.recreate_hdr
         form.posters3d.default = plex.posters3d
         form.tv4kposters.default = plex.tv4kposters
@@ -234,7 +233,6 @@ def config_options():
         plex.tv4kposters = request.form['tv4kposters']
         plex.mini4k = request.form['mini4k']
         plex.hdr  = request.form['hdr']
-        plex.new_hdr = request.form['new_hdr']
         plex.recreate_hdr = request.form['recreate_hdr']
         plex.posters3d = request.form['posters3d']
         plex.mini3d = request.form['mini3d']
@@ -278,7 +276,6 @@ def admin_config_form():
         form.posters4k.default = plex.posters4k
         form.mini4k.default = plex.mini4k
         form.hdr.default = plex.hdr
-        form.new_hdr.default = plex.new_hdr
         form.recreate_hdr.default = plex.recreate_hdr
         form.posters3d.default = plex.posters3d
         form.tv4kposters.default = plex.tv4kposters
@@ -306,7 +303,6 @@ def admin_config_form():
         plex.tv4kposters = request.form['tv4kposters']
         plex.mini4k = request.form['mini4k']
         plex.hdr  = request.form['hdr']
-        plex.new_hdr = request.form['new_hdr']
         plex.recreate_hdr = request.form['recreate_hdr']
         plex.posters3d = request.form['posters3d']
         plex.mini3d = request.form['mini3d']
@@ -376,6 +372,7 @@ def help():
     import requests
     import shutil 
     try:
+        os.remove("app/support.zip")
         os.remove('./app/static/img/poster.png')
         os.remove('./app/static/img/poster_bak.png')
     except FileNotFoundError as e:
@@ -386,7 +383,18 @@ def help():
     mpath = [f for f in os.listdir('/films') if not f.startswith('.')]
 
     try:
-        films = plexserver.library.section(config[0].filmslibrary)
+        def get_library():
+            lib = config[0].filmslibrary.split(',')
+            log.debug(lib)
+            if len(lib) <= 2:
+                try:
+                    while True:
+                        for l in range(10):
+                            films = plexserver.library.section(lib[l])
+                            return films
+                except IndexError:
+                    pass     
+        films = get_library()   
     except requests.exceptions.ConnectionError as e:
         log.error(e)
         message = "Can not connect to your plex server, please check your config"
@@ -658,6 +666,7 @@ def delete_tv_database():
 
 @app.route('/export_support')
 def export_support():
+
     def export_config():
         import csv
         import shutil
@@ -669,6 +678,16 @@ def export_support():
             out.writerow([item.plexurl, item.filmslibrary, item.library3d, item.plexpath, item.manualplexpath, item.mountedpath, item.backup, item.posters4k, item.mini4k, item.hdr, item.posters3d, item.mini3d, item.disney, item.pixar, item.hide4k, item.transcode, item.tvlibrary, item.tv4kposters, item.films4kposters, item.tmdb_restore, item.recreate_hdr, item.new_hdr, item.default_poster, item.autocollections, item.tautulli_server, item.mcu_collection, item.tr_r_p_collection, item.audio_posters, item.loglevel, item.manualplexpathfield, item.skip_media_info])
         f.close
         shutil.copy('./version', '/logs/version')
+
+    def additional_info():
+        import platform
+        uname = platform.uname()
+        f = open('/logs/system_info.txt', "a")
+        mpath = [f for f in os.listdir('/films') if not f.startswith('.')]
+        f.write("System Information"+"\n"+"System: "+uname.system+"\n"+"Node Name: "+uname.node+"\n"+"Release: "+uname.release+"\n"+"Version: "+uname.version+"\n"+"Machine: "+uname.machine+"\n"+"/films content: ") 
+        f.write(str(mpath))
+        f.close() 
+
     from zipfile import ZipFile
     def get_all_file_paths(directory):
         file_paths = []
@@ -678,7 +697,9 @@ def export_support():
                 file_paths.append(filepath)
         return file_paths  
 
+
     def zip():
+        additional_info()
         export_config()
         directory = '/logs'    
         file_paths = get_all_file_paths(directory)
