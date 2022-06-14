@@ -360,7 +360,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     except:
         pass
     logger.debug('Adding '+i.title+' to database')
-    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
+    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0')
     db.session.add(film)
     db.session.commit()
 
@@ -384,7 +384,7 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
     film.hdr = hdr
     film.audio = audio
     film.poster = b_file
-    film.checked = '1'
+    film.checked = '0'
     db.session.commit()
 
 def blur(tmp_poster, r, table, db, guid):
