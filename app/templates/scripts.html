@@ -142,7 +142,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Restore Posters</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Restore Film Posters</h6>
     </div>
     <div class="card-body">
         <p>
@@ -159,6 +159,27 @@
         <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
     </div>
 </div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Restore TV Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_episode_restore') }}" class="btn btn-primary btn-icon-split">
+                <span class="icon text-white-50">
+              <i class="fas fa-film"></i>
+          </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p></p>
+        <p>If you don't like the banners or want to try a different style, this script will restore your posters. First it will try to restore from a local backup, if this isn't enabled or a poster doesn't have a local backup file for whatever reason it will fallback to themoviedb to find a poster for you.</p>
+        <p></p>
+        <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
+    </div>
+</div>
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Hide 4K</h6>

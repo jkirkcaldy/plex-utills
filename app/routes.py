@@ -371,6 +371,7 @@ def help():
     import re
     import requests
     import shutil 
+    from pathlib import PureWindowsPath, PurePosixPath
     try:
         os.remove("app/support.zip")
         os.remove('./app/static/img/poster.png')
@@ -406,13 +407,8 @@ def help():
         imgdir_exists = os.path.exists(imgdir)
         if imgdir_exists == False:
             os.mkdir('./app/static/img')
-        if config[0].manualplexpath == 1:
-            newdir = os.path.dirname(re.sub(config[0].manualplexpath, '/films', i.media[0].parts[0].file))+'/'
-        else:
-            newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
+
         log.debug(i.media[0].parts[0].file)
-        log.debug(newdir)
-        backup = os.path.exists(newdir+'poster_bak.png')
         imgurl = i.posterUrl
         img = requests.get(imgurl, stream=True)
         filename = "poster.png"
@@ -435,11 +431,17 @@ def help():
         plex_filepath = i.media[0].parts[0].file
         filmtitle = i.title
         log.debug(config[0].manualplexpath)
-        
-        if config[0].manualplexpath == 1:
-            newdir = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
-        else:
-            newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
+        try:
+            p = PureWindowsPath(i.media[0].parts[0].file)
+            p1 = re.findall('[A-Z]', p.parts[0])
+            if p1 != []:
+                newdir = PurePosixPath('/films', *p.parts[1:])
+            elif config[0].manualplexpath == 1:
+                newdir = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
+            else:
+                newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
+        except:
+            newdir = 'Can not be converted'
     log.debug(newdir)
     return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, pageheadding='Help', version=version)
 

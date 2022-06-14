@@ -182,7 +182,7 @@ def get_plex_hdr(i, plex):
                 hdr_version='HDR'
                 i.addLabel('HDR', locked=False)
             else:
-                hdr_version = 'None'
+                hdr_version = 'none'
             return hdr_version
         except IndexError:
             pass
@@ -218,23 +218,27 @@ def scan_files(config, i, plex):
         file = '/films'+i.media[0].parts[0].file
     else:
         file = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
+    logger.debug(file)
     m = MediaInfo.parse(file, output='JSON')
     x = json.loads(m)
     hdr_version = get_plex_hdr(i, plex)
-    try:
-        hdr_version = x['media']['track'][1]['HDR_Format_String']
-    except (KeyError, IndexError):
-        if "dolby" not in str.lower(hdr_version):
-            try:
-                hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
-            except (KeyError, IndexError):
+    if hdr_version != 'none':
+        try:
+            hdr_version = x['media']['track'][1]['HDR_Format_String']
+        except (KeyError, IndexError):
+            if "dolby" not in str.lower(hdr_version):
                 try:
-                    hdr_version = x['media']['track'][1]['HDR_Format_Commercial_IfAny']
+                    hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
                 except (KeyError, IndexError):
                     try:
-                        hdr_version = x['media']['track'][1]['HDR_Format_Compatibillity']
-                    except:
-                        pass
+                        hdr_version = x['media']['track'][1]    ['HDR_Format_Commercial_IfAny']
+                    except (KeyError, IndexError):
+                        try:
+                            hdr_version = x['media']['track'][1]    ['HDR_Format_Compatibillity']
+                        except:
+                            pass
+    elif not hdr_version:
+        hdr_version = 'none'
     audio = "unknown"
     try:
         while True:

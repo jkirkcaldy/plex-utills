@@ -24,6 +24,7 @@ log = logging.getLogger('Application')
 b_dir = '/config/backup/' 
 
 def setup_helper():
+    plexpath = ''
     def continue_setup():
         def add_new_columns():
             log.debug('Adding new Columns')
