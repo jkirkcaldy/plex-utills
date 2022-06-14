@@ -653,7 +653,7 @@ def tv_episode_poster(epwebhook, poster):
             size = ep.media[0].parts[0].size
             res = ep.media[0].videoResolution 
             hdr = module.get_plex_hdr(ep, plex)
-            if (res == '4k' or hdr != 'None'):
+            if (res == '4k' or hdr != 'none'):
                 if poster == "":
                     tmp_poster = re.sub('plex://episode/', '', guid)+'.png'
                     tmp_poster = module.get_poster(i, tmp_poster, title)

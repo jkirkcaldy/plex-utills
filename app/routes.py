@@ -451,7 +451,7 @@ def recently_added():
         data = request.json
         log.debug(data)
         try:
-            if 'tautulli' in data['server']:
+            if 'tautulli' in str.lower(data['server']):
                 title = data['title']
                 mediatype = data['type']
                 guid = data['id']
