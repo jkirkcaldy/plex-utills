@@ -486,7 +486,7 @@ def tv_episode_poster(epwebhook, poster):
                 logger.error('DTS:X Poster error: '+repr(e))
 
         def decision_tree(tmp_poster):
-            banners = module.check_tv_banners(tmp_poster, img_title)
+            banners = module.check_tv_banners(i, tmp_poster, img_title)
             banner_4k = banners[0]
             audio_banner = banners[1]
             hdr_banner = banners[2]
@@ -586,7 +586,7 @@ def tv_episode_poster(epwebhook, poster):
                     add_banner(tmp_poster)
                 else:
                     logger.debug(ep.title+' Has banner') 
-            rechk_banners = module.check_tv_banners(tmp_poster, img_title)
+            rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
             if True not in rechk_banners:
                 try:
                     os.remove(tmp_poster)
@@ -2204,7 +2204,7 @@ def spoilers(guid):
                             i.uploadPoster(filepath=poster)
                 else:
                     module.get_poster(i, tmp_poster, title)
-                    banners = module.check_tv_banners(tmp_poster, img_title)
+                    banners = module.check_tv_banners(i, tmp_poster, img_title)
                     blurred = 0
                     season = str(i.parentIndex)
                     episode = str(i.index)

@@ -402,7 +402,7 @@ def blur(tmp_poster, r, table, db, guid):
     db.session.commit()
     return poster
 
-def check_tv_banners(tmp_poster, img_title):
+def check_tv_banners(i, tmp_poster, img_title):
     size = (1280,720)
     logger.debug(tmp_poster)
     size = (1280,720)
@@ -413,12 +413,22 @@ def check_tv_banners(tmp_poster, img_title):
     logger.debug(img_title+' Checking for Banners')
     try:
         size = (1280,720)
-        background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
+        background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
         background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
         background = Image.fromarray(background)
         background = background.resize(size,Image.LANCZOS)
     except OSError as e:
         logger.error(e)
+        try:    
+            title = img_title
+            get_poster(i, tmp_poster, title)
+            size = (1280,720)
+            background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+            background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+            background = Image.fromarray(background)
+            background = background.resize(size,Image.LANCZOS)
+        except Exception as e:
+            logger.critical("Check TV Banners: "+repr(e))
 
     # 4K banner box
     bannerchk = background.crop(box_4k)
