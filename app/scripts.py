@@ -653,7 +653,7 @@ def tv_episode_poster(epwebhook, poster):
             size = ep.media[0].parts[0].size
             res = ep.media[0].videoResolution 
             hdr = module.get_plex_hdr(ep, plex)
-            if res == '4k' or hdr != 'None':
+            if (res == '4k' or hdr != 'None'):
                 if poster == "":
                     tmp_poster = re.sub('plex://episode/', '', guid)+'.png'
                     tmp_poster = module.get_poster(i, tmp_poster, title)
@@ -674,17 +674,21 @@ def tv_episode_poster(epwebhook, poster):
                                 new_poster = check_for_new_poster(tmp_poster)
                                 if new_poster == 'True':
                                     decision_tree(tmp_poster)
+                                    r = ep_table.query.filter(ep_table.guid == guid).all()
                                     module.upload_poster(tmp_poster, title, db, r, table, i)
                         else:
                             decision_tree(tmp_poster)
+                            r = ep_table.query.filter(ep_table.guid == guid).all()
                             module.upload_poster(tmp_poster, title, db, r, table, i)
                     else:
                         check_for_new_poster(tmp_poster)                    
                         decision_tree(tmp_poster)
+                        r = ep_table.query.filter(ep_table.guid == guid).all()
                         module.upload_poster(tmp_poster, title, db, r, table, i)
                 except IndexError: 
                     check_for_new_poster(tmp_poster)
                     decision_tree(tmp_poster)
+                    r = ep_table.query.filter(ep_table.guid == guid).all()
                     module.upload_poster(tmp_poster, title, db, r, table, i)                   
 
 
