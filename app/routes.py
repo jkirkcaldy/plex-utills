@@ -457,15 +457,15 @@ def recently_added():
                 guid = data['id']
                 action = data['action']
                 log.debug(title+" "+mediatype+" "+guid+" "+action)
-                if mediatype == 'episode':
+                if (mediatype == 'episode' and action != 'watched'):
                     log.debug('running episode webhook')
                     threading.Thread(target=scripts.tv_episode_poster(guid, ''),    name='TV_webhook').start()
                     return 'ok', 200
-                #elif action == 'watched':
-                #    from time import sleep
-                #    sleep(600)
-                #    threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start   ()                    
-                #    return 'ok', 200
+                elif (mediatype == 'episode' and action == 'watched'):
+                    from time import sleep
+                    sleep(600)
+                    threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start   ()                    
+                    return 'ok', 200
                 else:
                     threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
                     threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').   start()
