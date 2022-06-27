@@ -177,7 +177,7 @@ def posters4k(webhooktitle):
             except OSError as e:
                 logger.error('4K poster error: '+repr(e))                          
 
-        def decision_tree(tmp_poster, banners):
+        def decision_tree(tmp_poster, banners, new_poster):
             
             wide_banner = banners[0]
             mini_banner = banners[1]
@@ -318,10 +318,10 @@ def posters4k(webhooktitle):
                     logger.debug('Film not in database yet')
                     pass
 
-        def process(tmp_poster):
+        def process(tmp_poster, new_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
-            decision_tree(tmp_poster, banners)
+            decision_tree(tmp_poster, banners, new_poster)
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
@@ -352,14 +352,14 @@ def posters4k(webhooktitle):
                             or new_poster == True
                             }:
                             logger.debug('Processing '+i.title)
-                            process(tmp_poster)                          
+                            process(tmp_poster, new_poster)                          
                         else:
                             logger.info(title+' has been processed and the file has not changed, skiping')
                     except Exception as e:
                         logger.error(repr(e))
                 else:
                     logger.debug(title+' not in database') 
-                    process(tmp_poster)
+                    process(tmp_poster, new_poster)
             try:
                 timed()
             except TimeoutError:
