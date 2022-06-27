@@ -18,7 +18,7 @@ import unicodedata
 import cv2
 import random
 import string
-from app.timeout import timeout
+
 
 def setup_logger(logger_name, log_file):
     import sqlite3
@@ -177,7 +177,7 @@ def posters4k(webhooktitle):
             except OSError as e:
                 logger.error('4K poster error: '+repr(e))                          
 
-        def decision_tree(tmp_poster, banners, new_poster):
+        def decision_tree(tmp_poster, banners):
             
             wide_banner = banners[0]
             mini_banner = banners[1]
@@ -318,31 +318,30 @@ def posters4k(webhooktitle):
                     logger.debug('Film not in database yet')
                     pass
 
-        def process(tmp_poster, new_poster):
+        def process(tmp_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
-            decision_tree(tmp_poster, banners, new_poster)
+            decision_tree(tmp_poster, banners)
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
         for i in films.search(title=webhooktitle):
-            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
-            i.title = re.sub('#', '', i.title)
-            logger.info(i.title)           
-            title = i.title
-            guid = str(i.guid)
-            guids = str(i.guids)
-            g = guids
-            size = i.media[0].parts[0].size
-            res = i.media[0].videoResolution    
-            #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
-            t = re.sub('plex://movie/', '', guid)
-            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-            tmp_poster = module.get_poster(i, tmp_poster, title)     
-            r = film_table.query.filter(film_table.guid == guid).all()
-            table = film_table
-            @timeout(15)
-            def timed():
+            try:
+                i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
+                i.title = re.sub('#', '', i.title)
+                logger.info(i.title)           
+                title = i.title
+                guid = str(i.guid)
+                guids = str(i.guids)
+                g = guids
+                size = i.media[0].parts[0].size
+                res = i.media[0].videoResolution    
+                #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
+                t = re.sub('plex://movie/', '', guid)
+                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                tmp_poster = module.get_poster(i, tmp_poster, title)     
+                r = film_table.query.filter(film_table.guid == guid).all()
+                table = film_table
                 if r:
                     new_poster = check_for_new_poster(tmp_poster)
                     try:
@@ -352,19 +351,16 @@ def posters4k(webhooktitle):
                             or new_poster == True
                             }:
                             logger.debug('Processing '+i.title)
-                            process(tmp_poster, new_poster)                          
+                            process(tmp_poster)                          
                         else:
                             logger.info(title+' has been processed and the file has not changed, skiping')
                     except Exception as e:
                         logger.error(repr(e))
                 else:
                     logger.debug(title+' not in database') 
-                    process(tmp_poster, new_poster)
-            try:
-                timed()
-            except TimeoutError:
-                logger.error('Timed out')
-
+                    process(tmp_poster)
+            except Exception as e:
+                logger.error(repr(e))
         dirpath = '/tmp/'
         for files in os.listdir(dirpath):
             if files.endswith(".png"):
