@@ -425,7 +425,14 @@ def help():
             backup_poster = '/static/img/poster_not_found.png'
         return backup_poster
 
-    for i in films.search(sort='random', limit='1'):
+    advanced_filter = {
+        'or': [
+            {'resolution': '4k'},
+            {'hdr': True}
+        ]
+    }
+
+    for i in films.search(sort='random', limit='1', filters=advanced_filter):
         backup_poster = get_poster()
         log.debug('Running help script')
         plex_filepath = i.media[0].parts[0].file
