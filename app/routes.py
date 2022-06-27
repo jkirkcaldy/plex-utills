@@ -372,13 +372,24 @@ def help():
     import requests
     import shutil 
     from pathlib import PureWindowsPath, PurePosixPath
+    file_paths = './app/static/img/tmp/'
+    for root, dirs, files in os.walk(file_paths):
+        #print(files)
+        for f in files:
+            #print(f)
+            #f = filename
+            
+            if f.endswith('.png'):# and 'poster_not_found' not in f):
+                print(f)
+                os.remove(file_paths+f)   
     try:
         os.remove("app/support.zip")
+     
         os.remove('./app/static/img/poster.png')
         os.remove('./app/static/img/poster_bak.png')
     except FileNotFoundError as e:
         pass
-    
+
     config = Plex.query.filter(Plex.id == '1')
     plexserver = PlexServer(config[0].plexurl, config[0].token)
     mpath = [f for f in os.listdir('/films') if not f.startswith('.')]
@@ -403,27 +414,29 @@ def help():
 
     
     def get_poster():
-        imgdir = './app/static/img'
+        guid = str(i.guid)
+        imgdir = './app/static/img/tmp/'
         imgdir_exists = os.path.exists(imgdir)
         if imgdir_exists == False:
-            os.mkdir('./app/static/img')
+            os.mkdir('./app/static/img/tmp')
 
         log.debug(i.media[0].parts[0].file)
         imgurl = i.posterUrl
         img = requests.get(imgurl, stream=True)
+        fname = re.sub('plex://movie/', '', guid)+'.png'
         filename = "poster.png"
         if img.status_code == 200:
             img.raw.decode_content = True
             with open(filename, 'wb') as f:
                 shutil.copyfileobj(img.raw, f) 
-        shutil.copy(filename, './app/static/img/poster.png')
-        guid = str(i.guid)
+        shutil.copy(filename, './app/static/img/tmp/'+fname)
+        
         r = film_table.query.filter(film_table.guid == guid).all()
         if r:
             backup_poster = r[0].poster
         else:
-            backup_poster = '/static/img/poster_not_found.png'
-        return backup_poster
+            backup_poster = '/static/img/404/poster_not_found.png'
+        return backup_poster, fname
 
     advanced_filter = {
         'or': [
@@ -433,7 +446,9 @@ def help():
     }
 
     for i in films.search(sort='random', limit='1', filters=advanced_filter):
-        backup_poster = get_poster()
+        p = get_poster()
+        backup_poster = p[0]
+        current_poster = '/static/img/tmp/'+p[1]
         log.debug('Running help script')
         plex_filepath = i.media[0].parts[0].file
         filmtitle = i.title
@@ -450,7 +465,7 @@ def help():
         except:
             newdir = 'Can not be converted'
     log.debug(newdir)
-    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, pageheadding='Help', version=version)
+    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, current_poster=current_poster, pageheadding='Help', version=version)
 
 @app.route('/webhook',methods=['POST'])
 def recently_added():
