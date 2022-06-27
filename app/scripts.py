@@ -758,7 +758,7 @@ def restore_episodes_from_database():
                         b_file = re.sub('static', '/config', b_file)
                         if b_file:
                             logger.debug(b_file)
-                            banners = module.check_tv_banners(b_file, img_title)
+                            banners = module.check_tv_banners(i, b_file, img_title)
                             logger.debug(banners)
                             if True not in banners:
                                 logger.debug('No banners detected')
@@ -846,7 +846,7 @@ def restore_episode_from_database(var):
                         b_file = re.sub('static', '/config', b_file)
                         if b_file:
                             logger.debug(b_file)
-                            banners = module.check_tv_banners(b_file, img_title)
+                            banners = module.check_tv_banners(i, b_file, img_title)
                             logger.debug(banners)
                             if True not in banners:
                                 logger.debug('No banners detected')
