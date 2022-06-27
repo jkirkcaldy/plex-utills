@@ -1444,17 +1444,18 @@ def fill_database():
                         m = MediaInfo.parse(file, output='JSON')
                         x = json.loads(m)
                         hdr_version = module.get_plex_hdr(i, plex)
-                        try:
-                            hdr_version = x['media']['track'][1]['HDR_Format_String']
-                        except (KeyError, IndexError):
-                            if "dolby" not in str.lower(hdr_version):
-                                try:
-                                    hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
-                                except (KeyError, IndexError):
+                        if hdr_version != 'none':
+                            try:
+                                hdr_version = x['media']['track'][1]['HDR_Format_String']
+                            except (KeyError, IndexError):
+                                if "dolby" not in str.lower(hdr_version):
                                     try:
-                                        hdr_version = x['media']['track'][1]['HDR_Format_Commercial_IfAny']
+                                        hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
                                     except (KeyError, IndexError):
-                                        pass
+                                        try:
+                                            hdr_version = x['media']['track'][1]['HDR_Format_Commercial_IfAny']
+                                        except (KeyError, IndexError):
+                                            pass
                         audio = ""
                         try:
                             while True:
