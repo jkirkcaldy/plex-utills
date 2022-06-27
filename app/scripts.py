@@ -18,7 +18,7 @@ import unicodedata
 import cv2
 import random
 import string
-
+from app.timeout import timeout
 
 def setup_logger(logger_name, log_file):
     import sqlite3
@@ -341,24 +341,29 @@ def posters4k(webhooktitle):
             tmp_poster = module.get_poster(i, tmp_poster, title)     
             r = film_table.query.filter(film_table.guid == guid).all()
             table = film_table
-            if r:
-                new_poster = check_for_new_poster(tmp_poster)
-                try:
-                    if {
-                        r[0].checked == 0
-                        or str(r[0].size) != str(size)
-                        or new_poster == True
-                        }:
-                        logger.debug('Processing '+i.title)
-                        process(tmp_poster)                          
-                    else:
-                        logger.info(title+' has been processed and the file has not changed, skiping')
-                except Exception as e:
-                    logger.error(repr(e))
-            else:
-                logger.debug(title+' not in database') 
-                process(tmp_poster)
-
+            @timeout(15)
+            def timed():
+                if r:
+                    new_poster = check_for_new_poster(tmp_poster)
+                    try:
+                        if {
+                            r[0].checked == 0
+                            or str(r[0].size) != str(size)
+                            or new_poster == True
+                            }:
+                            logger.debug('Processing '+i.title)
+                            process(tmp_poster)                          
+                        else:
+                            logger.info(title+' has been processed and the file has not changed, skiping')
+                    except Exception as e:
+                        logger.error(repr(e))
+                else:
+                    logger.debug(title+' not in database') 
+                    process(tmp_poster)
+            try:
+                timed()
+            except TimeoutError:
+                logger.error('Timed out')
 
         dirpath = '/tmp/'
         for files in os.listdir(dirpath):
