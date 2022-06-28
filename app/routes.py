@@ -494,7 +494,7 @@ def recently_added():
                     return 'ok', 200
         except:
             if 'series' in data:
-                tv_show = data['series']['title']
+                tv_show = data['series'][0]['title']
                 mediatype = 'episode'
                 season = data['episodes'][0]['seasonNumber']
                 episode = data['episodes'][0]['episodeNumber']
