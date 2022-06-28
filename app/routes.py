@@ -499,6 +499,7 @@ def recently_added():
                 season = data['episodes'][0]['seasonNumber']
                 episode = data['episodes'][0]['episodeNumber']
                 guid = scripts.get_tv_guid(tv_show, season, episode)
+                log.debug(guid)
                 threading.Thread(target=scripts.tv_episode_poster(guid, ''), name='TV_webhook').    start()
                 return 'ok', 200
             elif 'movie' in data:
