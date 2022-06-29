@@ -246,9 +246,9 @@ def posters4k(webhooktitle):
                         dolby_vision(tmp_poster)
                     elif "hdr10+" in hdr:
                         hdr10(tmp_poster)
-                    elif hdr == "none":
+                    elif str.lower(hdr) == "none":
                         pass
-                    elif hdr != "":
+                    elif (hdr != "" and str.lower(hdr) != 'none'):
                         hdrp(tmp_poster)
                 if 'dolby vision' in hdr:
                     i.addLabel('Dolby Vision', locked=False)
@@ -266,7 +266,7 @@ def posters4k(webhooktitle):
                     if wide_banner == mini_banner == False:
                         add_banner(tmp_poster)
                     else:
-                        logger.debug(i.title+' Has banner')                 
+                        logger.debug(i.title+' Has 4k banner')                 
 
             audio_hdr = database_decision(banners)
             audio = audio_hdr[0]
@@ -275,24 +275,23 @@ def posters4k(webhooktitle):
             banner_decision(audio, hdr)
 
         def check_for_new_poster(tmp_poster):
-            if r:
-                new_poster = 'False'
+            new_poster = 'False'
+            try:
+                poster_file = r[0].poster
+                poster_file = re.sub('static', '/config', poster_file)
+                logger.debug(poster_file)
                 try:
-                    poster_file = r[0].poster
-                    poster_file = re.sub('static', '/config', poster_file)
-                    logger.debug(poster_file)
-                    try:
-                        bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
-                        bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
-                        bak_poster = Image.fromarray(bak_poster)
-                        bak_poster_hash = imagehash.average_hash(bak_poster)
-                        poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-                        poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
-                        poster = Image.fromarray(poster)
-                        poster_hash = imagehash.average_hash(poster)
-                    except SyntaxError as e:
+                    bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+                    bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+                    bak_poster = Image.fromarray(bak_poster)
+                    bak_poster_hash = imagehash.average_hash(bak_poster)
+                    poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                    poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+                    poster = Image.fromarray(poster)
+                    poster_hash = imagehash.average_hash(poster)
+                except SyntaxError as e:
                         logger.error('Check for new poster Syntax Error: '+repr(e))
-                    except OSError as e:
+                except OSError as e:
                         logger.error('Check for new poster OSError: '+repr(e))
                         if 'FileNotFoundError'  or 'Errno 2 'in e:
                             logger.debug(i.title+' - Poster Not found')
@@ -302,21 +301,22 @@ def posters4k(webhooktitle):
                             logger.debug(i.title)
                             logger.warning('Check for new Poster: '+repr(e))
 
-                         
-                    if poster_hash - bak_poster_hash > cutoff:
-                        logger.debug(i.title+' - Poster has changed')
-                        
-                        new_poster = 'True'
-                        return new_poster                      
-                    else:
-                        logger.debug('Poster has not changed')
-                        return new_poster
-                        
+                     
+                if poster_hash - bak_poster_hash > cutoff:
+                    logger.debug(i.title+' - Poster has changed')
                     
-                except Exception as e:
-                    logger.error('Check for new poster Exception: '+repr(e))
-                    logger.debug('Film not in database yet')
-                    pass
+                    new_poster = 'True'
+                    return new_poster                      
+                else:
+                    logger.debug('Poster has not changed')
+                    return new_poster
+                    
+                
+            except Exception as e:
+                logger.error('Check for new poster Exception: '+repr(e))
+                logger.debug('Film not in database yet')
+                new_poster = 'True'
+                return new_poster
 
         def process(tmp_poster):
             size = (2000, 3000)
