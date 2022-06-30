@@ -14,7 +14,7 @@ import json
 from tautulli import RawAPI
 import unicodedata
 #from flask_sqlalchemy import sqlalchemy
-
+from pathlib import PureWindowsPath, PurePosixPath
 import cv2
 import random
 import string
@@ -214,8 +214,12 @@ def upload_poster(tmp_poster, title, db, r, table, i):
 
 def scan_files(config, i, plex):
     logger.debug('Scanning '+i.title)
-    if config[0].plexpath == '/':
-        file = '/films'+i.media[0].parts[0].file
+    p = PureWindowsPath(i.media[0].parts[0].file)
+    p1 = re.findall('[A-Z]', p.parts[0])
+    if p1 != []:
+        file = PurePosixPath('/films', *p.parts[1:])
+    elif config[0].manualplexpath == 1:
+        file = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
     else:
         file = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
     logger.debug(file)

@@ -457,15 +457,23 @@ def help():
             p = PureWindowsPath(i.media[0].parts[0].file)
             p1 = re.findall('[A-Z]', p.parts[0])
             if p1 != []:
+                log.debug(p1)
                 newdir = PurePosixPath('/films', *p.parts[1:])
+                log.debug(newdir)
             elif config[0].manualplexpath == 1:
                 newdir = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
             else:
                 newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
         except:
             newdir = 'Can not be converted'
-    log.debug(newdir)
-    return render_template('help.html', pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, current_poster=current_poster, pageheadding='Help', version=version)
+        log.debug(newdir)
+        if os.path.exists(newdir) == True:
+            exists = 'True'
+            log.debug("PATH EXISTS")
+        else:
+            exists = 'False'
+            log.debug("PATH DOES NOT EXIST")
+    return render_template('help.html', exists=exists, pagetitle='Help', plex=config, plex_filepath=plex_filepath, filmtitle=filmtitle, newdir=newdir, mpath=mpath, backup_poster=backup_poster, current_poster=current_poster, pageheadding='Help', version=version)
 
 @app.route('/webhook',methods=['POST'])
 def recently_added():
