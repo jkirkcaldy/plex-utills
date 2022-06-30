@@ -365,8 +365,14 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
         pass
     logger.debug('Adding '+i.title+' to database')
     film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0')
-    db.session.add(film)
-    db.session.commit()
+    try:
+        db.session.add(film)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise logger.error(Exception('Database Roll back error'))
+    finally:
+        db.session.close()
 
 def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     logger.debug('Updating '+title+' in database')
@@ -379,17 +385,23 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
             b_file = re.sub('/config', 'static', b_file)
     else:
         b_file = r[0].poster
-    
-    logger.debug('Updating '+title+' in database')
-    row = r[0].id
-    film = table.query.get(row)
-    film.size = size
-    film.res = res
-    film.hdr = hdr
-    film.audio = audio
-    film.poster = b_file
-    film.checked = '0'
-    db.session.commit()
+    try:
+        logger.debug('Updating '+title+' in database')
+        row = r[0].id
+        film = table.query.get(row)
+        film.size = size
+        film.res = res
+        film.hdr = hdr
+        film.audio = audio
+        film.poster = b_file
+        film.checked = '0'
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise logger.error(Exception('Database Roll back error'))
+        
+    finally:
+        db.session.close()
 
 def blur(tmp_poster, r, table, db, guid):
     poster = re.sub('.png', '.blurred.png', tmp_poster)

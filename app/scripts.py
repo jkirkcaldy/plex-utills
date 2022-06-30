@@ -305,7 +305,7 @@ def posters4k(webhooktitle):
                 if poster_hash - bak_poster_hash > cutoff:
                     logger.debug(i.title+' - Poster has changed')
                     
-                    new_poster = 'True'
+                    new_poster = 'BLANK'
                     return new_poster                      
                 else:
                     logger.debug('Poster has not changed')
@@ -351,7 +351,16 @@ def posters4k(webhooktitle):
                             or new_poster == True
                             }:
                             logger.debug('Processing '+i.title)
-                            process(tmp_poster)                          
+                            process(tmp_poster)
+                        elif (new_poster == 'BLANK' and config[0].tmdb_restore == 1):
+                            logger.warning("Poster has returned a blank image, restoring from TMDB and continuing")
+                            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                            g = module.get_tmdb_guid(g)
+                            poster = module.tmdb_poster_path(b_dir, i, g, episode, season)
+                            tmp_poster = module.get_tmdb_poster(tmp_poster, poster)
+                            process(tmp_poster)
+                        elif (new_poster == 'BLANK' and config[0].tmdb_restore == 1):
+                            logger.error("Poster has returned a blank image, enable TMDB restore to continue with a poster from TheMovieDB")
                         else:
                             logger.info(title+' has been processed and the file has not changed, skiping')
                     except Exception as e:
@@ -2243,3 +2252,14 @@ def get_tv_guid(tv_show, season, episode):
     tv = plex.library.section(config[0].tvlibrary)
     for ep in tv.search(filters={"show.title":tv_show, "episode.index":episode, "season.index":season}):
         return ep.guid
+
+
+def db_rollback():
+    try:
+    <use session>
+    session.commit()
+    except:
+       session.rollback()
+       raise <-- you can inspect your root error, if you log/print this exception
+    finally:
+       session.close()  # optional, depends on use case
