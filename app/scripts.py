@@ -2254,12 +2254,3 @@ def get_tv_guid(tv_show, season, episode):
         return ep.guid
 
 
-def db_rollback():
-    try:
-    <use session>
-    session.commit()
-    except:
-       session.rollback()
-       raise <-- you can inspect your root error, if you log/print this exception
-    finally:
-       session.close()  # optional, depends on use case
