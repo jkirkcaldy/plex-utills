@@ -81,6 +81,7 @@ a_box = (0,1608,493,1766)
 cutoff = 10
 
 
+
 def posters4k(webhooktitle):
     from app.models import Plex, film_table
     from app import db
@@ -190,16 +191,18 @@ def posters4k(webhooktitle):
                 logger.debug("Database Decision")
                 audio = hdr = ''
                 if config[0].skip_media_info == 1:
-                    if str(r[0].guid) == guid and str(r[0].size) != str(size):
-                        logger.debug(title+" has changed")
+                    if r:
                         hdr = module.get_plex_hdr(i, plex)
                         audio = i.media[0].audioCodec
-                        module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
-                    elif not r:
+                        if str(r[0].guid) == guid and str(r[0].size) != str(size):
+                            logger.debug(title+" has changed")
+
+                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                    else:
                         logger.info(title+" is not in database, skip media info scan is true")
                         hdr = module.get_plex_hdr(i, plex)
                         audio = i.media[0].audioCodec
-                        module.insert_intoTable(guid, guids, size, res,res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred)
+                        module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                 else:
                     if r:
                         if (str(r[0].guid) == guid and str(r[0].size) != str(size)):
@@ -219,7 +222,6 @@ def posters4k(webhooktitle):
                                 audio = r[0].audio
                                 hdr = r[0].hdr
                                 module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
-
                     elif not r:
                         logger.info(title+" is not in database, skip media info scan is false")
                         scan = module.scan_files(config, i, plex)
@@ -241,18 +243,18 @@ def posters4k(webhooktitle):
                         dtsx_poster(tmp_poster)
 
                 if (hdr_banner == False and config[0].hdr == 1):
-                    logger.debug("HDR") 
-                    if 'dolby vision' in hdr:
+                    logger.debug("HDR: "+hdr) 
+                    if 'dolby vision' in str.lower(hdr):
                         dolby_vision(tmp_poster)
-                    elif "hdr10+" in hdr:
+                    elif "hdr10+" in str.lower(hdr):
                         hdr10(tmp_poster)
                     elif str.lower(hdr) == "none":
                         pass
                     elif (hdr != "" and str.lower(hdr) != 'none'):
                         hdrp(tmp_poster)
-                if 'dolby vision' in hdr:
+                if 'dolby vision' in str.lower(hdr):
                     i.addLabel('Dolby Vision', locked=False)
-                elif 'hdr10+' in hdr:
+                elif 'hdr10+' in str.lower(hdr):
                     i.addLabel('HDR10+', locked=False)
                 elif hdr != '':
                     i.addLabel('HDR', locked=False)
@@ -304,8 +306,7 @@ def posters4k(webhooktitle):
                      
                 if poster_hash - bak_poster_hash > cutoff:
                     logger.debug(i.title+' - Poster has changed')
-                    
-                    new_poster = 'BLANK'
+                    new_poster = 'True'
                     return new_poster                      
                 else:
                     logger.debug('Poster has not changed')
@@ -314,18 +315,23 @@ def posters4k(webhooktitle):
                 
             except Exception as e:
                 logger.error('Check for new poster Exception: '+repr(e))
-                logger.debug('Film not in database yet')
-                new_poster = 'True'
+                if "!_src.empty() in function 'cvtColor'" in e:
+                    new_poster = 'BLANK'
+                else:
+                    logger.debug('Film not in database yet')
+                    new_poster = 'True'
                 return new_poster
 
         def process(tmp_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
             decision_tree(tmp_poster, banners)
+            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, b_dir)
+            r = table.query.filter(table.guid == guid).all()
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title=webhooktitle):
+        for i in films.search(title=webhooktitle):#, limit='1'):
             try:
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
@@ -336,7 +342,6 @@ def posters4k(webhooktitle):
                 g = guids
                 size = i.media[0].parts[0].size
                 res = i.media[0].videoResolution    
-                #t = re.sub(r'[\\/*?:"<>| ]', '_', i.title)
                 t = re.sub('plex://movie/', '', guid)
                 tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
                 tmp_poster = module.get_poster(i, tmp_poster, title)     
@@ -385,6 +390,28 @@ def posters4k(webhooktitle):
                     run_script()
         except IndexError:
             pass
+
+def guid_to_title(var):
+    from app.models import Plex, film_table
+    from app import db
+    from app import module
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    def run_script():
+        for i in films.search(guid=var):
+            title = i.title
+            posters4k(title)
+    
+    lib = config[0].filmslibrary.split(',')
+    logger.debug(lib)
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    films = plex.library.section(lib[l])
+                    run_script()
+        except IndexError:
+            pass   
 
 def tv_episode_poster(epwebhook, poster):
     from app.models import Plex, ep_table
@@ -1067,6 +1094,46 @@ def restore_single(var):
                     run_script()
         except IndexError:
             pass
+
+def restore_single_bannered(var):
+    from app.models import Plex, film_table
+    from app import db
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    msg = 'no message'
+    def run_script():
+        for i in films.search(guid=var):
+            title = i.title
+            guid = var
+            logger.info('restoring '+title)
+            logger.debug(guid)
+            
+            r = film_table.query.filter(film_table.guid == guid).all()
+            try:
+                b_file = re.sub('static', '/config', r[0].bannered_poster)
+                print(b_file)
+                i.uploadPoster(filepath=b_file)
+                row = r[0].id
+                film = film_table.query.get(row)
+                film.checked = '1'
+                db.session.commit()
+                msg = 'Re-uploading bannered poster.'
+                return msg
+            except Exception as e:
+                msg = repr(e)
+                logger.error(repr(e)) 
+                return msg
+    lib = config[0].filmslibrary.split(',')
+    logger.debug(lib)
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    films = plex.library.section(lib[l])
+                    msg = run_script()
+        except IndexError:
+            pass
+    return msg
 
 def hide4k():
     from app.models import Plex

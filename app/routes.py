@@ -60,6 +60,13 @@ def run_test():
 def run_posters4k():
     threading.Thread(target=scripts.posters4k_thread, name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
+@app.route('/rerun-posters4k/<path:var>', methods=['GET'])
+def rerun_posters4k(var):
+    log.debug(var)
+    threading.Thread(target=scripts.guid_to_title(var), name='4K Poster Script').start()   
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
     threading.Thread(target=scripts.tvposters4k_thread).start()   
@@ -635,6 +642,16 @@ def restore_episode_poster(var=""):
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
+@app.route('/restore/bannered_film/<path:var>')
+def restore_bannerred_poster(var=""):
+    #print(var)
+    msg = scripts.restore_single_bannered(var)
+    print(msg)
+    if 'error' not in str.lower(msg):
+        return render_template('result.html', message=msg, pagetitle='Restored', version=version)
+    else:
+        return render_template('result.html', message=msg, pagetitle='Error', version=version)
+
 @app.route('/restart_server')
 def restart_server():
     cmd = "supervisorctl restart gunicorn"
@@ -660,6 +677,7 @@ def delete_database():
             	"audio"	TEXT,
             	"poster"	TEXT NOT NULL,
             	"checked"	INTEGER,
+                "bannered_poster" TEXT,
             	PRIMARY KEY("ID" AUTOINCREMENT)
             ); """
     c.execute(query1)

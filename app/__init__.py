@@ -313,9 +313,17 @@ def setup_helper():
                 q1 = """ALTER TABLE episodes    
                         ADD COLUMN blurred INT
                         """   
+
                 c.execute(q1)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))                
+                log.debug(repr(e))  
+            try:
+                q2 = """ALTER TABLE films
+                        ADD COLUMN bannered_poster TEXT
+                        """ 
+                c.execute(q2)  
+            except sqlite3.OperationalError as e:
+                log.debug(repr(e))             
             c.close()
             continue_setup()
         except sqlite3.OperationalError as e:
@@ -332,6 +340,10 @@ def setup_helper():
         log.info('Backup directory exists')
     else:
         os.makedirs(b_dir+'/tv/episodes')
+    if os.path.exists(b_dir+'bannered_films'):
+        log.info('Bannered Film folder exists')
+    else:
+        os.makedirs(b_dir+'bannered_films')
 
 def update_scheduler():
     

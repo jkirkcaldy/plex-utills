@@ -87,7 +87,6 @@ def get_tmdb_poster(fname, poster):
         return b_file
 
 def check_banners(tmp_poster, size):
-    #size = (2000,3000)
     try:
         background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
         background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
@@ -188,27 +187,39 @@ def get_plex_hdr(i, plex):
             pass
 
 def upload_poster(tmp_poster, title, db, r, table, i):
+    
     try:
         if os.path.exists(tmp_poster) == True:
-            logger.debug('uploading poster')
-            i.uploadPoster(filepath=tmp_poster) 
             try:
-                row = r[0].id
-                film = table.query.get(row)
-                film.checked = '1'
-                db.session.commit()     
-            except IndexError as e:
-                logger.debug('Updating database to checked: '+repr(e))              
-            try:
-                os.remove(tmp_poster)
-            except FileNotFoundError:
-                pass   
+                img = Image.open(tmp_poster)
+                img.verify()
+                logger.debug('uploading poster')
+                i.uploadPoster(filepath=tmp_poster) 
+                try:
+                    row = r[0].id
+                    film = table.query.get(row)
+                    film.checked = '1'
+                    db.session.commit()     
+                except IndexError as e:
+                    logger.debug('Updating database to checked: '+repr(e))              
+                try:
+                    os.remove(tmp_poster)
+                except FileNotFoundError:
+                    pass  
+            except (IOError, SyntaxError) as e:
+              logger.error('Bad file: '+title)                 
         else:
             logger.error('Poster for '+title+" isn't here")
             row = r[0].id
             film = table.query.get(row)
             film.checked = '0'
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise logger.error(Exception('Database Roll back error'))
+            finally:
+                db.session.close()
     except Exception as e:
         logger.error("Can't upload the poster: "+repr(e))         
 
@@ -346,11 +357,14 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                 logger.warning("This didn't work")
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
-    if config[0].manualplexpath == 1:
-        newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
+    p = PureWindowsPath(i.media[0].parts[0].file)
+    p1 = re.findall('[A-Z]', p.parts[0])    
+    if p1 != []:
+        newdir = PurePosixPath('/films', *p.parts[1:])
+    elif config[0].manualplexpath == 1:
+        newdir = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
     else:
-        newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-    backup = os.path.exists(newdir+'poster_bak.png')            
+        newdir = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)           
     logger.debug(title+' '+hdr+' '+audio)
     if blurred == False:  
         b_file = backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
@@ -364,7 +378,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     except:
         pass
     logger.debug('Adding '+i.title+' to database')
-    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0')
+    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
     try:
         db.session.add(film)
         db.session.commit()
@@ -498,4 +512,21 @@ def check_tv_banners(i, tmp_poster, img_title):
     #background.save(tmp_poster)
     return banner_4k, audio_banner, hdr_banner
 
-
+def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, b_dir):
+    bname = re.sub('plex://movie/', '', guid)
+    banner_file = '/config/backup/bannered_films/'+bname+'.png'
+    logger.debug(banner_file)
+    shutil.copy(tmp_poster, banner_file)
+    try:
+        logger.debug('Updating '+title+' in database')
+        r = table.query.filter(table.guid == guid).all()
+        row = r[0].id
+        film = table.query.get(row)       
+        film.bannered_poster = re.sub('/config', 'static', banner_file)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(repr(e))
+        
+    finally:
+        db.session.close()

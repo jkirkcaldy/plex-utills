@@ -4,9 +4,18 @@
 
 <div class=" mb-4">
 
-  <p>Here are the episodes in the plex-utills database. Clicking on a poster will restore that poster. </p>
+  <p>Here are the episodes in the plex-utills database. Clicking on a poster will re-upload that poster. </p>
+  <p>Clicking on the title will reprocess that film.</p>
   <p>If you have changed a poster but it has not updated here, perform a full refresh (usually ctrl+Shift+R or ctrl+Shift+f5) of the page or clear your browser image cache.</p>
 
+  <p>
+    <a href="/restore" class="btn btn-warning btn-icon-split" id="restore_all">
+        <span class="icon text-white-50">
+          <i class="fas fa-exclamation"></i>
+      </span>
+        <span class="text">Restore All Films</span>
+    </a>
+</p>
 </div>
 
   <table id="data" class="table table-striped">
@@ -17,6 +26,7 @@
         <th>HDR Version</th>
         <th>Audio Track</th>
         <th>Poster</th>
+        <th>Bannered Poster</th>
         <th>Checked</th>
       </tr>
     </thead>
@@ -24,9 +34,9 @@
 
   <div class="card-body">
     <p>
-        <a href="/delete_database" class="btn btn-primary btn-icon-split" id="delete_database">
+        <a href="/delete_database" class="btn btn-warning btn-icon-split" id="delete_database">
             <span class="icon text-white-50">
-              <i class="fas fa-cog"></i>
+              <i class="fas fa-exclamation"></i>
           </span>
             <span class="text">Delete database</span>
         </a>
@@ -37,7 +47,7 @@
 <script>
 
   $(document).ready(function () {
-    $('#data').DataTable({
+    var table = $('#data').DataTable({
       ajax: '/api/data',
       serverSide: true,
       columns: [
@@ -46,37 +56,27 @@
         {data: 'hdr'},
         {data: 'audio'},
         {data: 'poster'},
+        {data: 'bannered_poster'},
         {data: 'checked'}
       ],
     });
   });
 </script>
+
 <script type="text/javascript">
   
   // JavaScript Code to Highlight any
   // row in the given table.
   document.getElementById('data')
       .addEventListener('click', function (item) {
+        // Added 'tbody' to prevent alert from firing when header row is clicked
+          $('#data tbody').on('click', 'tr', function() {
+              // $(this) is the <tr> element the user clicked
+              // td:last finds the last cell within that <tr>
+              alert($(this).find('td:eq(7)').text());
+          });
 
-          // To get tr tag 
-          // In the row where we click
-          var row = item.path[1];
-
-          var row_value = "";
-
-          for (var j = 0; j < row.cells.length; j++) {
-
-              row_value += row.cells[j].innerHTML;
-              row_value += " | ";
-          }
-
-          alert(row_value);
-
-          // Toggle the highlight
-          if (row.classList.contains('highlight'))
-              row.classList.remove('highlight');
-          else
-              row.classList.add('highlight');
       });
+
 </script>
 {% endblock %}

@@ -104,16 +104,44 @@ class film_table(db.Model):
     audio = db.Column(db.String)
     poster = db.Column(db.String)
     checked = db.Column(db.Integer)
+    bannered_poster = db.Column(db.String)
+    
+
+
 
     def to_dict(self):
-        return {
-            'title': self.title,
+
+        print(self.bannered_poster)
+        guid = re.sub('static/backup/films/', '', self.poster)
+        guid = re.sub('.png', '', guid)
+        rerun = '/rerun-posters4k/'+guid
+        restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-undo-alt"></i>
+          </span>
+            <span class="text">"""+self.title+"""</span>
+        </a>
+        """
+        if self.bannered_poster == None:
+            return {
+            'title': restore_btn,
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
             'poster': "<a href='restore/film/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
-            'checked': self.checked
-        }
+            'checked': self.checked,
+            'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>" ,               
+            }
+        elif self.bannered_poster != None:
+            return {
+                'title': restore_btn,
+                'res': self.res,
+                'hdr': self.hdr,
+                'audio': self.audio,
+                'poster': "<a href='restore/film/"+self.guid+"'><img    height=150px src='"+self.poster+"'></a>",
+                'checked': self.checked,
+                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=150px src='"+self.bannered_poster+"'></a>",               
+            }
 
 class ep_table(db.Model):
     __tablename__ = 'episodes'
