@@ -161,16 +161,29 @@ class ep_table(db.Model):
 
     def to_dict(self):
         poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
-        season_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
-        return {
-            'title': self.title,
-            'res': self.res,
-            'hdr': self.hdr,
-            'audio': self.audio,
-            'poster': poster,
-            'season_poster': season_poster,
-            'checked': self.checked,
-            'blurred': self.blurred
-        }
+        
+        if self.bannered_poster == None:
+            return {
+                'title': self.title,
+                'res': self.res,
+                'hdr': self.hdr,
+                'audio': self.audio,
+                'poster': poster,
+                'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>",
+                'checked': self.checked,
+                'blurred': self.blurred
+            }
+        else:
+            bannered_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
+            return {
+                'title': self.title,
+                'res': self.res,
+                'hdr': self.hdr,
+                'audio': self.audio,
+                'poster': poster,
+                'bannered_poster': bannered_poster,
+                'checked': self.checked,
+                'blurred': self.blurred
+            }            
 
        

@@ -63,20 +63,4 @@
   });
 </script>
 
-<script type="text/javascript">
-  
-  // JavaScript Code to Highlight any
-  // row in the given table.
-  document.getElementById('data')
-      .addEventListener('click', function (item) {
-        // Added 'tbody' to prevent alert from firing when header row is clicked
-          $('#data tbody').on('click', 'tr', function() {
-              // $(this) is the <tr> element the user clicked
-              // td:last finds the last cell within that <tr>
-              alert($(this).find('td:eq(7)').text());
-          });
-
-      });
-
-</script>
 {% endblock %}
