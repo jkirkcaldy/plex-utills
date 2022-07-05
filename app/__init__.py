@@ -278,7 +278,7 @@ def setup_helper():
                     	"hdr"	TEXT,
                     	"audio"	TEXT,
                     	"poster"	TEXT NOT NULL,
-                        "season_poster" TEXT,
+                        "bannered_poster" TEXT,
                     	"checked"	INTEGER,
                         "blurred"   INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
@@ -320,7 +320,7 @@ def setup_helper():
                 log.debug(repr(e))  
             try:
                 q3 = """ALTER TABLE episodes    
-                        ADD COLUMN season_poster TEXT
+                        ADD COLUMN bannered_poster TEXT
                         """   
 
                 c.execute(q3)

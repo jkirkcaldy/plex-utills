@@ -211,7 +211,8 @@ def get_plex_hdr(i, plex):
         except IndexError:
             pass
 
-def upload_poster(tmp_poster, title, db, r, table, i): 
+def upload_poster(tmp_poster, title, db, r, table, i):
+    db.session.close() 
     try:
         if os.path.exists(tmp_poster) == True:
             try:
