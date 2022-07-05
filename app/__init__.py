@@ -278,6 +278,7 @@ def setup_helper():
                     	"hdr"	TEXT,
                     	"audio"	TEXT,
                     	"poster"	TEXT NOT NULL,
+                        "season_poster" TEXT,
                     	"checked"	INTEGER,
                         "blurred"   INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
@@ -318,6 +319,14 @@ def setup_helper():
             except sqlite3.OperationalError as e:
                 log.debug(repr(e))  
             try:
+                q3 = """ALTER TABLE episodes    
+                        ADD COLUMN season_poster TEXT
+                        """   
+
+                c.execute(q3)
+            except sqlite3.OperationalError as e:
+                log.debug(repr(e))                
+            try:
                 q2 = """ALTER TABLE films
                         ADD COLUMN bannered_poster TEXT
                         """ 
@@ -344,6 +353,10 @@ def setup_helper():
         log.info('Bannered Film folder exists')
     else:
         os.makedirs(b_dir+'bannered_films')
+    if os.path.exists(b_dir+'bannered_seasons'):
+        log.info('Bannered Season folder exists')
+    else:
+        os.makedirs(b_dir+'bannered_seasons')        
 
 def update_scheduler():
     

@@ -155,17 +155,20 @@ class ep_table(db.Model):
     hdr = db.Column(db.String)
     audio = db.Column(db.String)
     poster = db.Column(db.String)
+    season_poster = db.Column(db.String)
     checked = db.Column(db.Integer)
     blurred = db.Column(db.Integer)
 
     def to_dict(self):
         poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
+        season_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.season_poster+"'></a>"
         return {
             'title': self.title,
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
             'poster': poster,
+            'season_poster': season_poster,
             'checked': self.checked,
             'blurred': self.blurred
         }

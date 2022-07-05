@@ -167,6 +167,25 @@ def get_poster(i, tmp_poster, title):
     except Exception as e:
         logger.error('Get Poster Exception: '+repr(e))
 
+def get_season_poster(ep, tmp_poster, title, config):
+        logger.debug(ep.title+' Getting poster')
+        title = ep.title
+        imgurl = config[0].plexurl+ep.parentThumb
+        img = requests.get(imgurl, stream=True)
+        filename = tmp_poster
+        try:
+            if img.status_code == 200:
+                img.raw.decode_content = True
+                with open(filename, 'wb') as f:                        
+                    shutil.copyfileobj(img.raw, f)
+                return tmp_poster 
+            else:
+                logger.info("Get Poster: "+title+ 'cannot find the poster for this film')
+        except OSError as e:
+            logger.error('Get Poster OSError: '+repr(e))
+        except Exception as e:
+            logger.error('Get Poster Exception: '+repr(e))    
+
 def get_plex_hdr(i, plex):
     ekey = i.key
     m = plex.fetchItems(ekey)
@@ -174,20 +193,25 @@ def get_plex_hdr(i, plex):
         try:
             if m.media[0].parts[0].streams[0].DOVIPresent == True:
                 hdr_version='Dolby Vision'
-                i.addLabel('Dolby Vision', locked=False)
+                try:
+                    i.addLabel('Dolby Vision', locked=False)
+                except:
+                    pass
                 if m.media[0].parts[0].streams[0].DOVIProfile == 5:
                     logger.error(i.title+" is version 5")
             elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
                 hdr_version='HDR'
-                i.addLabel('HDR', locked=False)
+                try:
+                    i.addLabel('HDR', locked=False)
+                except:
+                    pass
             else:
                 hdr_version = 'none'
             return hdr_version
         except IndexError:
             pass
 
-def upload_poster(tmp_poster, title, db, r, table, i):
-    
+def upload_poster(tmp_poster, title, db, r, table, i): 
     try:
         if os.path.exists(tmp_poster) == True:
             try:
@@ -228,6 +252,7 @@ def scan_files(config, i, plex):
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])
     if p1 != []:
+        logger.debug('path is: '+p1)
         file = PurePosixPath('/films', *p.parts[1:])
     elif config[0].manualplexpath == 1:
         file = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
@@ -357,6 +382,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                 logger.warning("This didn't work")
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
+    db.session.close()
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])    
     if p1 != []:
@@ -389,6 +415,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
         db.session.close()
 
 def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
+    db.session.close()
     logger.debug('Updating '+title+' in database')
     logger.debug(title+' '+hdr+' '+audio)  
     logger.debug(banners) 
@@ -512,17 +539,15 @@ def check_tv_banners(i, tmp_poster, img_title):
     #background.save(tmp_poster)
     return banner_4k, audio_banner, hdr_banner
 
-def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, b_dir):
-    bname = re.sub('plex://movie/', '', guid)
-    banner_file = '/config/backup/bannered_films/'+bname+'.png'
+def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
     logger.debug(banner_file)
     shutil.copy(tmp_poster, banner_file)
-    try:
+    try:    
         logger.debug('Updating '+title+' in database')
         r = table.query.filter(table.guid == guid).all()
         row = r[0].id
-        film = table.query.get(row)       
-        film.bannered_poster = re.sub('/config', 'static', banner_file)
+        media = table.query.get(row)       
+        media.bannered_poster = re.sub('/config', 'static', banner_file)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
@@ -530,3 +555,92 @@ def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, b_dir):
         
     finally:
         db.session.close()
+
+def check_for_new_poster(tmp_poster, r, i):
+    new_poster = 'False'
+    try:
+        poster_file = r[0].poster
+        poster_file = re.sub('static', '/config', poster_file)
+        logger.debug(poster_file)
+        try:
+            bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+            bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+            bak_poster = Image.fromarray(bak_poster)
+            bak_poster_hash = imagehash.average_hash(bak_poster)
+            poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+            poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+            poster = Image.fromarray(poster)
+            poster_hash = imagehash.average_hash(poster)
+        except SyntaxError as e:
+                logger.error('Check for new poster Syntax Error: '+repr(e))
+        except OSError as e:
+                logger.error('Check for new poster OSError: '+repr(e))
+                if 'FileNotFoundError'  or 'Errno 2 'in e:
+                    logger.debug(i.title+' - Poster Not found')
+                    new_poster = 'True'
+                    return new_poster
+                else:
+                    logger.debug(i.title)
+                    logger.warning('Check for new Poster: '+repr(e))
+             
+        if poster_hash - bak_poster_hash > cutoff:
+            logger.debug(i.title+' - Poster has changed')
+            new_poster = 'True'
+            return new_poster                      
+        else:
+            logger.debug('Poster has not changed')
+            return new_poster       
+    except Exception as e:
+        logger.error('Check for new poster Exception: '+repr(e))
+        if "!_src.empty()" in e:
+            logger.error("poster is blank")
+            new_poster = 'BLANK'
+        else:
+            logger.debug('Film not in database yet')
+            new_poster = 'True'
+        return new_poster
+
+def season_decision_tree(config, banners, ep, hdr, res, tmp_poster):
+    wide_banner = banners[0]
+    mini_banner = banners[1]
+    hdr_banner = banners[3]
+
+    logger.debug(banners)
+    logger.debug("Decision tree")    
+
+    if (hdr != 'none' and config[0].hdr == 1 and hdr_banner == False):
+        logger.info(ep.title+" HDR Banner")
+        try:
+            size = (2000,3000)
+            background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
+            background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+            background = Image.fromarray(background)
+            background = background.resize(size,Image.LANCZOS)
+            background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
+            background.save(tmp_poster)
+        except OSError as e:
+            logger.error('HDR Poster error: '+repr(e))
+    else:
+        logger.debug("Not adding hdr season banner")
+    if (res == '4k' and config[0].films4kposters == 1 and wide_banner == mini_banner == False):
+        try:
+            size = (2000,3000)
+            background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
+            background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+            background = Image.fromarray(background)
+            background = background.resize(size,Image.LANCZOS)
+            if config[0].mini4k == 1:
+                logger.info(ep.title+' Adding Mini 4K Banner')
+                background.paste(mini_4k_banner, (0,0), mini_4k_banner)
+                background.save(tmp_poster)
+            else:
+                logger.info(ep.title+' Adding 4k Banner')
+                background.paste(banner_4k, (0, 0), banner_4k)
+                background.save(tmp_poster)
+        except OSError as e:
+            logger.error('4K poster error: '+repr(e))
+    else:
+        logger.debug("Not adding 4k season banner")            
+
+
+    

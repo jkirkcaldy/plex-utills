@@ -276,57 +276,15 @@ def posters4k(webhooktitle):
             logger.debug(audio+" "+hdr)
             banner_decision(audio, hdr)
 
-        def check_for_new_poster(tmp_poster):
-            new_poster = 'False'
-            try:
-                poster_file = r[0].poster
-                poster_file = re.sub('static', '/config', poster_file)
-                logger.debug(poster_file)
-                try:
-                    bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
-                    bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
-                    bak_poster = Image.fromarray(bak_poster)
-                    bak_poster_hash = imagehash.average_hash(bak_poster)
-                    poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-                    poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
-                    poster = Image.fromarray(poster)
-                    poster_hash = imagehash.average_hash(poster)
-                except SyntaxError as e:
-                        logger.error('Check for new poster Syntax Error: '+repr(e))
-                except OSError as e:
-                        logger.error('Check for new poster OSError: '+repr(e))
-                        if 'FileNotFoundError'  or 'Errno 2 'in e:
-                            logger.debug(i.title+' - Poster Not found')
-                            new_poster = 'True'
-                            return new_poster
-                        else:
-                            logger.debug(i.title)
-                            logger.warning('Check for new Poster: '+repr(e))
 
-                     
-                if poster_hash - bak_poster_hash > cutoff:
-                    logger.debug(i.title+' - Poster has changed')
-                    new_poster = 'True'
-                    return new_poster                      
-                else:
-                    logger.debug('Poster has not changed')
-                    return new_poster
-                    
-                
-            except Exception as e:
-                logger.error('Check for new poster Exception: '+repr(e))
-                if "!_src.empty() in function 'cvtColor'" in e:
-                    new_poster = 'BLANK'
-                else:
-                    logger.debug('Film not in database yet')
-                    new_poster = 'True'
-                return new_poster
 
         def process(tmp_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
             decision_tree(tmp_poster, banners)
-            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, b_dir)
+            bname = re.sub('plex://movie/', '', guid)
+            banner_file = '/config/backup/bannered_films/'+bname+'.png'
+            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
             r = table.query.filter(table.guid == guid).all()
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
@@ -348,7 +306,7 @@ def posters4k(webhooktitle):
                 r = film_table.query.filter(film_table.guid == guid).all()
                 table = film_table
                 if r:
-                    new_poster = check_for_new_poster(tmp_poster)
+                    new_poster = module.check_for_new_poster(tmp_poster, r, i)
                     try:
                         if {
                             r[0].checked == 0
@@ -676,8 +634,6 @@ def tv_episode_poster(epwebhook, poster):
                 logger.debug("File not in database, doesn't need checking")
                 pass
 
-
-
         for ep in tv.search(libtype='episode', guid=epwebhook):
             logger.debug(ep.title)
             i = ep
@@ -726,8 +682,24 @@ def tv_episode_poster(epwebhook, poster):
                     check_for_new_poster(tmp_poster)
                     decision_tree(tmp_poster)
                     r = ep_table.query.filter(ep_table.guid == guid).all()
-                    module.upload_poster(tmp_poster, title, db, r, table, i)                   
-
+                    module.upload_poster(tmp_poster, title, db, r, table, i)   
+                
+                finally:
+                    logger.info("Season Poster")
+                    pguid = ep.parentGuid
+                    season_poster = re.sub('plex://season/', '', pguid)+'.png'
+                    season_poster = module.get_season_poster(ep, season_poster, title, config)                
+                    new_poster = module.check_for_new_poster(tmp_poster, r, i)
+                    logger.debug(new_poster)
+                    size = (2000, 3000)
+                    banners = module.check_banners(season_poster, size)
+                    if (new_poster == 'True' or 'True' not in banners):
+                        module.season_decision_tree(config, banners, ep, hdr, res, season_poster)
+                        bname = re.sub('plex://season/', '', pguid)
+                        banner_file = '/config/backup/bannered_seasons/'+bname+'.png'
+                        module.add_bannered_poster_to_db(season_poster, db, title, table, guid, banner_file)
+                        for s in tv.search(guid=pguid, libtype='season'):
+                            module.upload_poster(season_poster, title, db, r, table, s)
 
         logger.info("tv Poster Script has finished")
     lib = config[0].tvlibrary.split(',')
