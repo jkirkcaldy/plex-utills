@@ -643,5 +643,9 @@ def season_decision_tree(config, banners, ep, hdr, res, tmp_poster):
     else:
         logger.debug("Not adding 4k season banner")            
 
-
+def remove_tmp_files(tmp_poster):
+    try:
+        os.remove(tmp_poster)
+    except FileNotFoundError:
+        pass  
     
