@@ -276,8 +276,6 @@ def posters4k(webhooktitle):
             logger.debug(audio+" "+hdr)
             banner_decision(audio, hdr)
 
-
-
         def process(tmp_poster):
             size = (2000, 3000)
             banners = module.check_banners(tmp_poster, size)
@@ -301,8 +299,8 @@ def posters4k(webhooktitle):
                 size = i.media[0].parts[0].size
                 res = i.media[0].videoResolution    
                 t = re.sub('plex://movie/', '', guid)
-                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                tmp_poster = module.get_poster(i, tmp_poster, title)     
+                tmp_poster = re.sub(' ','_', './'+t+'_poster.png')
+                tmp_poster = module.get_poster(i, tmp_poster, title, b_dir) 
                 r = film_table.query.filter(film_table.guid == guid).all()
                 table = film_table
                 if r:
@@ -332,7 +330,7 @@ def posters4k(webhooktitle):
                     logger.debug(title+' not in database') 
                     process(tmp_poster)
             except Exception as e:
-                logger.error(repr(e))
+                logger.error("script error: "+repr(e))
         dirpath = '/tmp/'
         for files in os.listdir(dirpath):
             if files.endswith(".png"):
@@ -649,7 +647,7 @@ def tv_episode_poster(epwebhook, poster):
             if (res == '4k' or hdr != 'none'):
                 if poster == "":
                     tmp_poster = re.sub('plex://episode/', '', guid)+'.png'
-                    tmp_poster = module.get_poster(i, tmp_poster, title)
+                    tmp_poster = module.get_poster(i, tmp_poster, title, b_dir)
                     blurred = False
                 else:
                     blurred = True
@@ -741,7 +739,9 @@ def restore_episodes_from_database():
                 if req.status_code == 200:
                     logger.debug(b_file)
                     with open(b_file, 'wb') as f:
-                        shutil.copyfileobj(req.raw, f)
+                        for chunk in req:
+                            f.write(chunk)
+                        #shutil.copyfileobj(req.raw, f)
                         i.uploadPoster(filepath=b_file)
             try:
                 poster = tmdb_search.still_path
@@ -829,7 +829,9 @@ def restore_episode_from_database(var):
                 if req.status_code == 200:
                     logger.debug(b_file)
                     with open(b_file, 'wb') as f:
-                        shutil.copyfileobj(req.raw, f)
+                        for chunk in req:
+                            f.write(chunk)                        
+                        #shutil.copyfileobj(req.raw, f)
                         i.uploadPoster(filepath=b_file)
             try:
                 poster = tmdb_search.still_path
@@ -965,7 +967,9 @@ def posters3d():
                 filename = "/tmp/poster.png"
 
                 with open(filename, 'wb') as f:
-                    shutil.copyfileobj(img.raw, f)
+                    for chunk in img:
+                        f.write(chunk)                    
+                    #shutil.copyfileobj(img.raw, f)
                 if config[0].backup == 1: 
                     if backup == True: 
                         #open backup poster to compare it to the current poster. If it is similar enough it will skip, if it's changed then create a new backup and add the banner. 
@@ -1180,7 +1184,9 @@ def fresh_hdr_posters():
                     if r.status_code == 200:
                         #r.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
+                            for chunk in r:
+                                f.write(chunk)                            
+                            #shutil.copyfileobj(r.raw, f)
                             i.uploadPoster(filepath='tmdb_poster_restore.png')
                             os.remove('tmdb_poster_restore.png')
                             logger.info(i.title+' Restored from TheMovieDb')
@@ -1311,7 +1317,9 @@ def autocollections():
                     if img.status_code == 200:
                         img.raw.decode_content = True
                         with open(filename, 'wb') as f:
-                            shutil.copyfileobj(img.raw, f)
+                            for chunk in img:
+                                f.write(chunk)                            
+                            #shutil.copyfileobj(img.raw, f)
                     c.delete()
                     plex.createCollection(section=config[0].filmslibrary, title=collection, smart=True, filters={'studio': 'Marvel Studios'})
                     d = films.collection(collection)
@@ -1335,7 +1343,9 @@ def autocollections():
                     if img.status_code == 200:
                         img.raw.decode_content = True
                         with open(filename, 'wb') as f:
-                            shutil.copyfileobj(img.raw, f)
+                            for chunk in img:
+                                f.write(chunk)                            
+                            #shutil.copyfileobj(img.raw, f)
                     c.delete()
                     plex.createCollection(section=config[0].filmslibrary, title=collection, smart=True, filters={'studio': collection})
                     d = films.collection(collection)
@@ -1359,7 +1369,9 @@ def autocollections():
                     if img.status_code == 200:
                         img.raw.decode_content = True
                         with open(filename, 'wb') as f:
-                            shutil.copyfileobj(img.raw, f)
+                            for chunk in img:
+                                f.write(chunk)                             
+                            #shutil.copyfileobj(img.raw, f)
                     c.delete()
                     plex.createCollection(section=config[0].filmslibrary, title=collection, smart=True, filters={'studio': collection})
                     d = films.collection(collection)
@@ -1479,7 +1491,9 @@ def fill_database():
                     if r.status_code == 200:
                         #r.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(r.raw, f)
+                            for chunk in r:
+                                f.write(chunk)                             
+                            #shutil.copyfileobj(r.raw, f)
                             tmdb_poster = 'tmdb_poster_restore.png'
                             return tmdb_poster
                 try:
@@ -1717,7 +1731,9 @@ def fill_database():
                     if img.status_code == 200:
                         img.raw.decode_content = True
                         with open(filename, 'wb') as f:
-                            shutil.copyfileobj(img.raw, f)
+                            for chunk in img:
+                                f.write(chunk)                             
+                            #shutil.copyfileobj(img.raw, f)
                         return tmp_poster 
                     else:
                         logger.info("4k Posters: "+films.title+ 'cannot find the poster for this film')
@@ -1922,7 +1938,9 @@ def restore_posters():
                     if req.status_code == 200:
                         #req.raw.decode_content = True
                         with open('tmdb_poster_restore.png', 'wb') as f:
-                            shutil.copyfileobj(req.raw, f)
+                            for chunk in req:
+                                f.write(chunk)                             
+                            #shutil.copyfileobj(req.raw, f)
                             i.uploadPoster(filepath='tmdb_poster_restore.png')
                             if r:
                                 shutil.copy('tmdb_poster_restore.png', re.sub('static', '/config', r[0].poster))
@@ -2076,7 +2094,9 @@ def restore_posters():
                                     if img.status_code == 200:
                                         img.raw.decode_content = True
                                         with open(filename, 'wb') as f:
-                                            shutil.copyfileobj(img.raw, f)
+                                            for chunk in img:
+                                                f.write(chunk)                                             
+                                            #shutil.copyfileobj(img.raw, f)
                                         return tmp_poster 
                                     else:
                                         logger.info("4k Posters: "+films.title+ 'cannot find    the poster for this film')
@@ -2257,7 +2277,7 @@ def spoilers(guid):
                         else:
                             i.uploadPoster(filepath=poster)
                 else:
-                    module.get_poster(i, tmp_poster, title)
+                    module.get_poster(i, tmp_poster, title, b_dir)
                     banners = module.check_tv_banners(i, tmp_poster, img_title)
                     blurred = 0
                     season = str(i.parentIndex)
