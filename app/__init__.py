@@ -127,8 +127,8 @@ def setup_helper():
                 newhdr = config[0][28]
                 if not api:
                     c.execute("UPDATE plex_utills SET tautulli_server = 'http://127.0.0.1:8181' where ID = 1")
-                if not loglevel:
-                    c.execute("UPDATE plex_utills SET loglevel = '0' WHERE ID = 1")    
+                if not loglevel or loglevel == '0':
+                    c.execute("UPDATE plex_utills SET loglevel = '1' WHERE ID = 1")    
                 if not manpp:
                     c.execute("UPDATE plex_utills SET manualplexpath = '0' WHERE ID = 1")
                     c.execute("UPDATE plex_utills SET manualplexpathfield = 'None' WHERE ID = 1")

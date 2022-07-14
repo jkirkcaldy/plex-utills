@@ -634,7 +634,7 @@ def tv_episode_poster(epwebhook, poster):
                 logger.debug("File not in database, doesn't need checking")
                 pass
 
-        for ep in tv.search(libtype='episode', guid=epwebhook):
+        for ep in tv.search(libtype='episode', guid=epwebhook, hdr = True, limit = 1):
             logger.debug(ep.title)
             i = ep
             img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
@@ -688,18 +688,22 @@ def tv_episode_poster(epwebhook, poster):
                     logger.info("Season Poster")
                     pguid = ep.parentGuid
                     season_poster = re.sub('plex://season/', '', pguid)+'.png'
-                    season_poster = module.get_season_poster(ep, season_poster, title, config)                
-                    new_poster = module.check_for_new_poster(tmp_poster, r, i)
-                    logger.debug(new_poster)
-                    size = (2000, 3000)
-                    banners = module.check_banners(season_poster, size)
-                    if (new_poster == 'True' or 'True' not in banners):
-                        module.season_decision_tree(config, banners, ep, hdr, res, season_poster)
-                        bname = re.sub('plex://season/', '', pguid)
-                        banner_file = '/config/backup/bannered_seasons/'+bname+'.png'
-                        module.add_bannered_poster_to_db(season_poster, db, title, table, guid, banner_file)
-                        for s in tv.search(guid=pguid, libtype='season'):
-                            module.upload_poster(season_poster, title, db, r, table, s)
+                    season_poster = module.get_season_poster(ep, season_poster, title, config)
+                    try:                
+                        new_poster = module.check_for_new_poster(tmp_poster, r, i)
+                        logger.debug(new_poster)
+                        size = (2000, 3000)
+                        banners = module.check_banners(season_poster, size)
+                        if (new_poster == 'True' or 'True' not in banners):
+                            module.season_decision_tree(config, banners, ep, hdr, res, season_poster)
+                            bname = re.sub('plex://season/', '', pguid)
+                            banner_file = '/config/backup/bannered_seasons/'+bname+'.png'
+                            module.add_bannered_poster_to_db(season_poster, db, title, table, guid, banner_file)
+                            for s in tv.search(guid=pguid, libtype='season'):
+                                module.upload_poster(season_poster, title, db, r, table, s)
+                    except cv2.error as e:
+                        logger.error(repr(e))
+                        logger.error("Couldn't get the poster, skipping...")
 
         logger.info("tv Poster Script has finished")
     lib = config[0].tvlibrary.split(',')

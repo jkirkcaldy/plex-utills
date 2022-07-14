@@ -18,7 +18,7 @@ from pathlib import PureWindowsPath, PurePosixPath
 import cv2
 import random
 import string
-
+import time
 
 tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/original'
@@ -171,6 +171,7 @@ def get_season_poster(ep, tmp_poster, title, config):
         logger.debug(ep.title+' Getting poster')
         title = ep.title
         imgurl = config[0].plexurl+ep.parentThumb
+        logger.debug(imgurl)
         img = requests.get(imgurl, stream=True)
         filename = tmp_poster
         try:
@@ -180,7 +181,7 @@ def get_season_poster(ep, tmp_poster, title, config):
                     shutil.copyfileobj(img.raw, f)
                 return tmp_poster 
             else:
-                logger.info("Get Poster: "+title+ 'cannot find the poster for this film')
+                logger.info("Get Poster: "+title+ ' - cannot find the poster for this film')
         except OSError as e:
             logger.error('Get Poster OSError: '+repr(e))
         except Exception as e:
@@ -211,26 +212,38 @@ def get_plex_hdr(i, plex):
         except IndexError:
             pass
 
+def validate_image(tmp_poster):
+    try:
+        img = Image.open(tmp_poster)
+        img.verify()
+        valid = True
+        return valid
+    except Exception as e:
+        logger.error(repr(e))
+        valid = False
+        return valid
 def upload_poster(tmp_poster, title, db, r, table, i):
     db.session.close() 
     try:
         if os.path.exists(tmp_poster) == True:
             try:
-                img = Image.open(tmp_poster)
-                img.verify()
-                logger.debug('uploading poster')
-                i.uploadPoster(filepath=tmp_poster) 
-                try:
-                    row = r[0].id
-                    film = table.query.get(row)
-                    film.checked = '1'
-                    db.session.commit()     
-                except IndexError as e:
-                    logger.debug('Updating database to checked: '+repr(e))              
-                try:
-                    os.remove(tmp_poster)
-                except FileNotFoundError:
-                    pass  
+                valid = validate_image(tmp_poster)
+                if valid == True:
+                    logger.debug('uploading poster')
+                
+                    i.uploadPoster(filepath=tmp_poster)
+                    time.sleep(2)
+                    try:
+                        row = r[0].id
+                        film = table.query.get(row)
+                        film.checked = '1'
+                        db.session.commit()     
+                    except IndexError as e:
+                        logger.debug('Updating database to checked: '+repr(e))              
+                    try:
+                        os.remove(tmp_poster)
+                    except FileNotFoundError:
+                        pass  
             except (IOError, SyntaxError) as e:
               logger.error('Bad file: '+title)                 
         else:
@@ -253,7 +266,7 @@ def scan_files(config, i, plex):
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])
     if p1 != []:
-        logger.debug('path is: '+p1)
+        logger.debug('path is: '+str(p1))
         file = PurePosixPath('/films', *p.parts[1:])
     elif config[0].manualplexpath == 1:
         file = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
@@ -559,46 +572,50 @@ def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
 
 def check_for_new_poster(tmp_poster, r, i):
     new_poster = 'False'
-    try:
-        poster_file = r[0].poster
-        poster_file = re.sub('static', '/config', poster_file)
-        logger.debug(poster_file)
+    if r:
         try:
-            bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
-            bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
-            bak_poster = Image.fromarray(bak_poster)
-            bak_poster_hash = imagehash.average_hash(bak_poster)
-            poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-            poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
-            poster = Image.fromarray(poster)
-            poster_hash = imagehash.average_hash(poster)
-        except SyntaxError as e:
-                logger.error('Check for new poster Syntax Error: '+repr(e))
-        except OSError as e:
-                logger.error('Check for new poster OSError: '+repr(e))
-                if 'FileNotFoundError'  or 'Errno 2 'in e:
-                    logger.debug(i.title+' - Poster Not found')
-                    new_poster = 'True'
-                    return new_poster
-                else:
-                    logger.debug(i.title)
-                    logger.warning('Check for new Poster: '+repr(e))
-             
-        if poster_hash - bak_poster_hash > cutoff:
-            logger.debug(i.title+' - Poster has changed')
-            new_poster = 'True'
-            return new_poster                      
-        else:
-            logger.debug('Poster has not changed')
-            return new_poster       
-    except Exception as e:
-        logger.error('Check for new poster Exception: '+repr(e))
-        if "!_src.empty()" in e:
-            logger.error("poster is blank")
-            new_poster = 'BLANK'
-        else:
-            logger.debug('Film not in database yet')
-            new_poster = 'True'
+            poster_file = r[0].poster
+            poster_file = re.sub('static', '/config', poster_file)
+            logger.debug(poster_file)
+            try:
+                bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+                bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+                bak_poster = Image.fromarray(bak_poster)
+                bak_poster_hash = imagehash.average_hash(bak_poster)
+                poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+                poster = Image.fromarray(poster)
+                poster_hash = imagehash.average_hash(poster)
+            except SyntaxError as e:
+                    logger.error('Check for new poster Syntax Error: '+repr(e))
+            except OSError as e:
+                    logger.error('Check for new poster OSError: '+repr(e))
+                    if 'FileNotFoundError'  or 'Errno 2 'in e:
+                        logger.debug(i.title+' - Poster Not found')
+                        new_poster = 'True'
+                        return new_poster
+                    else:
+                        logger.debug(i.title)
+                        logger.warning('Check for new Poster: '+repr(e))
+
+            if poster_hash - bak_poster_hash > cutoff:
+                logger.debug(i.title+' - Poster has changed')
+                new_poster = 'True'
+                return new_poster                      
+            else:
+                logger.debug('Poster has not changed')
+                return new_poster       
+        except Exception as e:
+            logger.error('Check for new poster Exception: '+repr(e))
+            if e == cv2.error:
+                logger.error("poster is blank")
+                new_poster = 'BLANK'
+            else:
+                logger.debug('Film not in database yet')
+                new_poster = 'True'
+            return new_poster
+    else:
+        new_poster='True'
         return new_poster
 
 def season_decision_tree(config, banners, ep, hdr, res, tmp_poster):

@@ -710,6 +710,7 @@ def delete_tv_database():
             	"hdr"	TEXT,
             	"audio"	TEXT,
             	"poster"	TEXT NOT NULL,
+                "bannered_poster" TEXT,
             	"checked"	INTEGER,
                 "blurred"    INTEGER,
             	PRIMARY KEY("ID" AUTOINCREMENT)
