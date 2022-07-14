@@ -81,6 +81,7 @@ def tmdb_poster_path(b_dir, i, g, episode, season):
 
 def get_tmdb_poster(fname, poster):
     req = requests.get(poster_url_base+poster, stream=True)
+    logger.debug(req)
     if req.status_code == 200:
         b_file = '/config/backup/films/'+fname+'.png'
         with open(fname, 'wb') as f:
