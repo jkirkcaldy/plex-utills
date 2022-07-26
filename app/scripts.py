@@ -80,14 +80,18 @@ hdr_box = (0,1342,493,1608)
 a_box = (0,1608,493,1766)
 cutoff = 10
 
-
+from app.models import Plex, film_table
+from app import db
+from app import module
+config = Plex.query.filter(Plex.id == '1')
+plex = PlexServer(config[0].plexurl, config[0].token)
 
 def posters4k(webhooktitle):
-    from app.models import Plex, film_table
-    from app import db
-    from app import module
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, film_table
+    #from app import db
+    #from app import module
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     global b_dir
     tmdb.api_key = config[0].tmdb_api
     b_dir = 'static/backup/films/'
@@ -348,11 +352,11 @@ def posters4k(webhooktitle):
             pass
 
 def guid_to_title(var):
-    from app.models import Plex, film_table
-    from app import db
-    from app import module
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, film_table
+    #from app import db
+    #from app import module
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     def run_script():
         for i in films.search(guid=var):
             title = i.title
@@ -370,11 +374,11 @@ def guid_to_title(var):
             pass   
 
 def tv_episode_poster(epwebhook, poster):
-    from app.models import Plex, ep_table
-    from app import db
-    from app import module
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, ep_table
+    #from app import db
+    #from app import module
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     banner_4k = Image.open("app/img/tv/4k.png")
     banner_bg = Image.open("app/img/tv/Background.png")
     banner_dv = Image.open("app/img/tv/dolby_vision.png")
@@ -716,11 +720,11 @@ def tv_episode_poster(epwebhook, poster):
             pass        
 
 def restore_episodes_from_database():
-    from app.models import Plex, ep_table
-    from app import db, module
-    from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, ep_table
+    #from app import db, module
+    #from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     tv = plex.library.section(config[0].tvlibrary)
     tmdb = TMDb()
     poster_url_base = 'https://www.themoviedb.org/t/p/original'
@@ -805,11 +809,11 @@ def restore_episodes_from_database():
             pass            
 
 def restore_episode_from_database(var):
-    from app.models import Plex, ep_table
-    from app import db, module
-    from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, ep_table
+    #from app import db, module
+    #from tmdbv3api import TMDb, Search, Movie, Discover, TV, Episode
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb = TMDb()
     poster_url_base = 'https://www.themoviedb.org/t/p/original'
     search = Search()
@@ -895,9 +899,9 @@ def restore_episode_from_database(var):
             pass    
 
 def posters3d(): 
-    from app.models import Plex
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb.api_key = config[0].tmdb_api
 
     plex = PlexServer(config[0].plexurl, config[0].token)
@@ -1005,10 +1009,10 @@ def posters3d():
         logger.warning('3D Posters script is not enabled in the config so will not run')
         
 def restore_from_database():
-    from app.models import Plex, film_table
-    from app import db
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, film_table
+    #from app import db
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     films = plex.library.section('Films')
     def convert_data(data, file_name):
         with open(file_name, 'wb') as file:
@@ -1043,10 +1047,10 @@ def restore_from_database():
             pass    
 
 def restore_single(var):
-    from app.models import Plex, film_table
-    from app import db
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, film_table
+    #from app import db
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     def run_script():
         for i in films.search(guid=var):
             title = i.title
@@ -1076,10 +1080,10 @@ def restore_single(var):
             pass
 
 def restore_single_bannered(var):
-    from app.models import Plex, film_table
-    from app import db
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex, film_table
+    #from app import db
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     msg = 'no message'
     def run_script():
         for i in films.search(guid=var):
@@ -1116,9 +1120,9 @@ def restore_single_bannered(var):
     return msg
 
 def hide4k():
-    from app.models import Plex
-    config = Plex.query.filter(Plex.id == '1')
-    plex = PlexServer(config[0].plexurl, config[0].token)
+    #from app.models import Plex
+    #config = Plex.query.filter(Plex.id == '1')
+    #plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb.api_key = config[0].tmdb_api
     def run_script():
 
@@ -2326,3 +2330,24 @@ def delete_row(var):
     db.session.delete(d)
     db.session.commit()
     db.session.close()
+
+def sync_ratings():
+    global b_dir
+    tmdb.api_key = config[0].tmdb_api
+    films = plex.library.section('Films')
+    for i in films.search():
+        try:
+            i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
+            i.title = re.sub('#', '', i.title)
+            guids = str(i.guids)
+            g = guids
+            g = module.get_tmdb_guid(g)
+            tmdb_search = movie.details(movie_id=g)
+            tmdb_rating = tmdb_search.vote_average
+            r= round(tmdb_rating,1)
+            logger.info(i.title+" - "+str(r)) 
+            i.rate(r)
+        except Exception as e:
+            logger.error('passing: '+i.title)
+            logger.error(repr(e))
+            pass    

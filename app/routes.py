@@ -786,3 +786,7 @@ def export_support():
     path = 'support.zip'
     return send_file(path, as_attachment=True)
 
+@app.route('/sync_ratings')
+def sync_ratings():
+    threading.Thread(target=scripts.sync_ratings).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
