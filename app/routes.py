@@ -626,8 +626,11 @@ def ep_data():
         'draw': request.args.get('draw', type=int),
     }
 
-
-
+@app.route('/delete_row/<path:var>')
+def run_delete_row(var=''):
+    scripts.delete_row(var)
+    message = 'Deleted row'
+    return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
 @app.route('/restore/film/<path:var>')
 def restore_poster(var=""):

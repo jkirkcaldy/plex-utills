@@ -287,7 +287,7 @@ def posters4k(webhooktitle):
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title=webhooktitle):#, limit='1'):
+        for i in films.search(title="come from away"):#, limit='1'):
             try:
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
@@ -632,7 +632,7 @@ def tv_episode_poster(epwebhook, poster):
                 logger.debug("File not in database, doesn't need checking")
                 pass
 
-        for ep in tv.search(libtype='episode', guid=epwebhook, hdr = True, limit = 1):
+        for ep in tv.search(libtype='episode', guid=epwebhook):
             logger.debug(ep.title)
             i = ep
             img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
@@ -2316,4 +2316,13 @@ def get_tv_guid(tv_show, season, episode):
     for ep in tv.search(filters={"show.title":tv_show, "episode.index":episode, "season.index":season}):
         return ep.guid
 
-
+def delete_row(var):
+    from app.models import Plex, film_table
+    from app import db
+    r = film_table.query.get(film_table.guid == var).all()
+    row = r[0].id
+    d = film_table.query.get(row)
+    print(d)
+    db.session.delete(d)
+    db.session.commit()
+    db.session.close()

@@ -69,6 +69,8 @@ def tmdb_poster_path(b_dir, i, g, episode, season):
     if 'film' in b_dir:
         logger.debug("is a film")
         tmdb_search = movie.details(movie_id=g)
+        poster2_search = movie.images(movie_id=g)
+        logger.debug(poster2_search)
         logger.info(i.title)
         poster = tmdb_search.poster_path
         return poster
@@ -81,13 +83,16 @@ def tmdb_poster_path(b_dir, i, g, episode, season):
 
 def get_tmdb_poster(fname, poster):
     req = requests.get(poster_url_base+poster, stream=True)
-    logger.debug(req)
+    logger.debug("tmdb: "+poster_url_base+poster)
+    logger.debug(fname)
     if req.status_code == 200:
         b_file = '/config/backup/films/'+fname+'.png'
         with open(fname, 'wb') as f:
             for chunk in req:
                 f.write(chunk)
         return fname
+    else:
+        logger.error("Can't get poster from TMDB")
 
 def check_banners(tmp_poster, size):
     try:

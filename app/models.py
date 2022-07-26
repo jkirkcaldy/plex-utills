@@ -112,14 +112,21 @@ class film_table(db.Model):
     def to_dict(self):
 
         print(self.bannered_poster)
-        guid = re.sub('static/backup/films/', '', self.poster)
-        guid = re.sub('.png', '', guid)
-        rerun = '/rerun-posters4k/'+guid
+        reguid = re.sub('static/backup/films/', '', self.poster)
+        reguid = re.sub('.png', '', reguid)
+        rerun = '/rerun-posters4k/'+reguid
         restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-undo-alt"></i>
           </span>
             <span class="text">"""+self.title+"""</span>
+        </a>
+        """
+        delete = '/delete_row/'+self.guid
+        delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation-triangle"></i>
+          </span>
         </a>
         """
         if self.bannered_poster == None:
@@ -131,6 +138,7 @@ class film_table(db.Model):
             'poster': "<a href='restore/film/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
             'checked': self.checked,
             'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>" ,               
+            'delete': delete_btn
             }
         elif self.bannered_poster != None:
             return {
@@ -140,7 +148,8 @@ class film_table(db.Model):
                 'audio': self.audio,
                 'poster': "<a href='restore/film/"+self.guid+"'><img    height=150px src='"+self.poster+"'></a>",
                 'checked': self.checked,
-                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=150px src='"+self.bannered_poster+"'></a>",               
+                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=150px src='"+self.bannered_poster+"'></a>", 
+                'delete': delete_btn              
             }
 
 class ep_table(db.Model):
