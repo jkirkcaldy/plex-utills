@@ -1,4 +1,4 @@
-from app import db#, mydb
+from app import db
 import re
 
 class Plex(db.Model):
