@@ -291,7 +291,7 @@ def posters4k(webhooktitle):
             module.upload_poster(tmp_poster, title, db, r, table, i)
 
 
-        for i in films.search(title="come from away"):#, limit='1'):
+        for i in films.search(title=webhooktitle):
             try:
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
