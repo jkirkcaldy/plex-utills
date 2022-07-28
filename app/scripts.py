@@ -2327,7 +2327,10 @@ def delete_row(var):
     db.session.close()
 
 def sync_ratings():
-    global b_dir
+    from app.models import Plex
+    from app import module
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
     tmdb.api_key = config[0].tmdb_api
     films = plex.library.section('Films')
     for i in films.search():
