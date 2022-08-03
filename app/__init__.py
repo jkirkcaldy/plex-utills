@@ -286,7 +286,24 @@ def setup_helper():
             c.execute(table)
             conn.commit()
         except Exception as e:
-            log.debug(repr(e))            
+            log.debug(repr(e))  
+    def add_season_table():
+        log.debug('Adding new table')
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor() 
+            table = """CREATE TABLE "seasons" (
+                    	"ID"	INTEGER NOT NULL UNIQUE,
+                    	"Title"	TEXT NOT NULL,
+                    	"GUID"	TEXT NOT NULL,
+                        "season_poster" TEXT,
+                        "bannered_season" TEXT,
+                    	PRIMARY KEY("ID" AUTOINCREMENT)
+                    ); """
+            c.execute(table)
+            conn.commit()
+        except Exception as e:
+            log.debug(repr(e)) 
     def table_check():
         try:
             conn = sqlite3.connect('/config/app.db')
@@ -325,7 +342,7 @@ def setup_helper():
 
                 c.execute(q3)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))                
+                log.debug(repr(e))                                 
             try:
                 q2 = """ALTER TABLE films
                         ADD COLUMN bannered_poster TEXT
@@ -337,7 +354,16 @@ def setup_helper():
             continue_setup()
         except sqlite3.OperationalError as e:
             log.debug(repr(e))
-            add_ep_table()                         
+            add_ep_table()    
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor()
+            c.execute("SELECT * FROM seasons")
+            c.close()
+            continue_setup()
+        except sqlite3.OperationalError as e:
+            log.debug(repr(e))
+            add_season_table()                                  
     log.debug('Running setup Helper')
     table_check()
 
@@ -352,11 +378,15 @@ def setup_helper():
     if os.path.exists(b_dir+'bannered_films'):
         log.info('Bannered Film folder exists')
     else:
-        os.makedirs(b_dir+'bannered_films')
-    if os.path.exists(b_dir+'bannered_seasons'):
+        os.makedirs(b_dir+'/tv/bannered_films')
+    if os.path.exists(b_dir+'/tv/bannered_seasons'):
         log.info('Bannered Season folder exists')
     else:
-        os.makedirs(b_dir+'bannered_seasons')        
+        os.makedirs(b_dir+'/tv/bannered_seasons')  
+    if os.path.exists(b_dir+'/tv/seasons'):
+        log.info('Season folder exists')
+    else:
+        os.makedirs(b_dir+'/tv/seasons')               
 
 def update_scheduler():
     

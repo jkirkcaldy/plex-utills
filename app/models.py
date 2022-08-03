@@ -178,12 +178,12 @@ class ep_table(db.Model):
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
-                'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>",
+                'bannered_poster': "<a href='restore/bannered_poster/"+self.guid+"'><img height=150px src=''></a>",
                 'checked': self.checked,
                 'blurred': self.blurred
             }
         else:
-            bannered_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
+            bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
             return {
                 'title': self.title,
                 'res': self.res,
@@ -195,4 +195,21 @@ class ep_table(db.Model):
                 'blurred': self.blurred
             }            
 
-       
+
+class season_table(db.Model):
+    __tablename__ = 'seasons'
+    __bind_key__ = 'db1'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, index=True)
+    guid = db.Column(db.String, index=True)
+    season_poster = db.Column(db.String)
+    bannered_season = db.Column(db.String)
+
+    def to_dict(self):
+        bannered_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_season+"'></a>"
+        poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.season_poster+"'></a>"
+        return {
+            'title': self.title,
+            'season_poster': poster,
+            'bannered_season': bannered_poster
+        }        

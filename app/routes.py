@@ -732,6 +732,36 @@ def delete_tv_database():
 
     return redirect('/episodes')
 
+@app.route('/delete_season_database')
+def delete_tv_database():
+    import sqlite3
+    conn = sqlite3.connect('/config/app.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM plex_utills")
+    query1 = """DROP TABLE seasons
+        """
+    table = """CREATE TABLE "seasons" (
+                    	"ID"	INTEGER NOT NULL UNIQUE,
+                    	"Title"	TEXT NOT NULL,
+                    	"GUID"	TEXT NOT NULL,
+                        "season_poster" TEXT,
+                        "bannered_season" TEXT,
+                    	PRIMARY KEY("ID" AUTOINCREMENT)
+                    ); """
+    c.execute(query1)
+    c.execute(table)
+    conn.commit()
+    c.close()
+
+    file_paths = '/config/backup/tv/seasons/', '/config/backup/tv/bannered_seasons'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f)
+
+    return redirect('/episodes')
+
 @app.route('/export_support')
 def export_support():
 

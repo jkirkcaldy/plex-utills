@@ -580,6 +580,7 @@ def check_tv_banners(i, tmp_poster, img_title):
     return banner_4k, audio_banner, hdr_banner
 
 def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
+    db.session.close()
     logger.debug(banner_file)
     shutil.copy(tmp_poster, banner_file)
     try:    
@@ -587,14 +588,38 @@ def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
         r = table.query.filter(table.guid == guid).all()
         row = r[0].id
         media = table.query.get(row)       
-        media.bannered_poster = re.sub('/config', 'static', banner_file)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logger.error(repr(e))
-        
+        media.bannered_poster = re.sub('/config','static',     banner_file)
+        db.session.commit()   
     finally:
         db.session.close()
+
+def add_season_to_db(db, title, table, pguid, banner_file, season_poster):
+    try:    
+        logger.debug('Updating '+title+' in database')
+        r = table.query.filter(table.guid == pguid).all()  
+        season_poster = re.sub('/config', 'static', season_poster)
+        banner_file = re.sub('/config', 'static', banner_file)
+        if r:
+            logger.debug('r exists')
+            row = r[0].id
+            media = table.query.get(row)      
+            media.bannered_season = banner_file
+            media.season_poster = season_poster
+            db.session.commit()          
+        else:
+            logger.debug(title+' '+pguid+' '+season_poster+' '+banner_file)
+            season = table(title=title, guid=pguid, season_poster=season_poster, bannered_season=banner_file)
+            try:
+                db.session.add(season)
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise Exception('Database Rollback error')
+    except Exception as e:
+        db.session.rollback()
+        logger.error(repr(e))   
+    finally:
+        db.session.close() 
 
 def check_for_new_poster(tmp_poster, r, i):
     new_poster = 'False'

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class=" mb-4">
+
+      <p>Here are the episodes in the plex-utills database. Clicking on a poster will restore that poster. </p>
+      <p>If you have changed a poster but it has not updated here, perform a full refresh (usually ctrl+Shift+R or ctrl+Shift+f5) of the page or clear your browser image cache.</p>
+
+</div>
+
+  <table id="ep_data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Episode</th>
+        <th>Season Poster</th>
+        <th>Bannered Poster</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  
+  <div class="card-body">
+    <p>
+        <a href="/delete_season_database" class="btn btn-primary btn-icon-split" id="delete_database">
+            <span class="icon text-white-50">
+              <i class="fas fa-cog"></i>
+          </span>
+            <span class="text">Delete database</span>
+        </a>
+    </p>
+</div>    
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+  $(document).ready(function () {
+    $('#ep_data').DataTable({
+      ajax: '/api/episodes',
+      serverSide: true,
+      columns: [
+        {data: 'title'},
+        {data: 'season_poster'},
+        {data: 'bannered_season'},
+      ],
+    });
+  });
+</script>
+
+{% endblock %}
