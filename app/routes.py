@@ -733,7 +733,7 @@ def delete_tv_database():
     return redirect('/episodes')
 
 @app.route('/delete_season_database')
-def delete_tv_database():
+def delete_season_database():
     import sqlite3
     conn = sqlite3.connect('/config/app.db')
     c = conn.cursor()
