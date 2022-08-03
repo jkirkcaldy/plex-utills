@@ -3,8 +3,7 @@ from flask import render_template, flash, request, redirect, send_file
 from app import db
 from app import app
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
-from app.models import Plex, film_table, ep_table
-#from app.scripts import posters4k, posters3d, hide4k, restore_posters, fresh_hdr_posters, setup_logger, autocollections, remove_unused_backup_files, recently_added_posters, test_script, restore_from_database, fill_database, add_labels, restore_single, tv_episode_poster
+from app.models import Plex, film_table, ep_table, season_table
 import threading
 import datetime
 from app import update_scheduler
@@ -626,6 +625,54 @@ def ep_data():
         'draw': request.args.get('draw', type=int),
     }
 
+@app.route('/seasons')
+def get_seasons():
+    return render_template('seasons.html', pagetitle='Seasons', version=version)
+
+
+@app.route('/api/seasons')
+def season_data():
+    query = season_table.query
+ 
+    search = request.args.get('search[value]')
+    if search:
+        query = query.filter(db.or_(
+            season_table.title.like(f'%{search}%'),
+        ))
+ 
+    total_filtered = query.count()
+ 
+    order = []
+    i = 0
+    while True:
+        col_index = request.args.get(f'order[{i}][column]')
+        if col_index is None:
+            break
+        col_name = request.args.get(f'columns[{col_index}][data]')
+        if col_name not in ['title']:
+            col_name = 'title'
+        descending = request.args.get(f'order[{i}][dir]') == 'desc'
+        col = getattr(season_table, col_name)
+        if descending:
+            col = col.desc()
+        order.append(col)
+        i += 1
+    if order:
+        query = query.order_by(*order)
+ 
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+ 
+ 
+    return {
+        'data': [title.to_dict() for title in query],
+        'recordsFiltered': total_filtered,
+        'recordsTotal': season_table.query.count(),
+        'draw': request.args.get('draw', type=int),
+    }
+
+
 @app.route('/delete_row/<path:var>')
 def run_delete_row(var=''):
     scripts.delete_row(var)
@@ -753,14 +800,14 @@ def delete_season_database():
     conn.commit()
     c.close()
 
-    file_paths = '/config/backup/tv/seasons/', '/config/backup/tv/bannered_seasons'
+    file_paths = '/config/backup/tv/seasons/'
     for root, dirs, files in os.walk(file_paths):
         for filename in files:
             f = filename
             if f.endswith('.png'):
                 os.remove(file_paths+f)
 
-    return redirect('/episodes')
+    return redirect('/seasons')
 
 @app.route('/export_support')
 def export_support():

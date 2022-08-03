@@ -9,7 +9,7 @@
 
 </div>
 
-  <table id="ep_data" class="table table-striped">
+  <table id="season_data" class="table table-striped">
     <thead>
       <tr>
         <th>Episode</th>
@@ -23,9 +23,9 @@
   
   <div class="card-body">
     <p>
-        <a href="/delete_season_database" class="btn btn-primary btn-icon-split" id="delete_database">
+        <a href="/delete_season_database" class="btn btn-warning btn-icon-split" id="delete_database">
             <span class="icon text-white-50">
-              <i class="fas fa-cog"></i>
+              <i class="fas fa-exclamation"></i>
           </span>
             <span class="text">Delete database</span>
         </a>
@@ -38,8 +38,8 @@
 <script>
 
   $(document).ready(function () {
-    $('#ep_data').DataTable({
-      ajax: '/api/episodes',
+    $('#season_data').DataTable({
+      ajax: '/api/seasons',
       serverSide: true,
       columns: [
         {data: 'title'},
