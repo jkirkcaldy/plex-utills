@@ -100,70 +100,70 @@ def check_banners(tmp_poster, size):
         background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
         background = Image.fromarray(background)
         background = background.resize(size,Image.LANCZOS)
+
+        # Wide banner box
+        bannerchk = background.crop(bannerbox)
+        # Mini Banner Box
+        minichk = background.crop(mini_box)
+        # Audio Box
+        audiochk = background.crop(a_box)
+        # HDR Box
+        hdrchk = background.crop(hdr_box)
+        # POSTER HASHES
+        # Wide Banner
+        poster_banner_hash = imagehash.average_hash(bannerchk)
+        # Mini Banner
+        poster_mini_hash = imagehash.average_hash(minichk)
+        # Audio Banner
+        poster_audio_hash = imagehash.average_hash(audiochk)
+        # HDR Banner
+        poster_hdr_hash = imagehash.average_hash(hdrchk)
+        # General Hashes
+        chk_banner = Image.open("app/img/chk-4k.png")
+        chk_banner_hash = imagehash.average_hash(chk_banner)
+        chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
+        chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
+        chk_hdr = Image.open("app/img/chk_hdr.png")
+        chk_hdr_hash = imagehash.average_hash(chk_hdr)
+        chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
+        chk_dolby_vision_hash = imagehash.average_hash  (chk_dolby_vision)
+        chk_hdr10 = Image.open("app/img/chk_hdr10.png")
+        chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
+        chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
+        chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
+        atmos_box = Image.open("app/img/chk_atmos.png")
+        chk_atmos_hash = imagehash.average_hash(atmos_box)
+        dtsx_box = Image.open("app/img/chk_dtsx.png")
+        chk_dtsx_hash = imagehash.average_hash(dtsx_box)
+        wide_banner = mini_banner = audio_banner = hdr_banner =     old_hdr = False
+        if poster_banner_hash - chk_banner_hash <= 10:
+            wide_banner = True
+        if poster_mini_hash - chk_mini_banner_hash <= 10:
+            mini_banner = True
+        if (
+            poster_audio_hash - chk_atmos_hash < cutoff
+            or poster_audio_hash - chk_dtsx_hash < cutoff
+        ):
+            audio_banner = True
+        if poster_hdr_hash - chk_hdr_hash < cutoff:
+            old_hdr = True
+        if (
+            poster_hdr_hash - chk_new_hdr_hash < cutoff 
+            or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
+            or poster_hdr_hash - chk_hdr10_hash < cutoff
+        ):
+            hdr_banner = True
+        #background.save(tmp_poster)
+        return wide_banner, mini_banner, audio_banner, hdr_banner,  old_hdr
     except OSError as e:
         logger.error('Cannot open image: '+repr(e))
-    # Wide banner box
-    bannerchk = background.crop(bannerbox)
-    # Mini Banner Box
-    minichk = background.crop(mini_box)
-    # Audio Box
-    audiochk = background.crop(a_box)
-    # HDR Box
-    hdrchk = background.crop(hdr_box)
-    # POSTER HASHES
-    # Wide Banner
-    poster_banner_hash = imagehash.average_hash(bannerchk)
-    # Mini Banner
-    poster_mini_hash = imagehash.average_hash(minichk)
-    # Audio Banner
-    poster_audio_hash = imagehash.average_hash(audiochk)
-    # HDR Banner
-    poster_hdr_hash = imagehash.average_hash(hdrchk)
-    # General Hashes
-    chk_banner = Image.open("app/img/chk-4k.png")
-    chk_banner_hash = imagehash.average_hash(chk_banner)
-    chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
-    chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
-    chk_hdr = Image.open("app/img/chk_hdr.png")
-    chk_hdr_hash = imagehash.average_hash(chk_hdr)
-    chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
-    chk_dolby_vision_hash = imagehash.average_hash(chk_dolby_vision)
-    chk_hdr10 = Image.open("app/img/chk_hdr10.png")
-    chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
-    chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
-    chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
-    atmos_box = Image.open("app/img/chk_atmos.png")
-    chk_atmos_hash = imagehash.average_hash(atmos_box)
-    dtsx_box = Image.open("app/img/chk_dtsx.png")
-    chk_dtsx_hash = imagehash.average_hash(dtsx_box)
-    wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
-    if poster_banner_hash - chk_banner_hash <= 10:
-        wide_banner = True
-    if poster_mini_hash - chk_mini_banner_hash <= 10:
-        mini_banner = True
-    if (
-        poster_audio_hash - chk_atmos_hash < cutoff
-        or poster_audio_hash - chk_dtsx_hash < cutoff
-    ):
-        audio_banner = True
-    if poster_hdr_hash - chk_hdr_hash < cutoff:
-        old_hdr = True
-    if (
-        poster_hdr_hash - chk_new_hdr_hash < cutoff 
-        or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
-        or poster_hdr_hash - chk_hdr10_hash < cutoff
-    ):
-        hdr_banner = True
-    #background.save(tmp_poster)
-    return wide_banner, mini_banner, audio_banner, hdr_banner, old_hdr
 
 def get_poster(i, tmp_poster, title, b_dir):
     logger.debug(i.title+' Getting poster')
     imgurl = i.posterUrl
-    logger.debug(i.posterUrl)
+    logger.debug(imgurl)
     img = requests.get(imgurl, stream=True)
     filename = tmp_poster
-    print(tmp_poster)
     try:
         if img.status_code == 200:
             img.raw.decode_content = True
@@ -190,10 +190,10 @@ def get_poster(i, tmp_poster, title, b_dir):
         tmp_poster = get_tmdb_poster(tmp_poster, poster)
         return tmp_poster
     
-def get_season_poster(ep, tmp_poster, title, config):
+def get_season_poster(ep, tmp_poster, config):
         logger.debug(ep.title+' Getting poster')
         title = ep.title
-        imgurl = config[0].plexurl+ep.parentThumb
+        imgurl = config[0].plexurl+ep.parentThumb+'?X-Plex-Token='+config[0].token
         logger.debug(imgurl)
         img = requests.get(imgurl, stream=True)
         filename = tmp_poster
@@ -250,7 +250,6 @@ def validate_image(tmp_poster):
         return valid
 
 def upload_poster(tmp_poster, title, db, r, table, i):
-    db.session.close() 
     try:
         if os.path.exists(tmp_poster) == True:
             try:
@@ -270,6 +269,8 @@ def upload_poster(tmp_poster, title, db, r, table, i):
                         os.remove(tmp_poster)
                     except FileNotFoundError:
                         pass  
+                else:
+                    logger.warning(title+": does not have a valid image")
             except (IOError, SyntaxError) as e:
               logger.error('Bad file: '+title)                 
         else:
@@ -285,6 +286,8 @@ def upload_poster(tmp_poster, title, db, r, table, i):
             finally:
                 db.session.close()
     except Exception as e:
+        if 'DetachedInstanceError' in str(e):
+            db.session.rollback()
         logger.error("Can't upload the poster: "+repr(e))         
 
 def scan_files(config, i, plex):
@@ -353,7 +356,11 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
     try:
         old_backup = os.path.exists(newdir+'poster_bak.png')
         if old_backup == True:
+            logger.info('old backup exists')
             b_file = b_dir+fname+'.png'
+            if 'static' in b_file:
+                b_file = re.sub('static', '/config', b_file)
+            logger.debug(b_file)
             shutil.copy(newdir+'poster_bak.png', b_file)
             return b_file
     except:
@@ -405,7 +412,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                     return b_file                        
         else:
             logger.debug('not in database')
-            if config[0].tmdb_restore == 1:
+            if (config[0].tmdb_restore == 1 and old_backup == False):
                 try:
                     logger.info('Poster has banners, creating a backup from TheMovieDB')
                     g = get_tmdb_guid(str(g))
@@ -419,7 +426,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                     b_file = 'static/img/poster_not_found.png'
                     return b_file
             else:
-                logger.warning("This didn't work")
+                logger.warning("Creating backup file from TMDb didn't work")
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     db.session.close()
@@ -580,7 +587,6 @@ def check_tv_banners(i, tmp_poster, img_title):
     return banner_4k, audio_banner, hdr_banner
 
 def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
-    db.session.close()
     logger.debug(banner_file)
     shutil.copy(tmp_poster, banner_file)
     try:    
@@ -593,22 +599,22 @@ def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
     finally:
         db.session.close()
 
-def add_season_to_db(db, title, table, pguid, banner_file, season_poster):
+def add_season_to_db(db, title, table, pguid, banner_file, poster):
     try:    
         logger.debug('Updating '+title+' in database')
         r = table.query.filter(table.guid == pguid).all()  
-        season_poster = re.sub('/config', 'static', season_poster)
+        poster = re.sub('/config', 'static', poster)
         banner_file = re.sub('/config', 'static', banner_file)
         if r:
             logger.debug('r exists')
             row = r[0].id
             media = table.query.get(row)      
             media.bannered_season = banner_file
-            media.season_poster = season_poster
+            media.poster = poster
             db.session.commit()          
         else:
-            logger.debug(title+' '+pguid+' '+season_poster+' '+banner_file)
-            season = table(title=title, guid=pguid, season_poster=season_poster, bannered_season=banner_file)
+            logger.debug(title+' '+pguid+' '+poster+' '+banner_file)
+            season = table(title=title, guid=pguid, poster=poster, bannered_season=banner_file)
             try:
                 db.session.add(season)
                 db.session.commit()
@@ -627,7 +633,7 @@ def check_for_new_poster(tmp_poster, r, i):
         try:
             poster_file = r[0].poster
             poster_file = re.sub('static', '/config', poster_file)
-            logger.debug(poster_file)
+            
             try:
                 bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
                 bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
@@ -641,9 +647,9 @@ def check_for_new_poster(tmp_poster, r, i):
                     logger.error('Check for new poster Syntax Error: '+repr(e))
             except OSError as e:
                     logger.error('Check for new poster OSError: '+repr(e))
-                    if 'FileNotFoundError'  or 'Errno 2 'in e:
+                    if ('FileNotFoundError'  or 'Errno 2 ') in e:
                         logger.debug(i.title+' - Poster Not found')
-                        new_poster = 'True'
+                        new_poster = 'BLANK'
                         return new_poster
                     else:
                         logger.debug(i.title)

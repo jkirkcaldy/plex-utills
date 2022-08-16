@@ -378,7 +378,7 @@ def setup_helper():
     if os.path.exists(b_dir+'bannered_films'):
         log.info('Bannered Film folder exists')
     else:
-        os.makedirs(b_dir+'/tv/bannered_films')
+        os.makedirs(b_dir+'bannered_films')
     if os.path.exists(b_dir+'/tv/bannered_seasons'):
         log.info('Bannered Season folder exists')
     else:

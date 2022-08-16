@@ -691,6 +691,20 @@ def restore_episode_poster(var=""):
     scripts.restore_episode_from_database(var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
+@app.route('/restore/season/<path:var>')
+def restore_season_poster(var=""):
+    #print(var)
+    scripts.restore_single_season(var)
+    message = 'Sent poster to be restored.'
+    return render_template('result.html', message=message, pagetitle='Restored', version=version)
+@app.route('/restore/bannered_season/<path:var>')
+def restore_bannerred_season_poster(var=""):
+    #print(var)
+    msg = scripts.restore_single_bannered_season(var)
+    if 'error' not in str.lower(msg):
+        return render_template('result.html', message=msg, pagetitle='Restored', version=version)
+    else:
+        return render_template('result.html', message=msg, pagetitle='Error', version=version)
 
 @app.route('/restore/bannered_film/<path:var>')
 def restore_bannerred_poster(var=""):
@@ -791,7 +805,7 @@ def delete_season_database():
                     	"ID"	INTEGER NOT NULL UNIQUE,
                     	"Title"	TEXT NOT NULL,
                     	"GUID"	TEXT NOT NULL,
-                        "season_poster" TEXT,
+                        "poster" TEXT,
                         "bannered_season" TEXT,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """

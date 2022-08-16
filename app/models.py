@@ -112,17 +112,14 @@ class film_table(db.Model):
     def to_dict(self):
 
         print(self.bannered_poster)
-        reguid = re.sub('static/backup/films/', '', self.poster)
-        reguid = re.sub('.png', '', reguid)
-        rerun = '/rerun-posters4k/'+reguid
-        restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+        restore_btn =  """<a href="""+self.guid+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-undo-alt"></i>
           </span>
             <span class="text">"""+self.title+"""</span>
         </a>
         """
-        delete = '/delete_row/'+self.guid
+        delete = '/delete_row/film/'+self.guid
         delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-exclamation-triangle"></i>
@@ -169,30 +166,47 @@ class ep_table(db.Model):
     blurred = db.Column(db.Integer)
 
     def to_dict(self):
+
         poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
-        
+        rerun = '/rerun-tv-posters/'+self.guid
+        restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-undo-alt"></i>
+          </span>
+            <span class="text">"""+self.title+"""</span>
+        </a>
+        """
+        delete = '/delete_row/episode/'+self.guid
+        delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation-triangle"></i>
+          </span>
+        </a>
+        """
         if self.bannered_poster == None:
             return {
-                'title': self.title,
+                'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
                 'bannered_poster': "<a href='restore/bannered_poster/"+self.guid+"'><img height=150px src=''></a>",
                 'checked': self.checked,
-                'blurred': self.blurred
+                'blurred': self.blurred,
+                'delete': delete_btn
             }
         else:
             bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
             return {
-                'title': self.title,
+                'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
                 'bannered_poster': bannered_poster,
                 'checked': self.checked,
-                'blurred': self.blurred
+                'blurred': self.blurred,
+                'delete': delete_btn
             }            
 
 
@@ -202,14 +216,22 @@ class season_table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, index=True)
     guid = db.Column(db.String, index=True)
-    season_poster = db.Column(db.String)
+    poster = db.Column(db.String)
     bannered_season = db.Column(db.String)
 
     def to_dict(self):
-        bannered_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_season+"'></a>"
-        poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.season_poster+"'></a>"
+        delete = '/delete_row/season/'+self.guid
+        delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation-triangle"></i>
+          </span>
+        </a>
+        """
+        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=150px src='"+self.bannered_season+"'></a>"
+        poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
         return {
             'title': self.title,
-            'season_poster': poster,
-            'bannered_season': bannered_poster
+            'poster': poster,
+            'bannered_season': bannered_poster,
+            'delete': delete_btn
         }        
