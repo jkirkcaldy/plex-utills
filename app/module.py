@@ -168,23 +168,24 @@ def check_banners(tmp_poster, size):
     except OSError as e:
         logger.error('Cannot open image: '+repr(e))
 
-def get_poster(i, tmp_poster, title, b_dir):
+def get_poster(i, tmp_poster, title, b_dir, height, width):
     logger.debug(i.title+' Getting poster')
     imgurl = plex.transcodeImage(
         i.thumbUrl,
-        #height=3000,
-        #width=2000,
+        height=height,
+        width=width,
         imageFormat='png'
     )
     img = requests.get(imgurl, stream=True)
     filename = tmp_poster
+    valid = ''
     try:
         if img.status_code == 200:
             img.raw.decode_content = True
             with open(filename, 'wb') as f:                        
                 for chunk in img:
                     f.write(chunk)
-            valid = validate_image(tmp_poster)
+                valid = validate_image(tmp_poster)
         else:
             logger.info("4k Posters: "+title+ 'cannot find the poster for this film')
     except OSError as e:

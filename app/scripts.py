@@ -93,6 +93,8 @@ def posters4k(webhooktitle):
     blurred=False
     episode=''
     season=''
+    height = 3000
+    width = 2000
     def run_script(): 
         def hdrp(tmp_poster):
             logger.info(i.title+" HDR Banner")
@@ -314,7 +316,7 @@ def posters4k(webhooktitle):
                 res = i.media[0].videoResolution    
                 t = re.sub('plex://movie/', '', guid)
                 tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                tmp_poster = module.get_poster(i, tmp_poster, title, b_dir) 
+                tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width) 
                 r = film_table.query.filter(film_table.guid == guid).all()
                 table = film_table
                 if r:
@@ -635,7 +637,7 @@ def tv_episode_poster(epwebhook, poster):
                         tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
                     else:
                         tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'
-                    tmp_poster = module.get_poster(i, tmp_poster, title, b_dir)
+                    tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width)
                     blurred = False
                 else:
                     blurred = True
@@ -757,6 +759,8 @@ def restore_episodes_from_database():
     discover = Discover()
     tmdb.api_key = config[0].tmdb_api
     b_dir = '/config/backup/tv/episodes/'
+    height = 720
+    width = 1280
     def run_script():
         def restore_tmdb(g):
             logger.info("RESTORE: restoring posters from TheMovieDb")
@@ -2401,7 +2405,8 @@ def spoilers(guid):
     tmdb.api_key = config[0].tmdb_api    
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting TV Spolier script')    
-
+    height = 720
+    width = 1280
     for ep in tv.search(libtype='episode', guid=guid):
         i = ep
         title = ep.title
@@ -2437,7 +2442,7 @@ def spoilers(guid):
                         else:
                             i.uploadPoster(filepath=poster)
                 else:
-                    module.get_poster(i, tmp_poster, title, b_dir)
+                    module.get_poster(i, tmp_poster, title, b_dir, height, width)
                     banners = module.check_tv_banners(i, tmp_poster, img_title)
                     blurred = 0
                     season = str(i.parentIndex)
