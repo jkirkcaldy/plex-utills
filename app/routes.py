@@ -66,6 +66,13 @@ def rerun_posters4k(var):
     threading.Thread(target=scripts.guid_to_title(var), name='4K Poster Script').start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
+@app.route('/rerun-tv-posters/<path:var>', methods=['GET'])
+def rerun_tv_posters(var):
+    log.debug(var)
+    threading.Thread(target=scripts.guid_to_title(var), name='TV Poster Script').start()   
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
+
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
     threading.Thread(target=scripts.tvposters4k_thread).start()   
@@ -587,6 +594,7 @@ def ep_data():
     search = request.args.get('search[value]')
     if search:
         query = query.filter(db.or_(
+            ep_table.show_season.like(f'%{search}%'),
             ep_table.title.like(f'%{search}%'),
             ep_table.res.like(f'%{search}%'),
             ep_table.hdr.like(f'%{search}%'),
@@ -602,7 +610,7 @@ def ep_data():
         if col_index is None:
             break
         col_name = request.args.get(f'columns[{col_index}][data]')
-        if col_name not in ['title', 'res', 'hdr', 'audio']:
+        if col_name not in ['title', 'res', 'hdr', 'audio', 'show_season']:
             col_name = 'title'
         descending = request.args.get(f'order[{i}][dir]') == 'desc'
         col = getattr(ep_table, col_name)
@@ -697,6 +705,12 @@ def restore_season_poster(var=""):
     scripts.restore_single_season(var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
+@app.route('/restore_seasons')
+def restore_seasons():
+    #print(var)
+    scripts.restore_seasons()
+    message = 'Sent posters to be restored.'
+    return render_template('result.html', message=message, pagetitle='Restored', version=version)    
 @app.route('/restore/bannered_season/<path:var>')
 def restore_bannerred_season_poster(var=""):
     #print(var)

@@ -363,26 +363,39 @@ def posters4k(webhooktitle):
             pass
 
 def guid_to_title(var):
-    from app.models import Plex, film_table
-    from app import db
-    from app import module
+    from app.models import Plex
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
-    def run_script():
-        for i in films.search(guid=var):
-            title = i.title
-            posters4k(title)
-    
-    lib = config[0].filmslibrary.split(',')
-    logger.debug(lib)
-    if len(lib) <= 2:
-        try:
-            while True:
-                for l in range(10):
-                    films = plex.library.section(lib[l])
-                    run_script()
-        except IndexError:
-            pass   
+    if 'movie' in var:
+        def run_script():
+            for i in films.search(guid=var):
+                title = i.title
+                posters4k(title)
+
+        lib = config[0].filmslibrary.split(',')
+        logger.debug(lib)
+        if len(lib) <= 2:
+            try:
+                while True:
+                    for l in range(10):
+                        films = plex.library.section(lib[l])
+                        run_script()
+            except IndexError:
+                pass  
+    if 'episode' in var:
+        def run_script():
+            tv_episode_poster(var, '')
+
+        lib = config[0].tvlibrary.split(',')
+        logger.debug(lib)
+        if len(lib) <= 2:
+            try:
+                while True:
+                    for l in range(10):
+                        tv = plex.library.section(lib[l])
+                        run_script()
+            except IndexError:
+                pass    
 
 def tv_episode_poster(epwebhook, poster):
     from app.models import Plex, ep_table, season_table
@@ -397,7 +410,6 @@ def tv_episode_poster(epwebhook, poster):
     banner_new_hdr = Image.open("app/img/tv/hdr.png")
     atmos = Image.open("app/img/tv/atmos.png")
     dtsx = Image.open("app/img/tv/dtsx.png")
-    size = (1280,720)
     tmdb.api_key = config[0].tmdb_api    
     b_dir = 'static/backup/tv/episodes/'
     logger.info('Starting 4k Tv poster script')
@@ -520,6 +532,7 @@ def tv_episode_poster(epwebhook, poster):
                             module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                         else:
                             logger.debug(title+' is the same')
+                            
                     else:
                         scan = module.scan_files(config, i, plex)
                         audio = scan[0]
@@ -594,12 +607,7 @@ def tv_episode_poster(epwebhook, poster):
                     add_banner(tmp_poster)
                 else:
                     logger.debug(ep.title+' Has banner') 
-            rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
-            if True not in rechk_banners:
-                try:
-                    os.remove(tmp_poster)
-                except:
-                    pass
+
 
         
 
@@ -623,7 +631,10 @@ def tv_episode_poster(epwebhook, poster):
             hdr = module.get_plex_hdr(ep, plex)
             if (res == '4k' or hdr != 'none'):
                 if poster == "":
-                    tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
+                    if 'plex://' in guid:
+                        tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
+                    else:
+                        tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'
                     tmp_poster = module.get_poster(i, tmp_poster, title, b_dir)
                     blurred = False
                 else:
@@ -650,10 +661,23 @@ def tv_episode_poster(epwebhook, poster):
                             module.upload_poster(tmp_poster, title, db, r, table, i)
                     else:
                         new_poster = module.check_for_new_poster(tmp_poster, r, ep)
-                        if new_poster != 'False':
+                        if new_poster == 'False':
                             decision_tree(tmp_poster)
                             r = ep_table.query.filter(ep_table.guid == guid).all()
-                            module.upload_poster(tmp_poster, title, db, r, table, i) 
+                            module.upload_poster(tmp_poster, title, db, r, table, i)
+                    
+                    rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
+                    logger.debug('Rececked banners: '+str(rechk_banners))
+                    if (True in rechk_banners and config[0].backup == 1):
+                        bname = re.sub('plex://episode/', '', guid)
+                        banner_file = '/config/backup/tv/bannered_episodes/'+bname+'.png'
+                        module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
+                    if True not in rechk_banners:
+                        try:
+                            os.remove(tmp_poster)
+                        except:
+                            pass
+
                 except IndexError: 
                     new_poster = module.check_for_new_poster(tmp_poster, r, ep)
                     if new_poster != 'False':
@@ -667,7 +691,10 @@ def tv_episode_poster(epwebhook, poster):
 
                         pguid = ep.parentGuid
                         rs = season_table.query.filter(season_table.guid == pguid).all()
-                        st = re.sub('plex://season/', '', pguid)
+                        if 'plex://' in guid:
+                            st = re.sub('plex://episode/', '', pguid)
+                        else:
+                            st = re.sub('local://', '', pguid)
                         season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
                         season_poster = module.get_season_poster(ep, season_poster, config)    
 
@@ -733,7 +760,13 @@ def restore_episodes_from_database():
     def run_script():
         def restore_tmdb(g):
             logger.info("RESTORE: restoring posters from TheMovieDb")
-            tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
+            if g == '':
+                if i.grandparentTitle == '':
+                    tmdb_search = tmdbtv.details(name=i.parentTitle, episode_num=episode, season_num=season)
+                else:
+                    tmdb_search = tmdbtv.details(name=i.grandparentTitle, episode_num=episode, season_num=season)
+            else:
+                tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
             def get_poster(poster):
                 req = requests.get(poster_url_base+poster, stream=True)
                 if req.status_code == 200:
@@ -827,7 +860,11 @@ def restore_episode_from_database(var):
 
         def restore_tmdb(g):
             logger.info("RESTORE: restoring posters from TheMovieDb")
-            tmdb_search = tmdbtv.details(tv_id=g, episode_num= episode, season_num=season)
+            if g == '':
+                tmdb_show= TV()
+                show = tmdb_show.search(i.grandparentTitle)
+                for s in show:
+                    tmdb_search = tmdbtv.details(tv_id=s.id, episode_num=episode, season_num=season)
             logger.debug(tmdb_search.still_path)
             def get_poster(poster):
                 req = requests.get(poster_url_base+poster, stream=True)
@@ -858,6 +895,7 @@ def restore_episode_from_database(var):
             logger.debug(i.grandparentTitle+' '+season+' '+episode)
             r = ep_table.query.filter(ep_table.guid == guid).all()
             if r:
+                logger.debug('episode exists in database')
                 resolution = i.media[0].videoResolution
                 hdr = r[0].hdr
                 if (resolution == '4k' or hdr != 'None'):
@@ -887,6 +925,12 @@ def restore_episode_from_database(var):
                         db.session.commit()
                     except (TypeError, IndexError, FileNotFoundError) as e:
                         logger.error('Restore from db: '+repr(e))  
+            else:
+                if 'tmdb' in g:
+                    g = module.get_tmdb_guid(g)
+                    restore_tmdb(g)
+                else:
+                    restore_tmdb('')
         logger.info('Finished restoring TV Posters')
     lib = config[0].tvlibrary.split(',')
     logger.debug(lib)
@@ -1119,6 +1163,44 @@ def restore_single_bannered(var):
         except IndexError:
             pass
     return msg
+
+def restore_seasons():
+    from app.models import Plex, season_table
+    from app import db
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    def run_script():
+        advanced_filters = {
+            'or':[
+                {'resolution':'4k'},
+                {'hdr': True}
+            ]
+        }
+        for i in tv.search(libtype='season', filters=advanced_filters):
+            title = i.title
+            guid = i.guid
+            logger.info('restoring '+title)
+            r = season_table.query.filter(season_table.guid == guid).all()
+            try:
+                b_file = re.sub('static', '/config', r[0].poster)
+                print(b_file)
+                i.uploadPoster(filepath=b_file)
+                row = r[0].id
+                film = season_table.query.get(row)
+                film.checked = '0'
+                db.session.commit()
+            except (TypeError, IndexError, FileNotFoundError) as e:
+                logger.error(repr(e)) 
+    lib = config[0].tvlibrary.split(',')
+    logger.debug(lib)
+    if len(lib) <= 2:
+        try:
+            while True:
+                for l in range(10):
+                    tv = plex.library.section(lib[l])
+                    run_script()
+        except IndexError:
+            pass
 
 def restore_single_season(var):
     from app.models import Plex, season_table
@@ -2406,11 +2488,17 @@ def delete_row(var):
 
     elif 'episode' in var:
         table = ep_table
-        guid = re.sub('episode/p', 'p', str(var))
+        if 'plex://' in var:
+            guid = re.sub('episode/p', 'p', str(var))
+        else:
+            guid = re.sub('episode/l', 'l', str(var))
 
     elif 'season' in var:
         table = season_table
-        guid = re.sub('season/p', 'p', str(var))
+        if 'plex://' in var:
+            guid = re.sub('season/p', 'p', str(var))
+        else:
+            guid = re.sub('season/l', 'l', str(var))
 
     print(str(table)+" - "+str(guid))
     r = table.query.filter(table.guid == guid).all()

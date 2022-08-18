@@ -20,6 +20,9 @@ import random
 import string
 import time
 
+from app.models import Plex
+config = Plex.query.filter(Plex.id == '1')
+plex = PlexServer(config[0].plexurl, config[0].token)
 tmdb = TMDb()
 poster_url_base = 'https://www.themoviedb.org/t/p/original'
 search = Search()
@@ -63,10 +66,11 @@ def get_tmdb_guid(g):
     g = str(g[0])
     gv = [v for v in g if v.isnumeric()]
     g = "".join(gv)
+    logger.debug(g)
     return g
     
 def tmdb_poster_path(b_dir, i, g, episode, season):
-    if 'film' in b_dir:
+    if episode == '':
         logger.debug("is a film")
         tmdb_search = movie.details(movie_id=g)
         poster2_search = movie.images(movie_id=g)
@@ -74,10 +78,16 @@ def tmdb_poster_path(b_dir, i, g, episode, season):
         logger.info(i.title)
         poster = tmdb_search.poster_path
         return poster
-    elif 'episodes' in b_dir:
+    else:
         logger.debug("is TV")
         logger.debug(g+':'+season+'_'+episode)
-        tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
+        if g == '':
+            if i.grandparentTitle == '':
+                tmdb_search = tmdbtv.details(name=i.parentTitle, episode_num=episode, season_num=season)
+            else:
+                tmdb_search = tmdbtv.details(name=i.grandparentTitle, episode_num=episode, season_num=season)
+        else:
+            tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
         poster = tmdb_search.still_path 
         return poster
 
@@ -160,8 +170,12 @@ def check_banners(tmp_poster, size):
 
 def get_poster(i, tmp_poster, title, b_dir):
     logger.debug(i.title+' Getting poster')
-    imgurl = i.posterUrl
-    logger.debug(imgurl)
+    imgurl = plex.transcodeImage(
+        i.thumbUrl,
+        #height=3000,
+        #width=2000,
+        imageFormat='png'
+    )
     img = requests.get(imgurl, stream=True)
     filename = tmp_poster
     try:
@@ -170,6 +184,7 @@ def get_poster(i, tmp_poster, title, b_dir):
             with open(filename, 'wb') as f:                        
                 for chunk in img:
                     f.write(chunk)
+            valid = validate_image(tmp_poster)
         else:
             logger.info("4k Posters: "+title+ 'cannot find the poster for this film')
     except OSError as e:
@@ -177,24 +192,33 @@ def get_poster(i, tmp_poster, title, b_dir):
     except Exception as e:
         logger.error('Get Poster Exception: '+repr(e))
 
-    valid = validate_image(tmp_poster)
+    
     if valid == True:
         return tmp_poster
     else:
         logger.warning("poster is blank, getting poster from TMDB")
-        t = re.sub('plex://movie/', '', i.guid)
-        tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-        g = str(i.guids)
-        g = get_tmdb_guid(g)
-        poster = tmdb_poster_path(b_dir, i, g, '', '')
-        tmp_poster = get_tmdb_poster(tmp_poster, poster)
+        if 'movie' in i.guid:
+            t = re.sub('plex://movie/', '', i.guid)
+            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+            g = str(i.guids)
+            g = get_tmdb_guid(g)
+            poster = tmdb_poster_path(b_dir, i, g, '', '')
+            tmp_poster = get_tmdb_poster(tmp_poster, poster)
+        elif 'episode' in i.guid:
+            t = re.sub('plex://episode/', '', i.guid)
+            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+            g = str(i.guids)
+            g = get_tmdb_guid(g)
+            season = str(i.parentIndex)
+            episode = str(i.index)
+            poster = tmdb_poster_path(b_dir, i, g, episode, season)            
+            tmp_poster = get_tmdb_poster(tmp_poster, poster)
         return tmp_poster
     
 def get_season_poster(ep, tmp_poster, config):
         logger.debug(ep.title+' Getting poster')
         title = ep.title
         imgurl = config[0].plexurl+ep.parentThumb+'?X-Plex-Token='+config[0].token
-        logger.debug(imgurl)
         img = requests.get(imgurl, stream=True)
         filename = tmp_poster
         try:
@@ -254,7 +278,10 @@ def upload_poster(tmp_poster, title, db, r, table, i):
         if os.path.exists(tmp_poster) == True:
             try:
                 valid = validate_image(tmp_poster)
-                if valid == True:
+                bname = re.sub('plex://episode/', '', i.guid)
+                bannered_poster = '/config/backup/tv/bannered_episodes/'+bname+'.png'
+                changed = bannered_poster_compare(tmp_poster, bannered_poster, r, i)
+                if (valid == True and changed == 'True'):
                     logger.debug('uploading poster')
                     i.uploadPoster(filepath=tmp_poster)
                     time.sleep(2)
@@ -429,6 +456,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                 logger.warning("Creating backup file from TMDb didn't work")
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
+    logger.debug(table)
     db.session.close()
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])    
@@ -451,7 +479,11 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     except:
         pass
     logger.debug('Adding '+i.title+' to database')
-    film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
+    if ('film_table' in str(table) or 'season_table' in str(table)):
+        film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1')
+    elif 'ep_table' in str(table):
+        show_season = i.grandparentTitle+': '+i.parentTitle
+        film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='1', show_season=show_season)
     try:
         db.session.add(film)
         db.session.commit()
@@ -473,23 +505,43 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
             b_file = re.sub('/config', 'static', b_file)
     else:
         b_file = r[0].poster
-    try:
-        logger.debug('Updating '+title+' in database')
-        row = r[0].id
-        film = table.query.get(row)
-        film.size = size
-        film.res = res
-        film.hdr = hdr
-        film.audio = audio
-        film.poster = b_file
-        film.checked = '0'
-        db.session.commit()
-    except:
-        db.session.rollback()
-        raise logger.error(Exception('Database Roll back error'))
-        
-    finally:
-        db.session.close()
+    if (table == 'film_table' or table == 'season_table'):
+        try:
+            logger.debug('Updating '+title+' in database')
+            row = r[0].id
+            film = table.query.get(row)
+            film.size = size
+            film.res = res
+            film.hdr = hdr
+            film.audio = audio
+            film.poster = b_file
+            film.checked = '0'
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise logger.error(Exception('Database Roll back error'))
+
+        finally:
+            db.session.close()
+    else:
+        try:
+            logger.debug('Updating '+title+' in database')
+            row = r[0].id
+            film = table.query.get(row)
+            film.show_season = i.grandparentTitle+': '+i.parentTitle
+            film.size = size
+            film.res = res
+            film.hdr = hdr
+            film.audio = audio
+            film.poster = b_file
+            film.checked = '0'
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise logger.error(Exception('Database Roll back error'))
+
+        finally:
+            db.session.close()        
 
 def blur(tmp_poster, r, table, db, guid):
     poster = re.sub('.png', '.blurred.png', tmp_poster)
@@ -590,7 +642,7 @@ def add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file):
     logger.debug(banner_file)
     shutil.copy(tmp_poster, banner_file)
     try:    
-        logger.debug('Updating '+title+' in database')
+        logger.debug('Adding bannered poster for: '+title+' in database')
         r = table.query.filter(table.guid == guid).all()
         row = r[0].id
         media = table.query.get(row)       
@@ -632,6 +684,54 @@ def check_for_new_poster(tmp_poster, r, i):
     if r:
         try:
             poster_file = r[0].poster
+            poster_file = re.sub('static', '/config', poster_file)
+            
+            try:
+                bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+                bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+                bak_poster = Image.fromarray(bak_poster)
+                bak_poster_hash = imagehash.average_hash(bak_poster)
+                poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+                poster = Image.fromarray(poster)
+                poster_hash = imagehash.average_hash(poster)
+            except SyntaxError as e:
+                    logger.error('Check for new poster Syntax Error: '+repr(e))
+            except OSError as e:
+                    logger.error('Check for new poster OSError: '+repr(e))
+                    if ('FileNotFoundError'  or 'Errno 2 ') in e:
+                        logger.debug(i.title+' - Poster Not found')
+                        new_poster = 'BLANK'
+                        return new_poster
+                    else:
+                        logger.debug(i.title)
+                        logger.warning('Check for new Poster: '+repr(e))
+
+            if poster_hash - bak_poster_hash > cutoff:
+                logger.debug(i.title+' - Poster has changed')
+                new_poster = 'True'
+                return new_poster                      
+            else:
+                logger.debug('Poster has not changed')
+                return new_poster       
+        except Exception as e:
+            logger.error('Check for new poster Exception: '+repr(e))
+            if '!_src.empty()' in str(e):
+                logger.error("poster is blank")
+                new_poster = 'BLANK'
+            else:
+                logger.debug('Film not in database yet')
+                new_poster = 'True'
+            return new_poster
+    else:
+        new_poster='True'
+        return new_poster
+
+def bannered_poster_compare(tmp_poster, bannered_poster, r, i):
+    new_poster = 'False'
+    if r:
+        try:
+            poster_file = bannered_poster
             poster_file = re.sub('static', '/config', poster_file)
             
             try:

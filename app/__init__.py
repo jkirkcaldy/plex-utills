@@ -67,7 +67,10 @@ def setup_helper():
                     """    
             query12 = """ALTER TABLE plex_utills    
                     ADD COLUMN spoilers INT
-                    """                                                   
+                    """    
+            query13 = """ALTER TABLE episodes    
+                    ADD COLUMN show_season INT
+                    """                                                  
             try:
                 c.execute(query1)
             except sqlite3.OperationalError as e:
@@ -118,7 +121,11 @@ def setup_helper():
             try:
                 c.execute(query12)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))               
+                log.debug(repr(e))  
+            try:
+                c.execute(query13)
+            except sqlite3.OperationalError as e:
+                log.debug(repr(e))                              
             try:
                 api = config[0][32]
                 loglevel = config[0][36]
@@ -270,6 +277,7 @@ def setup_helper():
             c = conn.cursor() 
             table = """CREATE TABLE "episodes" (
                     	"ID"	INTEGER NOT NULL UNIQUE,
+                        "Show_season" TEXT,
                     	"Title"	TEXT NOT NULL,
                     	"GUID"	TEXT NOT NULL,
                     	"GUIDS"	TEXT NOT NULL,
@@ -296,7 +304,7 @@ def setup_helper():
                     	"ID"	INTEGER NOT NULL UNIQUE,
                     	"Title"	TEXT NOT NULL,
                     	"GUID"	TEXT NOT NULL,
-                        "season_poster" TEXT,
+                        "poster" TEXT,
                         "bannered_season" TEXT,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """

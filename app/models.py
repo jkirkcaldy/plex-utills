@@ -112,7 +112,8 @@ class film_table(db.Model):
     def to_dict(self):
 
         print(self.bannered_poster)
-        restore_btn =  """<a href="""+self.guid+""" class="btn btn-secondary btn-icon-split" id="rerun">
+        restore = '/restore/film/'+self.guid
+        restore_btn =  """<a href="""+restore+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-undo-alt"></i>
           </span>
@@ -164,9 +165,9 @@ class ep_table(db.Model):
     bannered_poster = db.Column(db.String)
     checked = db.Column(db.Integer)
     blurred = db.Column(db.Integer)
+    show_season = db.Column(db.String, index=True)
 
     def to_dict(self):
-
         poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
         rerun = '/rerun-tv-posters/'+self.guid
         restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
@@ -185,6 +186,7 @@ class ep_table(db.Model):
         """
         if self.bannered_poster == None:
             return {
+                'show_season': self.show_season,
                 'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
@@ -198,6 +200,7 @@ class ep_table(db.Model):
         else:
             bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
             return {
+                'show_season': self.show_season,
                 'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
@@ -208,7 +211,6 @@ class ep_table(db.Model):
                 'blurred': self.blurred,
                 'delete': delete_btn
             }            
-
 
 class season_table(db.Model):
     __tablename__ = 'seasons'
