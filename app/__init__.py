@@ -306,6 +306,7 @@ def setup_helper():
                     	"GUID"	TEXT NOT NULL,
                         "poster" TEXT,
                         "bannered_season" TEXT,
+                        "checked" INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """
             c.execute(table)
@@ -383,6 +384,10 @@ def setup_helper():
         log.info('Backup directory exists')
     else:
         os.makedirs(b_dir+'/tv/episodes')
+    if os.path.exists(b_dir+'/tv/bannered_episodes'):
+        log.info('Backup directory exists')
+    else:
+        os.makedirs(b_dir+'/tv/bannered_episodes')        
     if os.path.exists(b_dir+'bannered_films'):
         log.info('Bannered Film folder exists')
     else:

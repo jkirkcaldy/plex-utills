@@ -515,7 +515,7 @@ def recently_added():
                     return 'ok', 200
         except:
             if 'series' in data:
-                tv_show = data['series'][0]['title']
+                tv_show = data['series']['title']
                 mediatype = 'episode'
                 season = data['episodes'][0]['seasonNumber']
                 episode = data['episodes'][0]['episodeNumber']
@@ -780,6 +780,7 @@ def delete_tv_database():
         """
     table = """CREATE TABLE "episodes" (
             	"ID"	INTEGER NOT NULL UNIQUE,
+                "show_season" TEXT,
             	"Title"	TEXT NOT NULL,
             	"GUID"	TEXT NOT NULL,
             	"GUIDS"	TEXT NOT NULL,
@@ -821,6 +822,7 @@ def delete_season_database():
                     	"GUID"	TEXT NOT NULL,
                         "poster" TEXT,
                         "bannered_season" TEXT,
+                        "checked" INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """
     c.execute(query1)

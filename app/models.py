@@ -110,8 +110,14 @@ class film_table(db.Model):
 
 
     def to_dict(self):
-
-        print(self.bannered_poster)
+        rerun = '/rerun-posters4k/'+self.guid
+        rerun_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-undo-alt"></i>
+          </span>
+            <span class="text">"""+self.title+"""</span>
+        </a>
+        """
         restore = '/restore/film/'+self.guid
         restore_btn =  """<a href="""+restore+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
@@ -129,7 +135,7 @@ class film_table(db.Model):
         """
         if self.bannered_poster == None:
             return {
-            'title': restore_btn,
+            'title': rerun_btn,
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
@@ -140,7 +146,7 @@ class film_table(db.Model):
             }
         elif self.bannered_poster != None:
             return {
-                'title': restore_btn,
+                'title': rerun_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
@@ -220,6 +226,7 @@ class season_table(db.Model):
     guid = db.Column(db.String, index=True)
     poster = db.Column(db.String)
     bannered_season = db.Column(db.String)
+    checked = db.Column(db.Integer)
 
     def to_dict(self):
         delete = '/delete_row/season/'+self.guid
@@ -235,5 +242,6 @@ class season_table(db.Model):
             'title': self.title,
             'poster': poster,
             'bannered_season': bannered_poster,
+            'checked': self.checked,
             'delete': delete_btn
         }        
