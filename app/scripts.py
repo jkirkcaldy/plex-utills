@@ -693,15 +693,7 @@ def tv_episode_poster(epwebhook, poster):
                                 r = ep_table.query.filter(ep_table.guid == guid).all()
                                 module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
 
-                        logger.debug(tmp_poster)
-                        rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
-                        logger.debug('Rechecked banners: '+str(rechk_banners))
-                        if (True in rechk_banners and config[0].backup == 1):
-                            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
-                        try:
-                            os.remove(tmp_poster)
-                        except:
-                            pass
+
 
                     except IndexError: 
                         new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
@@ -714,53 +706,61 @@ def tv_episode_poster(epwebhook, poster):
                         except:
                             pass                           
                         
-                    finally:
-                        try:
-                            logger.info("Season Poster")
+                    logger.debug(tmp_poster)
+                    rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
+                    logger.debug('Rechecked banners: '+str(rechk_banners))
+                    if (True in rechk_banners and config[0].backup == 1):
+                        module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
+                    try:
+                        os.remove(tmp_poster)
+                    except:
+                        pass
+                    try:
+                        logger.info("Season Poster")
 
-                            pguid = ep.parentGuid
-                            rs = season_table.query.filter(season_table.guid == pguid).all()
-                            if 'plex://' in guid:
-                                st = re.sub('plex://season/', '', pguid)
-                            else:
-                                st = re.sub('local://', '', pguid)
-                            season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
-                            logger.debug(season_poster)
-                            season_poster = module.get_season_poster(ep, season_poster, config)    
+                        pguid = ep.parentGuid
+                        rs = season_table.query.filter(season_table.guid == pguid).all()
+                        if 'plex://' in guid:
+                            st = re.sub('plex://season/', '', pguid)
+                        else:
+                            st = re.sub('local://', '', pguid)
+                        season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
+                        logger.debug(season_poster)
+                        season_poster = module.get_season_poster(ep, season_poster, config)    
 
-                            new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
+                        new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
 
-                            size = (2000, 3000)
-                            s_banners = module.check_banners(season_poster, size)
-                            logger.debug('Season poster banners: '+str(s_banners))
-                            logger.debug('Season poster: '+str(new_poster))
-                            if ('True' in s_banners or new_poster != 'True'):
-                                logger.info('Skipping season poster')
-                            else:
-                                s_bak = '/config/backup/tv/seasons/'+st+'.png'
-                                for b in str(s_banners):
-                                    banner_index = b.find('True')
-                                if (banner_index < 0):
-                                    shutil.copy(season_poster, s_bak)
-                                    if os.path.exists(s_bak) != True:
-                                        raise Exception("Season poster has not copied")
-                                module.season_decision_tree(config, s_banners, ep, hdr, res, season_poster)
-                                banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
-                                s_banners = module.check_banners(season_poster, size)
-                                shutil.copy(season_poster, banner_file)
-                                if os.path.exists(banner_file) != True:
+                        size = (2000, 3000)
+                        s_banners = module.check_banners(season_poster, size)
+                        logger.debug('Season poster banners: '+str(s_banners))
+                        logger.debug('Season poster: '+str(new_poster))
+                        if ('True' in s_banners or new_poster != 'True'):
+                            logger.info('Skipping season poster')
+                        else:
+                            s_bak = '/config/backup/tv/seasons/'+st+'.png'
+                            for b in str(s_banners):
+                                banner_index = b.find('True')
+                            if (banner_index < 0):
+                                shutil.copy(season_poster, s_bak)
+                                if os.path.exists(s_bak) != True:
                                     raise Exception("Season poster has not copied")
-                                title = ep.grandparentTitle
-                                table = season_table
-                                module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
-                                db.session.close()                       
-                                for s in tv.search(guid=pguid, libtype='season'):
-                                    r = season_table.query.filter(season_table.guid == pguid).all()
-                                    module.upload_poster(season_poster, title, db, r, table, s, banner_file)
-                            module.remove_tmp_files(season_poster)
-                        except Exception as e:
-                            logger.error("Season poster Error: "+repr(e))
-                            pass
+                            module.season_decision_tree(config, s_banners, ep, hdr, res, season_poster)
+                            banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
+                            s_banners = module.check_banners(season_poster, size)
+                            shutil.copy(season_poster, banner_file)
+                            if os.path.exists(banner_file) != True:
+                                raise Exception("Season poster has not copied")
+                            title = ep.grandparentTitle
+                            table = season_table
+                            module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
+                            db.session.close()                       
+                            for s in tv.search(guid=pguid, libtype='season'):
+                                r = season_table.query.filter(season_table.guid == pguid).all()
+                                module.upload_poster(season_poster, title, db, r, table, s, banner_file)
+                        module.remove_tmp_files(season_poster)
+                    except Exception as e:
+                        logger.error("Season poster Error: "+repr(e))
+                        pass
             except Exception as e:
                 logger.error(i.title+ ' '+repr(e))
         logger.info("tv Poster Script has finished")
