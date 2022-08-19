@@ -521,7 +521,7 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
             b_file = re.sub('/config', 'static', b_file)
     else:
         b_file = r[0].poster
-    if (table == 'film_table' or table == 'season_table'):
+    if ('film_table' in str(table) or 'season_table' in str(table)):
         try:
             logger.debug('Updating '+title+' in database')
             row = r[0].id
