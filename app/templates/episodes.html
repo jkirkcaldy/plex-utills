@@ -71,5 +71,24 @@
     });
   });
 </script>
+<script>
+  function searchFunction() {
+    var dt = $('#ep_data').DataTable();
+    //hide the first column
+
+    var version = document.getElementById("version")
+    if (version.innerText.includes("alpha") || version.innerText.includes("dev"))  {
+      dt.column(8).visible(true);
+      dt.column(7).visible(true);
+      console.log(version);
+    }
+    else
+    {
+      dt.column(8).visible(false);
+      dt.column(7).visible(false);
+    }
+  }
+  window.onload = searchFunction
+</script>
 
 {% endblock %}

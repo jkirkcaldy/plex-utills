@@ -61,5 +61,21 @@
     });
   });
 </script>
+<script>
+  function searchFunction() {
+    var dt = $('#season_data').DataTable();
+    //hide the first column
 
+    var version = document.getElementById("version")
+    if (version.innerText.includes("alpha") || version.innerText.includes("dev"))  {
+      dt.column(3).visible(true);
+      console.log(version);
+    }
+    else
+    {
+      dt.column(3).visible(false);
+    }
+  }
+  window.onload = searchFunction
+</script>
 {% endblock %}

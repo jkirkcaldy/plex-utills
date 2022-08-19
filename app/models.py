@@ -139,9 +139,9 @@ class film_table(db.Model):
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
-            'poster': "<a href='restore/film/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
+            'poster': "<a href='restore/film/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>",
             'checked': self.checked,
-            'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>" ,               
+            'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=100px src=''></a>" ,               
             'delete': delete_btn
             }
         elif self.bannered_poster != None:
@@ -150,9 +150,9 @@ class film_table(db.Model):
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
-                'poster': "<a href='restore/film/"+self.guid+"'><img    height=150px src='"+self.poster+"'></a>",
+                'poster': "<a href='restore/film/"+self.guid+"'><img    height=100px src='"+self.poster+"'></a>",
                 'checked': self.checked,
-                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=150px src='"+self.bannered_poster+"'></a>", 
+                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=100px src='"+self.bannered_poster+"'></a>", 
                 'delete': delete_btn              
             }
 
@@ -174,7 +174,7 @@ class ep_table(db.Model):
     show_season = db.Column(db.String, index=True)
 
     def to_dict(self):
-        poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
+        poster = "<a href='restore/episode/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>"
         rerun = '/rerun-tv-posters/'+self.guid
         restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
@@ -198,13 +198,13 @@ class ep_table(db.Model):
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
-                'bannered_poster': "<a href='restore/bannered_poster/"+self.guid+"'><img height=150px src=''></a>",
+                'bannered_poster': "<a href='restore/bannered_poster/"+self.guid+"'><img height=100px src=''></a>",
                 'checked': self.checked,
                 'blurred': self.blurred,
                 'delete': delete_btn
             }
         else:
-            bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
+            bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=100px src='"+self.bannered_poster+"'></a>"
             return {
                 'show_season': self.show_season,
                 'title': restore_btn,
@@ -236,8 +236,8 @@ class season_table(db.Model):
           </span>
         </a>
         """
-        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=150px src='"+self.bannered_season+"'></a>"
-        poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
+        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=100px src='"+self.bannered_season+"'></a>"
+        poster = "<a href='restore/season/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>"
         return {
             'title': self.title,
             'poster': poster,

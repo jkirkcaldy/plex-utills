@@ -64,5 +64,23 @@
     });
   });
 </script>
+<script>
+  function searchFunction() {
+    var dt = $('#data').DataTable();
+    //hide the first column
 
+    var version = document.getElementById("version")
+    if (version.innerText.includes("alpha") || version.innerText.includes("dev"))  {
+      dt.column(6).visible(true);
+
+      console.log(version);
+    }
+    else
+    {
+
+      dt.column(6).visible(false);
+    }
+  }
+  window.onload = searchFunction
+</script>
 {% endblock %}

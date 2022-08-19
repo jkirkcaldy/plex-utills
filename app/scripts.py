@@ -384,7 +384,7 @@ def guid_to_title(var):
                         run_script()
             except IndexError:
                 pass  
-    if 'episode' in var:
+    elif 'episode' in var:
         def run_script():
             tv_episode_poster(var, '')
 
@@ -398,6 +398,22 @@ def guid_to_title(var):
                         run_script()
             except IndexError:
                 pass    
+    elif 'local' in var:
+        def run_script():
+            tv_episode_poster(var, '')
+
+        lib = config[0].tvlibrary.split(',')
+        logger.debug(lib)
+        if len(lib) <= 2:
+            try:
+                while True:
+                    for l in range(10):
+                        tv = plex.library.section(lib[l])
+                        run_script()
+            except IndexError:
+                pass    
+    else:
+        logger.warning("not running script for: "+var)
 
 def tv_episode_poster(epwebhook, poster):
     from app.models import Plex, ep_table, season_table
@@ -619,128 +635,134 @@ def tv_episode_poster(epwebhook, poster):
                 {'hdr': True}
             ]
         }
-        for ep in tv.search(libtype='episode', guid=epwebhook, filters=advanced_filters, limit=1):
-            logger.debug(ep.title)
-            i = ep
-            img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
-            resolution = ep.media[0].videoResolution
-            title = ep.title
-            logger.info(img_title)
-            guid = str(ep.guid)
-            guids = str(ep.guids)
-            size = ep.media[0].parts[0].size
-            res = ep.media[0].videoResolution 
-            hdr = module.get_plex_hdr(ep, plex)
-            height = 720
-            width = 1280
-            if (res == '4k' or hdr != 'none'):
-                if poster == "":
-                    if 'plex://' in guid:
-                        tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
-                    else:
-                        tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'
-                    tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width)
-                    blurred = False
+        for ep in tv.search(libtype='episode', guid=epwebhook, filters=advanced_filters):
+            try:
+                logger.debug(ep.title)
+                i = ep
+                img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
+                resolution = ep.media[0].videoResolution
+                title = ep.title
+                logger.info(img_title)
+                guid = str(ep.guid)
+                guids = str(ep.guids)
+                size = ep.media[0].parts[0].size
+                res = ep.media[0].videoResolution 
+                hdr = module.get_plex_hdr(ep, plex)
+                height = 720
+                width = 1280
+                if 'plex://' in guid:
+                    tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
                 else:
-                    blurred = True
-                    tmp_poster = poster
-                r = ep_table.query.filter(ep_table.guid == guid).all()
-                table = ep_table
-                g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
-                g = str(g[0].guids)
-                logger.debug(g)
-                bname = re.sub('plex://episode/', '', guid)
-                banner_file = '/config/backup/tv/bannered_episodes/'+bname+'.png'
-                try:
-                    if r[0].checked == 1:
-                        logger.info(ep.title+' has been checked, checking to see if the file has changed')
-                        if str(r[0].size) == str(size):
-                                logger.info(title+' has been processed and the file has not changed, skiping scan')
-                                new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                                if new_poster != 'False':
-                                    decision_tree(tmp_poster)
-                                    r = ep_table.query.filter(ep_table.guid == guid).all()                               
-                                    module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-                        else:
-                            decision_tree(tmp_poster)
-                            r = ep_table.query.filter(ep_table.guid == guid).all()                          
-                            module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+                    tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'                
+                if (res == '4k' or hdr != 'none'):
+                    if poster == "":
+
+                        tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width)
+                        blurred = False
                     else:
+                        blurred = True
+                        tmp_poster = poster
+                    r = ep_table.query.filter(ep_table.guid == guid).all()
+                    table = ep_table
+                    g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+                    g = str(g[0].guids)
+                    logger.debug(g)
+                    if 'plex://' in guid:
+                        bname = re.sub('plex://episode/', '', guid)
+                    else:
+                        bname = re.sub('local://', '', guid)
+                    banner_file = '/config/backup/tv/bannered_episodes/'+bname+'.png'
+                    try:
+                        if r[0].checked == 1:
+                            logger.info(ep.title+' has been checked, checking to see if the file has changed')
+                            if str(r[0].size) == str(size):
+                                    logger.info(title+' has been processed and the file has not changed, skiping scan')
+                                    new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
+                                    if new_poster != 'False':
+                                        decision_tree(tmp_poster)
+                                        r = ep_table.query.filter(ep_table.guid == guid).all()                               
+                                        module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+                            else:
+                                decision_tree(tmp_poster)
+                                r = ep_table.query.filter(ep_table.guid == guid).all()                          
+                                module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+                        else:
+                            new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
+                            if new_poster == 'False':
+                                decision_tree(tmp_poster)
+                                r = ep_table.query.filter(ep_table.guid == guid).all()
+                                module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+
+                        logger.debug(tmp_poster)
+                        rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
+                        logger.debug('Rechecked banners: '+str(rechk_banners))
+                        if (True in rechk_banners and config[0].backup == 1):
+                            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
+                        try:
+                            os.remove(tmp_poster)
+                        except:
+                            pass
+
+                    except IndexError: 
                         new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                        if new_poster == 'False':
+                        if new_poster != 'False':
                             decision_tree(tmp_poster)
                             r = ep_table.query.filter(ep_table.guid == guid).all()
                             module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-                    
-                    logger.debug(tmp_poster)
-                    rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
-                    logger.debug('Rechecked banners: '+str(rechk_banners))
-                    if (True in rechk_banners and config[0].backup == 1):
-                        module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
-                    try:
-                        os.remove(tmp_poster)
-                    except:
-                        pass
+                        try:
+                            os.remove(tmp_poster)
+                        except:
+                            pass                           
+                        
+                    finally:
+                        try:
+                            logger.info("Season Poster")
 
-                except IndexError: 
-                    new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                    if new_poster != 'False':
-                        decision_tree(tmp_poster)
-                        r = ep_table.query.filter(ep_table.guid == guid).all()
-                        module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-                    try:
-                        os.remove(tmp_poster)
-                    except:
-                        pass                           
-                
-                finally:
-                    try:
-                        logger.info("Season Poster")
+                            pguid = ep.parentGuid
+                            rs = season_table.query.filter(season_table.guid == pguid).all()
+                            if 'plex://' in guid:
+                                st = re.sub('plex://season/', '', pguid)
+                            else:
+                                st = re.sub('local://', '', pguid)
+                            season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
+                            logger.debug(season_poster)
+                            season_poster = module.get_season_poster(ep, season_poster, config)    
 
-                        pguid = ep.parentGuid
-                        rs = season_table.query.filter(season_table.guid == pguid).all()
-                        if 'plex://' in guid:
-                            st = re.sub('plex://season/', '', pguid)
-                        else:
-                            st = re.sub('local://', '', pguid)
-                        season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
-                        logger.debug(season_poster)
-                        season_poster = module.get_season_poster(ep, season_poster, config)    
+                            new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
 
-                        new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
-
-                        size = (2000, 3000)
-                        s_banners = module.check_banners(season_poster, size)
-                        logger.debug('Season poster banners: '+str(s_banners))
-                        logger.debug('Season poster: '+str(new_poster))
-                        if ('True' in s_banners or new_poster != 'True'):
-                            logger.info('Skipping season poster')
-                        else:
-                            s_bak = '/config/backup/tv/seasons/'+st+'.png'
-                            for b in str(s_banners):
-                                banner_index = b.find('True')
-                            if (banner_index < 0):
-                                shutil.copy(season_poster, s_bak)
-                                if os.path.exists(s_bak) != True:
-                                    raise Exception("Season poster has not copied")
-                            module.season_decision_tree(config, s_banners, ep, hdr, res, season_poster)
-                            banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
+                            size = (2000, 3000)
                             s_banners = module.check_banners(season_poster, size)
-                            shutil.copy(season_poster, banner_file)
-                            if os.path.exists(banner_file) != True:
-                                raise Exception("Season poster has not copied")
-                            title = ep.grandparentTitle
-                            table = season_table
-                            module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
-                            db.session.close()                       
-                            for s in tv.search(guid=pguid, libtype='season'):
-                                r = season_table.query.filter(season_table.guid == pguid).all()
-                                module.upload_poster(season_poster, title, db, r, table, s, banner_file)
-                        module.remove_tmp_files(season_poster)
-                    except Exception as e:
-                        logger.error("Season poster Error: "+repr(e))
-                        pass
-
+                            logger.debug('Season poster banners: '+str(s_banners))
+                            logger.debug('Season poster: '+str(new_poster))
+                            if ('True' in s_banners or new_poster != 'True'):
+                                logger.info('Skipping season poster')
+                            else:
+                                s_bak = '/config/backup/tv/seasons/'+st+'.png'
+                                for b in str(s_banners):
+                                    banner_index = b.find('True')
+                                if (banner_index < 0):
+                                    shutil.copy(season_poster, s_bak)
+                                    if os.path.exists(s_bak) != True:
+                                        raise Exception("Season poster has not copied")
+                                module.season_decision_tree(config, s_banners, ep, hdr, res, season_poster)
+                                banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
+                                s_banners = module.check_banners(season_poster, size)
+                                shutil.copy(season_poster, banner_file)
+                                if os.path.exists(banner_file) != True:
+                                    raise Exception("Season poster has not copied")
+                                title = ep.grandparentTitle
+                                table = season_table
+                                module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
+                                db.session.close()                       
+                                for s in tv.search(guid=pguid, libtype='season'):
+                                    r = season_table.query.filter(season_table.guid == pguid).all()
+                                    module.upload_poster(season_poster, title, db, r, table, s, banner_file)
+                            module.remove_tmp_files(season_poster)
+                        except Exception as e:
+                            logger.error("Season poster Error: "+repr(e))
+                            pass
+            except Exception as e:
+                logger.error(i.title+ ' '+repr(e))
         logger.info("tv Poster Script has finished")
     lib = config[0].tvlibrary.split(',')
     logger.debug(lib)

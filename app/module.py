@@ -387,10 +387,15 @@ def scan_files(config, i, plex):
 def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid):
     logger.debug("BACKUP")
     logger.debug(banners)
-    if episode !='':
+    if 'episode' in guid:
         fname = t = re.sub('plex://episode/', '', guid)
-    else:
+    elif 'movie' in guid:
         fname = re.sub('plex://movie/', '', guid)
+    elif 'local' in guid: 
+        fname = re.sub('local://', '', guid)
+    elif 'season' in guid:
+        fname = re.sub('plex://season/', '', guid)
+    logger.debug(fname)
     #fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     if config[0].manualplexpath == 1:
         newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
@@ -473,6 +478,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     logger.debug(table)
+    logger.debug(tmp_poster)
     db.session.close()
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])    
@@ -495,6 +501,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     except:
         pass
     logger.debug('Adding '+i.title+' to database')
+    logger.debug(b_file)
     if ('film_table' in str(table) or 'season_table' in str(table)):
         film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0')
     elif 'ep_table' in str(table):
