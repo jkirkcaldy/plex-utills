@@ -757,26 +757,27 @@ def bannered_poster_compare(bannered_poster, r, i):
     elif 'episodes' in bannered_poster:
         clean_poster = re.sub('bannered_episodes', 'episodes', bannered_poster)
     elif 'seasons' in bannered_poster:
-        clean_poster = re.sub('bannered_seasons', 'seasons', bannered_poster)        
-    logger.debug(clean_poster+" "+bannered_poster)
-    if r:
-        if r[0].checked != 1:
-            logger.debug('poster in database')
-            try:
-                poster_file = bannered_poster
-                poster_file = re.sub('static', '/config', poster_file)
+        clean_poster = re.sub('bannered_seasons', 'seasons', bannered_poster) 
+    try:       
+        logger.debug(clean_poster+" "+bannered_poster)
+        if r:
+            if r[0].checked != 1:
+                logger.debug('poster in database')
                 try:
-                    bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
-                    #bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
-                    bak_poster = Image.fromarray(bak_poster)
-                    bak_poster_hash = imagehash.average_hash(bak_poster)
-                    poster = cv2.imread(clean_poster, cv2.IMREAD_ANYCOLOR)
-                    #poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
-                    poster = Image.fromarray(poster)
-                    poster_hash = imagehash.average_hash(poster)
-                except SyntaxError as e:
-                        logger.error('Check for new poster Syntax Error: '+repr(e))
-                except OSError as e:
+                    poster_file = bannered_poster
+                    poster_file = re.sub('static', '/config', poster_file)
+                    try:
+                        bak_poster = cv2.imread(poster_file, cv2.IMREAD_ANYCOLOR)
+                        #bak_poster = cv2.cvtColor(bak_poster, cv2.COLOR_BGR2RGB)
+                        bak_poster = Image.fromarray(bak_poster)
+                        bak_poster_hash = imagehash.average_hash(bak_poster)
+                        poster = cv2.imread(clean_poster, cv2.IMREAD_ANYCOLOR)
+                        #poster = cv2.cvtColor(poster, cv2.COLOR_BGR2RGB)
+                        poster = Image.fromarray(poster)
+                        poster_hash = imagehash.average_hash(poster)
+                    except SyntaxError as e:
+                            logger.error('Check for new poster Syntax Error: '+repr(e))
+                    except OSError as e:
                         logger.error('Check for new poster OSError: '+repr(e))
                         if ('FileNotFoundError'  or 'Errno 2 ') in e:
                             logger.debug(i.title+' - Poster Not found')
@@ -784,25 +785,28 @@ def bannered_poster_compare(bannered_poster, r, i):
                         else:
                             logger.debug(i.title)
                             logger.warning('Check for new Poster: '+repr(e))
-                if poster_hash - bak_poster_hash < cutoff:
-                    logger.debug(i.title+' - Poster has changed')
-                    #logger.debug('poster has chenged')
-                    new_poster = 'True'      
-                else:
-                    logger.debug('Poster has not changed')
-            except Exception as e:
-                logger.error('Check for new poster Exception: '+repr(e))
-                if '!_src.empty()' in str(e):
-                    logger.error("poster is blank")
-                    new_poster = 'BLANK'
-                else:
-                    logger.debug('Film not in database yet')
-                    new_poster = 'True'
+                    if poster_hash - bak_poster_hash < cutoff:
+                        logger.debug(i.title+' - Poster has changed')
+                        #logger.debug('poster has chenged')
+                        new_poster = 'True'      
+                    else:
+                        logger.debug('Poster has not changed')
+                except Exception as e:
+                    logger.error('Check for new poster Exception: '+repr(e))
+                    if '!_src.empty()' in str(e):
+                        logger.error("poster is blank")
+                        new_poster = 'BLANK'
+                    else:
+                        logger.debug('Film not in database yet')
+                        new_poster = 'True'
+            else:
+                new_poster = 'False'
         else:
-            new_poster = 'False'
-    else:
-        logger.debug("can't see the poster in the db")
-        new_poster='True'
+            logger.debug("can't see the poster in the db")
+            new_poster='True'
+    except AttributeError as e:
+        logger.error('Compare bannered poster: '+repr(e))
+        new_poster = True
     return new_poster
 
 def season_decision_tree(config, banners, ep, hdr, res, tmp_poster):

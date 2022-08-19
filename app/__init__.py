@@ -70,62 +70,69 @@ def setup_helper():
                     """    
             query13 = """ALTER TABLE episodes    
                     ADD COLUMN show_season INT
-                    """                                                  
+                    """    
+            query14 = """ALTER TABLE seasons    
+                    ADD COLUMN checked INT
+                    """                                                                    
             try:
                 c.execute(query1)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query2)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query3)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query4)
                 
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query5)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query6)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query7)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query8)
                 
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))
+                pass
             try:          
                 c.execute(query9)
                 
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))  
+                pass  
             try:
                 c.execute(query10)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))   
+                pass   
             try:
                 c.execute(query11)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))    
+                pass    
             try:
                 c.execute(query12)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))  
+                pass  
             try:
                 c.execute(query13)
             except sqlite3.OperationalError as e:
-                log.debug(repr(e))                              
+                pass
+            try:
+                c.execute(query14)
+            except sqlite3.OperationalError as e:
+                pass                                              
             try:
                 api = config[0][32]
                 loglevel = config[0][36]
