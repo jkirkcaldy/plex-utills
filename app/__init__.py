@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
-from app.scripts import posters4k, posters4k_thread, spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, fill_database, collective4k
+from app.scripts import spoilers_scheduled, posters3d, hide4k, setup_logger, autocollections, collective4k
 import os
 from flask_apscheduler import APScheduler
 import sqlite3
@@ -14,8 +14,6 @@ import tzlocal
 import time
 from apscheduler.triggers.cron import CronTrigger
 from croniter import croniter
-import threading
-import signal
 import time
 import platform
 

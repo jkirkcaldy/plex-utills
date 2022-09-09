@@ -1,5 +1,5 @@
 from app import db
-import re
+
 
 class Plex(db.Model):
     __tablename__ = 'plex_utills'

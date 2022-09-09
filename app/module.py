@@ -97,7 +97,6 @@ def get_tmdb_poster(fname, poster):
     logger.debug("tmdb: "+poster_url_base+poster)
     logger.debug(fname)
     if req.status_code == 200:
-        b_file = '/config/backup/films/'+fname+'.png'
         with open(fname, 'wb') as f:
             for chunk in req:
                 f.write(chunk)
@@ -345,43 +344,48 @@ def scan_files(config, i, plex):
     else:
         file = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
     logger.debug(file)
-    m = MediaInfo.parse(file, output='JSON')
-    x = json.loads(m)
-    hdr_version = get_plex_hdr(i, plex)
-    if hdr_version != 'none':
-        try:
-            hdr_version = x['media']['track'][1]['HDR_Format_String']
-        except (KeyError, IndexError):
-            if "dolby" not in str.lower(hdr_version):
-                try:
-                    hdr_version = x['media']['track'][1]['HDR_Format_Commercial']
-                except (KeyError, IndexError):
+    try:
+        m = MediaInfo.parse(file, output='JSON')
+        x = json.loads(m)
+        hdr_version = get_plex_hdr(i, plex)
+        if hdr_version != 'none':
+            try:
+                hdr_version = x['media']['track'][1]['HDR_Format_String']
+            except (KeyError, IndexError):
+                if "dolby" not in str.lower(hdr_version):
                     try:
-                        hdr_version = x['media']['track'][1]    ['HDR_Format_Commercial_IfAny']
+                        hdr_version = x['media']['track'][1]    ['HDR_Format_Commercial']
                     except (KeyError, IndexError):
                         try:
-                            hdr_version = x['media']['track'][1]    ['HDR_Format_Compatibillity']
-                        except:
-                            pass
-    elif not hdr_version:
-        hdr_version = 'none'
-    audio = "unknown"
-    try:
-        while True:
-            for f in range(10):
-                if 'Audio' in x['media']['track'][f]['@type']:
-                    if 'Format_Commercial_IfAny' in x['media']['track'][f]:
-                        audio = x['media']['track'][f]['Format_Commercial_IfAny']
-                        if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
-                            audio = 'DTS:X'
-                        break
-                    elif 'Format' in x['media']['track'][f]:
-                        audio = x['media']['track'][f]['Format']
-                        break
-            if audio != "":
-                break
-    except (IndexError, KeyError) as e:
-        logger.debug(i.title+' '+repr(e))
+                            hdr_version = x['media']['track'][1]        ['HDR_Format_Commercial_IfAny']
+                        except (KeyError, IndexError):
+                            try:
+                                hdr_version = x['media']['track'][1]        ['HDR_Format_Compatibillity']
+                            except:
+                                pass
+        elif not hdr_version:
+            hdr_version = 'none'
+        audio = "unknown"
+        try:
+            while True:
+                for f in range(10):
+                    if 'Audio' in x['media']['track'][f]['@type']:
+                        if 'Format_Commercial_IfAny' in x['media']  ['track'][f]:
+                            audio = x['media']['track'][f]  ['Format_Commercial_IfAny']
+                            if 'XLL X' in x['media']['track'][f]    ["Format_AdditionalFeatures"]:
+                                audio = 'DTS:X'
+                            break
+                        elif 'Format' in x['media']['track'][f]:
+                            audio = x['media']['track'][f]['Format']
+                            break
+                if audio != "":
+                    break
+        except (IndexError, KeyError) as e:
+            logger.debug(i.title+' '+repr(e))
+    except Exception as e:
+        logger.warning('No access to files: '+repr(e))
+        audio = 'None'
+        hdr_version = get_plex_hdr(i, plex)
     return audio, hdr_version
 
 def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid):
@@ -596,6 +600,7 @@ def check_tv_banners(i, tmp_poster, img_title):
         background = background.resize(size,Image.LANCZOS)
     except OSError as e:
         logger.error(e)
+        pass
         #try:    
         #    title = img_title
         #    get_poster(i, tmp_poster, title)

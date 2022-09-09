@@ -351,6 +351,7 @@ def admin_config_form():
         if form.validate_on_submit():
             db.session.commit()
             message = f"The data for {plex.plexurl} has been updated."
+            scripts.logger_start()
             update_scheduler()
             return render_template('result.html', message=message, pagetitle='Config Options Updated', version=version)
         else:
@@ -896,4 +897,9 @@ def export_support():
 @app.route('/sync_ratings')
 def sync_ratings():
     threading.Thread(target=scripts.sync_ratings).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
+
+@app.route('/maintenance')
+def run_maintenance():
+    threading.Thread(target=scripts.maintenance).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
