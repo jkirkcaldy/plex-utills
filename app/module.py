@@ -483,7 +483,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     logger.debug(table)
     logger.debug(tmp_poster)
-    url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
+    url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
     db.session.close()
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])    
@@ -523,7 +523,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
 
 def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     db.session.close()
-    url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
+    url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
     logger.debug('Updating '+title+' in database')
     logger.debug(title+' '+hdr+' '+audio)  
     logger.debug(banners) 

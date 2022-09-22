@@ -307,7 +307,7 @@ def posters4k(webhooktitle):
                 logger.debug('Not uploading poster for: '+title)  
         def add_url(i, r, table, plex):
             try:
-                url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
+                url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
                 row = r[0].id
                 film = table.query.get(row)
                 film.url = url
