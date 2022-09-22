@@ -137,7 +137,7 @@ class film_table(db.Model):
         try:
             url_link = """<a href="""+self.url+""">"""+self.title+"""</a>"""
         except:
-            url_link = ''
+            url_link = self.title
         #title = 
         if self.bannered_poster == None:
             return {
