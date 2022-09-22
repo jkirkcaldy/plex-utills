@@ -28,7 +28,9 @@
         <th>Poster</th>
         <th>Bannered Poster</th>
         <th>Checked</th>
+        <th>Re-Run</th>
         <th>Delete</th>
+
       </tr>
     </thead>
   </table>
@@ -52,13 +54,14 @@
       ajax: '/api/data',
       serverSide: true,
       columns: [
-        {data: 'title'},
+        {data: 'url'},
         {data: 'res'},
         {data: 'hdr'},
         {data: 'audio'},
         {data: 'poster'},
         {data: 'bannered_poster'},
         {data: 'checked'},
+        {data: 'title'},
         {data: 'delete'}
       ],
     });

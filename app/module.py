@@ -483,6 +483,7 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     logger.debug(table)
     logger.debug(tmp_poster)
+    url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
     db.session.close()
     p = PureWindowsPath(i.media[0].parts[0].file)
     p1 = re.findall('[A-Z]', p.parts[0])    
@@ -507,7 +508,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     logger.debug('Adding '+i.title+' to database')
     logger.debug(b_file)
     if ('film_table' in str(table) or 'season_table' in str(table)):
-        film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0')
+        film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0', url=url)
     elif 'ep_table' in str(table):
         show_season = i.grandparentTitle+': '+i.parentTitle
         film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0', show_season=show_season)
@@ -522,6 +523,7 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
 
 def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
     db.session.close()
+    url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
     logger.debug('Updating '+title+' in database')
     logger.debug(title+' '+hdr+' '+audio)  
     logger.debug(banners) 
@@ -543,6 +545,7 @@ def updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, 
             film.audio = audio
             film.poster = b_file
             film.checked = '0'
+            film.url = url
             db.session.commit()
         except:
             db.session.rollback()

@@ -1,3 +1,4 @@
+from nturl2path import url2pathname
 from PIL import Image, ImageFile
 from plexapi.server import PlexServer
 import plexapi
@@ -304,9 +305,18 @@ def posters4k(webhooktitle):
                 module.upload_poster(tmp_poster, title, db, r, table, i, banner_file) 
             else:
                 logger.debug('Not uploading poster for: '+title)  
+        def add_url(i, r, table, plex):
+            try:
+                url = str(plex._baseurl)+'/web/index.html#!/server/'+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
+                row = r[0].id
+                film = table.query.get(row)
+                film.url = url
+                db.session.commit()
+            except:
+                db.session.rollback()
+                raise logger.error(Exception('Database Roll back error'))
 
-
-        for i in films.search(title=webhooktitle):
+        for i in films.search(title=webhooktitle, limit=10):
             try:
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
@@ -346,6 +356,7 @@ def posters4k(webhooktitle):
                             logger.info(title+' has been processed and the file has not changed, skiping')
                     except Exception as e:
                         logger.error(repr(e))
+                    add_url(i, r, table, plex)
                 else:
                     logger.debug(title+' not in database') 
                     process(tmp_poster, guid)

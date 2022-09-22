@@ -105,6 +105,7 @@ class film_table(db.Model):
     poster = db.Column(db.String)
     checked = db.Column(db.Integer)
     bannered_poster = db.Column(db.String)
+    url= db.Column(db.String)
     
 
 
@@ -115,17 +116,17 @@ class film_table(db.Model):
             <span class="icon text-white-50">
               <i class="fas fa-undo-alt"></i>
           </span>
-            <span class="text">"""+self.title+"""</span>
         </a>
         """
-        restore = '/restore/film/'+self.guid
-        restore_btn =  """<a href="""+restore+""" class="btn btn-secondary btn-icon-split" id="rerun">
-            <span class="icon text-white-50">
-              <i class="fas fa-undo-alt"></i>
-          </span>
-            <span class="text">"""+self.title+"""</span>
-        </a>
-        """
+        #<span class="text">"""+self.title+"""</span>
+        #restore = '/restore/film/'+self.guid
+        #restore_btn =  """<a href="""+restore+""" class="btn btn-secondary btn-icon-split" id="rerun">
+        #    <span class="icon text-white-50">
+        #      <i class="fas fa-undo-alt"></i>
+        #  </span>
+
+        #</a>
+        #"""
         delete = '/delete_row/film/'+self.guid
         delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
             <span class="icon text-white-50">
@@ -133,6 +134,11 @@ class film_table(db.Model):
           </span>
         </a>
         """
+        try:
+            url_link = """<a href="""+self.url+""">"""+self.title+"""</a>"""
+        except:
+            url_link = ''
+        #title = 
         if self.bannered_poster == None:
             return {
             'title': rerun_btn,
@@ -142,7 +148,8 @@ class film_table(db.Model):
             'poster': "<a href='restore/film/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>",
             'checked': self.checked,
             'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=100px src=''></a>" ,               
-            'delete': delete_btn
+            'delete': delete_btn,
+            'url': url_link
             }
         elif self.bannered_poster != None:
             return {
@@ -153,7 +160,8 @@ class film_table(db.Model):
                 'poster': "<a href='restore/film/"+self.guid+"'><img    height=100px src='"+self.poster+"'></a>",
                 'checked': self.checked,
                 'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=100px src='"+self.bannered_poster+"'></a>", 
-                'delete': delete_btn              
+                'delete': delete_btn,
+                'url': url_link              
             }
 
 class ep_table(db.Model):

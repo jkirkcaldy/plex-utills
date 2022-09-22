@@ -71,7 +71,10 @@ def setup_helper():
                     """    
             query14 = """ALTER TABLE seasons    
                     ADD COLUMN checked INT
-                    """                                                                    
+                    """      
+            query15 = """ALTER TABLE films    
+                    ADD COLUMN url TEXT
+                    """                                                                                    
             try:
                 c.execute(query1)
             except sqlite3.OperationalError as e:
@@ -130,7 +133,11 @@ def setup_helper():
             try:
                 c.execute(query14)
             except sqlite3.OperationalError as e:
-                pass                                              
+                pass 
+            try:
+                c.execute(query15)
+            except sqlite3.OperationalError as e:
+                pass                                                          
             try:
                 api = config[0][32]
                 loglevel = config[0][36]

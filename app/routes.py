@@ -757,6 +757,7 @@ def delete_database():
             	"poster"	TEXT NOT NULL,
             	"checked"	INTEGER,
                 "bannered_poster" TEXT,
+                "url" TEXT,
             	PRIMARY KEY("ID" AUTOINCREMENT)
             ); """
     c.execute(query1)
