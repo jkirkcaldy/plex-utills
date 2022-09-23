@@ -2047,9 +2047,19 @@ def maintenance():
                 #print(f.title+" exists")
             else:
                 logger.info("Removing "+i.title+"from database")
-                row = table.query.get(i.id)
-                db.session.delete(row)
-                db.session.commit()  
+                poster = re.sub("static", "/config", i.poster)
+                b_poster = re.sub("static", "/config", i.bannered_poster)
+                try:
+                    os.remove(poster)
+                except: pass
+                try:
+                    os.remove(b_poster)
+                except: pass
+                try:
+                    row = table.query.get(i.id)
+                    db.session.delete(row)
+                    db.session.commit()
+                except: db.session.rollback()  
     if len(lib) <= 2:
         try:
             while True:
