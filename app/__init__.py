@@ -520,7 +520,7 @@ class Plex_utills(Flask):
           with self.app_context():
             sys_info()
             from app.scripts import maintenance
-            scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * 0'))
+            scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * *'))
             setup_helper()
         super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=debug, **options)
 

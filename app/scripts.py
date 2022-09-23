@@ -2034,66 +2034,28 @@ def maintenance():
     from app import db, module
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)
-
-    def run_script(): 
-        r = film_table.query.all()
-        for f in r:
-            #print(f.id)
-            film = films.search(guid=f.guid)
-            if (film == "" or not film):
-                print('deleting rows ',f.id)
-                row = film_table.query.get(f.id)
-                db.session.delete(row)
-                db.session.commit()
-                print('deleted rows')
-            poster = re.sub('static', '/config', f.poster)
-            valid = module.validate_image(poster)
-            if valid == False:
-                logger.warning(f.title+' Image is valid = '+str(valid))
-            b_poster = re.sub('static', '/config', f.bannered_poster)
-            b_valid = module.validate_image(b_poster)
-            if valid == False:
-                logger.warning(f.title+' Image is valid = '+str(b_valid))                            
-        ep = ep_table.query.all()
-        for e in ep:
-            episode = tv.search(libtype='episode')
-            if (episode == "" or not episode):
-                logger.warning('Deleting rows '+e.id)
-                row = film_table.query.get(e.id)
-                db.session.delete(row)
-                db.session.commit()   
-            poster = re.sub('static', '/config', e.poster)
-            valid = module.validate_image(poster)
-            if valid == False:
-                logger.warning(e.title+' Image is valid = '+str(valid)) 
-            b_poster = re.sub('static', '/config', e.bannered_poster)
-            b_valid = module.validate_image(b_poster)
-            if valid == False:
-                logger.warning(e.title+' Image is valid = '+str(b_valid)) 
-        seasons = season_table.query.all()
-        for s in seasons:
-            season = tv.search(libtype='season')
-            if (season == "" or not season):
-                logger.warning('Deleting rows '+s.id)
-                row = film_table.query.get(s.id)
-                db.session.delete(row)
-                db.session.commit()   
-            poster = re.sub('static', '/config', s.poster)
-            valid = module.validate_image(poster)
-            if valid == False:
-                logger.warning(f.title+' Image is valid = '+str(valid)) 
-            b_poster = re.sub('static', '/config', s.bannered_poster)
-            b_valid = module.validate_image(b_poster)
-            if valid == False:
-                logger.warning(s.title+' Image is valid = '+str(b_valid))                                                       
+    plex.runButlerTask('CleanOldCacheFiles') 
+    plex.runButlerTask('CleanOldBundles')
     lib = config[0].filmslibrary.split(',')
     logger.debug(lib)
+    def clean_database(table, library):
+        r = table.query.all()
+        for i in r:
+            f = library.search(guid=i.guid)
+            if f:
+                pass
+                #print(f.title+" exists")
+            else:
+                logger.info("Removing "+i.title+"from database")
+                row = table.query.get(i.id)
+                db.session.delete(row)
+                db.session.commit()  
     if len(lib) <= 2:
         try:
             while True:
                 for l in range(10):
                     films = plex.library.section(lib[l])
-                    run_script()
+                    clean_database(film_table, films)
         except IndexError:
             pass          
     tvlib = config[0].tvlibrary.split(',')
@@ -2103,7 +2065,8 @@ def maintenance():
             while True:
                 for l in range(10):
                     tv = plex.library.section(lib[l])
-                    run_script()
+                    clean_database(ep_table, tv)
+                    clean_database(season_table, tv)
         except IndexError:
             pass 
 
