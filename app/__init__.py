@@ -549,7 +549,7 @@ app.secret_key = '_3:WBH)qdY2WDe-_/h9r6)BD(Mp$SX' #os.urandom(42)
 bootstrap = Bootstrap5(app)
 #Bootstrap(app)
 
-db_name = '/config/app2.db'
+db_name = '/config/app.db'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
 app.config['SQLALCHEMY_BINDS'] = {
