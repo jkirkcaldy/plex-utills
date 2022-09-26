@@ -316,7 +316,7 @@ def posters4k(webhooktitle):
                 db.session.rollback()
                 raise logger.error(Exception('Database Roll back error'))
 
-        for i in films.search(title=webhooktitle, limit=10):
+        for i in films.search(title=webhooktitle):
             try:
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
