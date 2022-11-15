@@ -1,4 +1,3 @@
-from nturl2path import url2pathname
 from PIL import Image, ImageFile
 from plexapi.server import PlexServer
 import plexapi
@@ -14,11 +13,11 @@ from pymediainfo import MediaInfo
 import json
 from tautulli import RawAPI
 import unicodedata
-from flask_sqlalchemy import sqlalchemy
 
 import cv2
 import random
 import string
+
 
 
 def setup_logger(logger_name, log_file):
@@ -100,14 +99,25 @@ def posters4k(webhooktitle):
     height = 3000
     width = 2000
     def run_script(): 
-        def hdrp(tmp_poster):
-            logger.info(i.title+" HDR Banner")
+        def open_poster(tmp_poster):
             try:
                 size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
+                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
                 background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
                 background = Image.fromarray(background)
                 background = background.resize(size,Image.LANCZOS)
+                return background
+            except  OSError as e:
+                logger.error(repr(e))          
+        def hdrp(tmp_poster):
+            logger.info(i.title+" HDR Banner")
+            try:
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
                 background.save(tmp_poster)
             except OSError as e:
@@ -116,11 +126,12 @@ def posters4k(webhooktitle):
         def dolby_vision(tmp_poster):
             logger.info(i.title+" Dolby Vision Banner")
             try:
-                size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                background = Image.fromarray(background)
-                background = background.resize(size,Image.LANCZOS)
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 background.paste(banner_dv, (0, 0), banner_dv)
                 background.save(tmp_poster)
             except OSError as e:
@@ -129,11 +140,12 @@ def posters4k(webhooktitle):
         def hdr10(tmp_poster):
             logger.info(i.title+" HDR10+ banner")
             try:
-                size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                background = Image.fromarray(background)
-                background = background.resize(size,Image.LANCZOS)
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 background.paste(banner_hdr10, (0, 0), banner_hdr10)
                 background.save(tmp_poster)
             except OSError as e:
@@ -142,11 +154,12 @@ def posters4k(webhooktitle):
         def atmos_poster(tmp_poster):
             logger.info(i.title+' Atmos Banner')
             try:
-                size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                background = Image.fromarray(background)
-                background = background.resize(size,Image.LANCZOS)
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 background.paste(atmos, (0, 0), atmos)
                 background.save(tmp_poster)   
             except OSError as e:
@@ -155,11 +168,12 @@ def posters4k(webhooktitle):
         def dtsx_poster(tmp_poster):
             logger.info(i.title+' DTS:X Banner')
             try:
-                size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                background = Image.fromarray(background)
-                background = background.resize(size,Image.LANCZOS)
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 background.paste(dtsx, (0, 0), dtsx)
                 background.save(tmp_poster) 
             except OSError as e:
@@ -167,11 +181,12 @@ def posters4k(webhooktitle):
 
         def add_banner(tmp_poster):
             try:
-                size = (2000,3000)
-                background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                background = Image.fromarray(background)
-                background = background.resize(size,Image.LANCZOS)
+                background = open_poster(tmp_poster)
+                #size = (2000,3000)
+                #background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+                #background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+                #background = Image.fromarray(background)
+                #background = background.resize(size,Image.LANCZOS)
                 if config[0].mini4k == 1:
                     logger.info(i.title+' Adding Mini 4K Banner')
                     background.paste(mini_4k_banner, (0,0), mini_4k_banner)
@@ -218,7 +233,6 @@ def posters4k(webhooktitle):
                             hdr = str.lower(scan[1])
                             module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                         else:
-                            #logger.debug(new_poster)
                             if new_poster == 'True':
                                 audio = r[0].audio
                                 hdr = r[0].hdr
@@ -301,8 +315,9 @@ def posters4k(webhooktitle):
                 or res == '4k'
             ):
                 logger.debug(str(audio_hdr)+' - '+res)
-                r = film_table.query.filter(table.guid == guid).all()
-                module.upload_poster(tmp_poster, title, db, r, table, i, banner_file) 
+                r = film_table.query.filter(film_table.guid == guid).all()
+                logger.warning('upload poster would happen now but is disabled')
+                #module.upload_poster(tmp_poster, title, db, r, table, i, banner_file) 
             else:
                 logger.debug('Not uploading poster for: '+title)  
         def add_url(i, r, table, plex):
@@ -314,10 +329,11 @@ def posters4k(webhooktitle):
                 db.session.commit()
             except:
                 db.session.rollback()
-                raise logger.error(Exception('Database Roll back error'))
+                raise logger.error(Exception)
 
         for i in films.search(title=webhooktitle):
             try:
+                table = film_table
                 i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
                 i.title = re.sub('#', '', i.title)
                 logger.info(i.title)           
@@ -326,20 +342,25 @@ def posters4k(webhooktitle):
                 guids = str(i.guids)
                 g = guids
                 size = i.media[0].parts[0].size
+                r = table.query.filter(table.guid == guid).all()
                 res = i.media[0].videoResolution    
                 t = re.sub('plex://movie/', '', guid)
                 tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width) 
-                r = film_table.query.filter(film_table.guid == guid).all()
-                table = film_table
+                g_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width, r) 
+                tmp_poster = g_poster[0]
+                new_poster = ''
                 if r:
-                    new_poster = module.check_for_new_poster(tmp_poster, r, i, table, db)
+                    logger.debug(g_poster[1])
+                    if g_poster[1] == True:
+                        new_poster = module.check_for_new_poster(tmp_poster, r, i, table, db)
+                    else: 
+                        new_poster = 'True'                       
                     logger.debug('New poster = '+new_poster)
                     try:
                         if (
                             r[0].checked == 0
                             or str(r[0].size) != str(size)
-                            or new_poster == True
+                            or new_poster == 'True'
                         ):
                             logger.debug('Processing '+i.title)
                             process(tmp_poster, guid)

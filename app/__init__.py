@@ -237,14 +237,14 @@ def setup_helper():
                             log.debug(newdir)
                     testfile = newdir+'test'
                     log.debug('Plex-Utills file path is here: '+newdir)
-                    try:
-                        open(testfile, 'w')
-                        log.info('Permissions, look to be correct')
-                    except PermissionError as e:
-                        log.error(e)
-                    if os.path.exists(testfile) == True:
-                        os.remove(testfile)
-                    break   
+                    #try:
+                    #    open(testfile, 'w')
+                    #    log.info('Permissions, look to be correct')
+                    #except PermissionError as e:
+                    #    log.error(e)
+                    #if os.path.exists(testfile) == True:
+                    #    os.remove(testfile)
+                    #break   
             except (plexapi.exceptions.NotFound, OSError, ConnectionError, NameError) as e:
                 log.error(e)
 

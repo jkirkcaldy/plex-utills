@@ -75,15 +75,15 @@ def rerun_tv_posters(var):
 
 @app.route('/tvposters4k', methods=['GET'])
 def run_tvposters4k():
-    threading.Thread(target=scripts.tvposters4k_thread).start()   
+    threading.Thread(target=scripts.tvposters4k_thread()).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)    
 @app.route('/posters3d', methods=['GET'])
 def run_posters3d():   
-    threading.Thread(target=scripts.posters3d).start()
+    threading.Thread(target=scripts.posters3d()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/hide4k', methods=['GET'])
 def run_hide4k():   
-    threading.Thread(target=scripts.hide4k).start()
+    threading.Thread(target=scripts.hide4k()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/disney', methods=['GET'])
 def run_disney():   
@@ -96,31 +96,31 @@ def run_pixar():
 
 @app.route('/preseed')
 def preseed():
-    threading.Thread(target=scripts.fill_database).start()
+    threading.Thread(target=scripts.fill_database()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/add_labels')
 def start_add_labels():
-    threading.Thread(target=scripts.add_labels).start()
+    threading.Thread(target=scripts.add_labels()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 @app.route('/spoilers', methods=['GET'])
 def run_tvspoilers():
-    threading.Thread(target=scripts.spoilers_scheduled).start()   
+    threading.Thread(target=scripts.spoilers_scheduled()).start()   
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)  
 
 
 @app.route('/restore', methods=['GET'])
 def run_restore():   
-    threading.Thread(target=scripts.restore_posters).start()
+    threading.Thread(target=scripts.restore_posters()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 @app.route('/restore_from_database', methods=['GET'])
 def run_restore_from_database():   
-    threading.Thread(target=scripts.restore_from_database).start()
+    threading.Thread(target=scripts.restore_from_database()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
       
 @app.route('/restore_tv', methods=['GET'])
 def run_episode_restore():   
-    threading.Thread(target=scripts.restore_episodes_from_database).start()
+    threading.Thread(target=scripts.restore_episodes_from_database()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 
@@ -130,12 +130,12 @@ def run_recreate_hdr():
 
 @app.route('/recreate_hdr_script')
 def run_recreate_hdr_script():   
-    threading.Thread(target=scripts.fresh_hdr_posters).start()
+    threading.Thread(target=scripts.fresh_hdr_posters()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 @app.route('/autocollections')
 def run_autocollections():   
-    threading.Thread(target=scripts.autocollections).start()
+    threading.Thread(target=scripts.autocollections()).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 

@@ -17,3 +17,4 @@ pymediainfo
 tautulli
 croniter
 opencv-python
+flask_sqlalchemy
