@@ -62,11 +62,11 @@ def update_scheduler(app):
             elif check_schedule_format(t2) == 'cron':
                 scheduler.add_job('autocollections', func=autocollections, args=[app], trigger=CronTrigger.from_crontab(t2))
             #log.info("Auto Collections schedule created for "+ t2)
-        if config[0].spoilers == 1:
-            if check_schedule_format(t3) == 'time trigger':
-                scheduler.add_job('spoilers', func=spoilers_scheduled, args=[app], trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
-            elif check_schedule_format(t3) == 'cron':
-                scheduler.add_job('spoilers', func=spoilers_scheduled, args=[app], trigger=CronTrigger.from_crontab('0 0 * * 0'))
+        #if config[0].spoilers == 1:
+        #    if check_schedule_format(t3) == 'time trigger':
+        #        scheduler.add_job('spoilers', func=spoilers_scheduled, args=[app], trigger='cron', hour=t3.split(":")[0], minute=t3.split(":")[1])
+        #    elif check_schedule_format(t3) == 'cron':
+        #        scheduler.add_job('spoilers', func=spoilers_scheduled, args=[app], trigger=CronTrigger.from_crontab('0 0 * * 0'))
         for j in scheduler.get_jobs():
             log.info(j)
         def update_plex_path():

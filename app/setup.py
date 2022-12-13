@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 from croniter import croniter
 import time
 import platform
-
+from app import log
 b_dir = '/config/backup/' 
 
 def setup_helper():

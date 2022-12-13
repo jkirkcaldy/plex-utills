@@ -10,7 +10,7 @@ import datetime
 #from app import update_scheduler
 import os
 from app import scripts 
-
+from app.schedule import update_scheduler
 date = datetime.datetime.now()
 date = date.strftime("%y.%m.%d-%H%M")
 from app.routes import log, version
