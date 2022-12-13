@@ -11,8 +11,10 @@ import json
 from pathlib import PureWindowsPath, PurePosixPath
 import cv2
 import time
-
 from app.models import Plex
+
+
+
 
 config = Plex.query.filter(Plex.id == '1')
 plex = PlexServer(config[0].plexurl, config[0].token)
@@ -190,7 +192,6 @@ def get_poster(i, tmp_poster, title, b_dir, height, width, r):
         logger.error('Get Poster Exception: '+repr(e))
 
     valid = validate_image(tmp_poster)
-    print(valid)
     if valid == True:
         return tmp_poster, valid
     else:
@@ -878,3 +879,29 @@ def remove_tmp_files(tmp_poster):
     except FileNotFoundError:
         pass  
     
+def final_poster_compare(tmp_poster, plex_poster):
+    size = (2000,3000)
+    new_poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+    new_poster = cv2.cvtColor(new_poster, cv2.COLOR_BGR2RGB)
+    new_poster = Image.fromarray(new_poster)
+    new_poster = new_poster.resize(size,Image.LANCZOS)
+    new_poster = new_poster.crop(1000,1500,2000,3000)
+
+    plex_poster = cv2.imread(plex_poster, cv2.IMREAD_ANYCOLOR)
+    plex_poster = cv2.cvtColor(plex_poster, cv2.COLOR_BGR2RGB)
+    plex_poster = Image.fromarray(plex_poster)
+    plex_poster = plex_poster.resize(size,Image.LANCZOS)
+    plex_poster = plex_poster.crop(1000,1500,2000,3000)
+
+    new_poster_hash = imagehash.average_hash(new_poster)
+    plex_poster_hash = imagehash.average_hash(plex_poster)
+
+    if new_poster_hash == plex_poster_hash:
+        logger.debug('Poster is good to upload')
+        return True
+    else:
+        logger.debug('poster is fucked')
+        return False
+
+
+

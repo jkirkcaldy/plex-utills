@@ -7,7 +7,7 @@ schedule
 flask
 flask_script
 flask_sqlalchemy
-Bootstrap-Flask
+bootstrap-flask
 flask_apscheduler
 flask_wtf
 wtforms
@@ -16,5 +16,4 @@ gunicorn
 pymediainfo
 tautulli
 croniter
-opencv-python
-flask_sqlalchemy
+opencv-python-headless
