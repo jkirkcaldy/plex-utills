@@ -19,25 +19,25 @@ from app.routes import log, version
 
 @app.route('/delete_row/<path:var>')
 def run_delete_row(var=''):
-    scripts.delete_row(var)
+    scripts.delete_row(app, var)
     message = 'Deleted row'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
 @app.route('/restore/film/<path:var>')
 def restore_poster(var=""):
-    scripts.restore_single(var)
+    scripts.restore_single(app, var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
 @app.route('/restore/episode/<path:var>')
 def restore_episode_poster(var=""):
-    scripts.restore_episode_from_database(var)
+    scripts.restore_episode_from_database(app, var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
 @app.route('/restore/season/<path:var>')
 def restore_season_poster(var=""):
-    scripts.restore_single_season(var)
+    scripts.restore_single_season(app, var)
     message = 'Sent poster to be restored.'
     return render_template('result.html', message=message, pagetitle='Restored', version=version)
 
@@ -49,7 +49,7 @@ def restore_seasons():
 
 @app.route('/restore/bannered_season/<path:var>')
 def restore_bannerred_season_poster(var=""):
-    msg = scripts.restore_single_bannered_season(var)
+    msg = scripts.restore_single_bannered_season(app, var)
     if 'error' not in str.lower(msg):
         return render_template('result.html', message=msg, pagetitle='Restored', version=version)
     else:
@@ -57,7 +57,7 @@ def restore_bannerred_season_poster(var=""):
 
 @app.route('/restore/bannered_film/<path:var>')
 def restore_bannerred_poster(var=""):
-    msg = scripts.restore_single_bannered(var)
+    msg = scripts.restore_single_bannered(app, var)
     print(msg)
     if 'error' not in str.lower(msg):
         return render_template('result.html', message=msg, pagetitle='Restored', version=version)
@@ -97,6 +97,12 @@ def delete_database():
             f = filename
             if f.endswith('.png'):
                 os.remove(file_paths+f) 
+    file_paths = '/config/backup/bannered_films/'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f)                 
     return redirect('/films')
 
 @app.route('/delete_tv_database')
@@ -134,7 +140,12 @@ def delete_tv_database():
             f = filename
             if f.endswith('.png'):
                 os.remove(file_paths+f)
-
+    file_paths = '/config/backup/tv/bannered_episodes/'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f)
     return redirect('/episodes')
 
 @app.route('/delete_season_database')
@@ -160,6 +171,12 @@ def delete_season_database():
     c.close()
 
     file_paths = '/config/backup/tv/seasons/'
+    for root, dirs, files in os.walk(file_paths):
+        for filename in files:
+            f = filename
+            if f.endswith('.png'):
+                os.remove(file_paths+f)
+    file_paths = '/config/backup/tv/bannered_seasons/'
     for root, dirs, files in os.walk(file_paths):
         for filename in files:
             f = filename
@@ -364,8 +381,8 @@ def recently_added():
                     threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start   ()                    
                     return 'ok', 200
                 else:
-                    threading.Thread(target=scripts.hide4k, name='hide4K_Webhook').start()
-                    threading.Thread(target=scripts.posters4k(title), name='4k_posters_webhook').   start()
+                    threading.Thread(target=scripts.hide4k,  args=[app], name='hide4K_Webhook').start()
+                    threading.Thread(target=scripts.posters4k, args=[app, title], name='4k_posters_webhook').start()
                     return 'ok', 200
         except:
             if 'series' in data:

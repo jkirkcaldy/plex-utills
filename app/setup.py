@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap5
 from app.scripts import posters3d, hide4k, setup_logger, autocollections, collective4k
-import os
+import os, sys, stat
 from flask_apscheduler import APScheduler
 import sqlite3
 import logging
@@ -392,6 +392,7 @@ def setup_helper():
         #log.info('Backup directory exists')
     else:
         os.makedirs(b_dir+'/films')
+        
     if os.path.exists(b_dir+'/tv/episodes'):
         #log.info('Backup directory exists')
         pass
@@ -416,4 +417,8 @@ def setup_helper():
         #log.info('Season folder exists')
         pass
     else:
-        os.makedirs(b_dir+'/tv/seasons')               
+        os.makedirs(b_dir+'/tv/seasons')    
+    os.chmod(b_dir , 0o777)
+    for root,dirs,_ in os.walk(b_dir):
+        for d in dirs :
+            os.chmod(os.path.join(root,d) , 0o777)           

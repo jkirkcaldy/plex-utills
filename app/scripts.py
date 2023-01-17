@@ -13,7 +13,6 @@ from pymediainfo import MediaInfo
 import json
 from tautulli import RawAPI
 import unicodedata
-import asyncio
 import cv2
 import random
 import string
@@ -101,70 +100,8 @@ def posters4k(app, webhooktitle):
         season=''
         height = 3000
         width = 2000
+        poster_size = (width, height)
         def run_script(): 
-            def open_poster(tmp_poster):
-                try:
-                    size = (2000,3000)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    return background
-                except  OSError as e:
-                    logger.error(repr(e))          
-            def hdrp(tmp_poster):
-                logger.info(i.title+" HDR Banner")
-                try:
-                    background = open_poster(tmp_poster)
-                    background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('HDR Poster error: '+repr(e))
-            def dolby_vision(tmp_poster):
-                logger.info(i.title+" Dolby Vision Banner")
-                try:
-                    background = open_poster(tmp_poster)
-                    background.paste(banner_dv, (0, 0), banner_dv)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('Dolby Vision Banner Error: '+repr(e))
-            def hdr10(tmp_poster):
-                logger.info(i.title+" HDR10+ banner")
-                try:
-                    background = open_poster(tmp_poster)
-                    background.paste(banner_hdr10, (0, 0), banner_hdr10)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('HDR10+  Banner Error: '+repr(e))                
-            def atmos_poster(tmp_poster):
-                logger.info(i.title+' Atmos Banner')
-                try:
-                    background = open_poster(tmp_poster)
-                    background.paste(atmos, (0, 0), atmos)
-                    background.save(tmp_poster)   
-                except OSError as e:
-                    logger.error('Atmos Banner Error: '+repr(e))
-            def dtsx_poster(tmp_poster):
-                logger.info(i.title+' DTS:X Banner')
-                try:
-                    background = open_poster(tmp_poster)
-                    background.paste(dtsx, (0, 0), dtsx)
-                    background.save(tmp_poster) 
-                except OSError as e:
-                    logger.error('DTS:X Banner Error: '+repr(e))                 
-            def add_banner(tmp_poster):
-                try:
-                    background = open_poster(tmp_poster)
-                    if config[0].mini4k == 1:
-                        logger.info(i.title+' Adding Mini 4K Banner')
-                        background.paste(mini_4k_banner, (0,0), mini_4k_banner)
-                        background.save(tmp_poster)
-                    else:
-                        logger.info(i.title+' Adding 4k Banner')
-                        background.paste(banner_4k, (0, 0), banner_4k)
-                        background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('4K poster error: '+repr(e))                          
 
             def decision_tree(tmp_poster, banners, guid):
 
@@ -215,7 +152,7 @@ def posters4k(app, webhooktitle):
                             scan = module.scan_files(config, i, plex)
                             audio = str.lower(scan[0])
                             hdr = str.lower(scan[1])
-                            if ('none' not in hdr or ('atmos' or 'dts:x') in audio):
+                            if ('none' not in hdr or ('atmos' or 'dts:x') in audio or res == '4k'):
                                 module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                         else:
                             logger.debug("error message")
@@ -226,20 +163,25 @@ def posters4k(app, webhooktitle):
                     if (audio_banner == False and config[0].audio_posters == 1):
                         logger.debug("AUDIO decision: "+audio)         
                         if 'atmos' in audio:
-                            atmos_poster(tmp_poster)
+                            module.add_banner(tmp_poster, atmos, poster_size)
+                            #atmos_poster(tmp_poster)
                         elif audio == 'dts:x': 
-                            dtsx_poster(tmp_poster)
+                            module.add_banner(tmp_poster, atmos, poster_size)
+                            #dtsx_poster(tmp_poster)
 
                     if (hdr_banner == False and config[0].hdr == 1):
                         logger.debug("HDR: "+hdr) 
                         if 'dolby vision' in str.lower(hdr):
-                            dolby_vision(tmp_poster)
+                            module.add_banner(tmp_poster, banner_dv, poster_size)
+                            #dolby_vision(tmp_poster)
                         elif "hdr10+" in str.lower(hdr):
-                            hdr10(tmp_poster)
+                            module.add_banner(tmp_poster, banner_hdr10, poster_size)
+                            #hdr10(tmp_poster)
                         elif str.lower(hdr) == "none":
                             pass
                         elif (hdr != "" and str.lower(hdr) != 'none'):
-                            hdrp(tmp_poster)
+                            module.add_banner(tmp_poster, banner_new_hdr, poster_size)
+                            #hdrp(tmp_poster)
                     if 'dolby vision' in str.lower(hdr):
                         i.addLabel('Dolby Vision', locked=False)
                     elif 'hdr10+' in str.lower(hdr):
@@ -254,7 +196,11 @@ def posters4k(app, webhooktitle):
 
                     if (res == '4k' and config[0].films4kposters == 1):
                         if wide_banner == mini_banner == False:
-                            add_banner(tmp_poster)
+                            if config[0].mini4k == 1:
+                                module.add_banner(tmp_poster, mini_4k_banner, poster_size)
+                            else:
+                                module.add_banner(tmp_poster, banner_4k, poster_size)
+                            #add_banner(tmp_poster)
                         else:
                             logger.debug(i.title+' Has 4k banner')                 
 
@@ -320,6 +266,7 @@ def posters4k(app, webhooktitle):
                     plex_poster = re.sub(' ','_', '/tmp/'+t+'_plex_poster.png')
                     g_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width, r) 
                     tmp_poster = g_poster[0]
+                    plex_poster = shutil.copy(tmp_poster, plex_poster)
                     new_poster = ''
                     if r:
                         logger.debug(g_poster[1])
@@ -351,7 +298,8 @@ def posters4k(app, webhooktitle):
                             logger.error(repr(e))
                         add_url(i, r, table, plex)
                     else:
-                        logger.debug(title+' not in database') 
+                        logger.debug(title+' not in database')
+
                         process(tmp_poster, guid)
                 except Exception as e:
                     logger.error("script error: "+repr(e))
@@ -360,12 +308,14 @@ def posters4k(app, webhooktitle):
                 if files.endswith(".png"):
                     os.remove(dirpath+files)       
             logger.info('4k Poster script has finished')
+            exit()
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -401,10 +351,11 @@ def guid_to_title(app, var):
 
             lib = config[0].filmslibrary.split(',')
             logger.debug(lib)
-            if len(lib) <= 2:
+            n = len(lib)
+            if n <= 2:
                 try:
                     while True:
-                        for l in range(10):
+                        for l in range(n):
                             films = plex.library.section(lib[l])
                             run_script()
                 except IndexError:
@@ -415,10 +366,11 @@ def guid_to_title(app, var):
 
             lib = config[0].tvlibrary.split(',')
             logger.debug(lib)
-            if len(lib) <= 2:
+            n = len(lib)
+            if n <= 2:
                 try:
                     while True:
-                        for l in range(10):
+                        for l in range(n):
                             tv = plex.library.section(lib[l])
                             run_script()
                 except IndexError:
@@ -429,10 +381,11 @@ def guid_to_title(app, var):
 
             lib = config[0].tvlibrary.split(',')
             logger.debug(lib)
-            if len(lib) <= 2:
+            n = len(lib)
+            if n <= 2:
                 try:
                     while True:
-                        for l in range(10):
+                        for l in range(n):
                             tv = plex.library.section(lib[l])
                             run_script()
                 except IndexError:
@@ -447,7 +400,7 @@ def tv_episode_poster(app, epwebhook, poster):
         from app import module
         config = Plex.query.filter(Plex.id == '1')
         plex = PlexServer(config[0].plexurl, config[0].token)
-        banner_4k = Image.open("app/img/tv/4k.png")
+        banner_4k_icon = Image.open("app/img/tv/4k.png")
         banner_bg = Image.open("app/img/tv/Background.png")
         banner_dv = Image.open("app/img/tv/dolby_vision.png")
         banner_hdr10 = Image.open("app/img/tv/hdr10.png")
@@ -456,99 +409,9 @@ def tv_episode_poster(app, epwebhook, poster):
         dtsx = Image.open("app/img/tv/dtsx.png")
         tmdb.api_key = config[0].tmdb_api    
         b_dir = 'static/backup/tv/episodes/'
+        poster_size = (1280, 720)
         logger.info('Starting 4k Tv poster script')
         def run_script():
-            def add_background(tmp_poster):
-                logger.debug(img_title+' Adding background')
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)        
-                    background.paste(banner_bg, (0, 0), banner_bg)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('Poster Background error: '+repr(e))
-
-            def add_banner(tmp_poster):
-                logger.debug(img_title+' Adding 4k banner')
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(banner_4k, (0, 0), banner_4k)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('4K Poster error: '+repr(e))
-
-            def hdrp(tmp_poster):
-                logger.info(img_title+" HDR Banner")
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(banner_new_hdr, (0, 0), banner_new_hdr)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('HDR Poster error: '+repr(e))
-
-            def dolby_vision(tmp_poster):
-                logger.debug(img_title+" Adding Dolby Vision Banner")
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(banner_dv, (0, 0), banner_dv)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('Dolby Vision Poster error: '+repr(e))            
-
-            def hdr10(tmp_poster):
-                logger.debug(img_title+" Adding HDR10+ banner")
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(banner_hdr10, (0, 0), banner_hdr10)
-                    background.save(tmp_poster)
-                except OSError as e:
-                    logger.error('HDR10 Poster error: '+repr(e))
-
-            def atmos_poster(tmp_poster):
-                logger.debug(img_title+' Adding Atmos Banner')
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(atmos, (0, 0), atmos)
-                    background.save(tmp_poster) 
-                except OSError as e:
-                    logger.error('Atmos Poster error: '+repr(e))        
-
-            def dtsx_poster(tmp_poster):
-                logger.debug(img_title+' Adding Atmos Banner')
-                try:
-                    size = (1280,720)
-                    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)#Image.open(tmp_poster)
-                    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-                    background = Image.fromarray(background)
-                    background = background.resize(size,Image.LANCZOS)
-                    background.paste(dtsx, (0, 0), dtsx)
-                    background.save(tmp_poster)  
-                except OSError as e:
-                    logger.error('DTS:X Poster error: '+repr(e))
-
             def decision_tree(tmp_poster):
                 banners = module.check_tv_banners(i, tmp_poster, img_title)
                 banner_4k = banners[0]
@@ -598,11 +461,10 @@ def tv_episode_poster(app, epwebhook, poster):
                     def banner_decision(audio, hdr):
                         if True not in banners:
                             logger.debug('creating backup')
-                        #    backup_poster(tmp_poster)
-                            add_background(tmp_poster)
+                            module.add_banner(tmp_poster, banner_bg, poster_size)
 
                         if resolution == '4k' and banner_4k == False:
-                            add_banner(tmp_poster)
+                            module.add_banner(tmp_poster, banner_4k_icon, poster_size)
                         elif resolution != '4k' and banner_4k == False:
                             logger.debug(img_title+' does not need 4k banner') 
                         elif resolution == '4k' and banner_4k != False:
@@ -618,9 +480,9 @@ def tv_episode_poster(app, epwebhook, poster):
 
                             if audio_banner == False:
                                 if 'Atmos' in audio and config[0].audio_posters == 1:
-                                    atmos_poster(tmp_poster)
+                                    module.add_banner(tmp_poster, atmos, poster_size)
                                 elif audio == 'DTS:X' and config[0].audio_posters == 1:
-                                    dtsx_poster(tmp_poster)
+                                    module.add_banner(tmp_poster, dtsx, poster_size)
 
                             elif 'Atmos' in audio:
                                 ep.addLabel('Dolby Atmos', locked=False)
@@ -630,11 +492,11 @@ def tv_episode_poster(app, epwebhook, poster):
                                 try:
                                     logger.debug(hdr)
                                     if 'dolby vision' in hdr and config[0].hdr == 1:
-                                        dolby_vision(tmp_poster)
+                                        module.add_banner(tmp_poster, banner_dv, poster_size)
                                     elif "hdr10+" in hdr and config[0].hdr == 1:
-                                        hdr10(tmp_poster)
+                                        module.add_banner(tmp_poster, banner_hdr10, poster_size)
                                     elif hdr != "" and config[0].hdr == 1:
-                                        hdrp(tmp_poster)
+                                        module.add_banner(tmp_poster, banner_new_hdr, poster_size)
                                 except:
                                     pass
                             elif 'dolby vision' in hdr:
@@ -648,7 +510,7 @@ def tv_episode_poster(app, epwebhook, poster):
 
                 if res == '4k' and config[0].films4kposters == 1:
                     if banner_4k == False:
-                        add_banner(tmp_poster)
+                        module.add_banner(tmp_poster, banner_4k_icon, poster_size)
                     else:
                         logger.debug(ep.title+' Has banner') 
 
@@ -675,19 +537,20 @@ def tv_episode_poster(app, epwebhook, poster):
                     height = 720
                     width = 1280
                     if 'plex://' in guid:
-                        tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'
-                    else:
-                        continue
-                        #tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'                
-                    if (res == '4k' or hdr != 'none'):
-                        if poster == "":
+                        tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'     
+                    elif 'local://' in guid:
+                        tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'   
 
-                            tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width)
+                    if (res == '4k' or hdr != 'none'):
+                        r = ep_table.query.filter(ep_table.guid == guid).all()
+                        if poster == "":
+                            tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width, r)
+                            tmp_poster = tmp_poster[0]
                             blurred = False
                         else:
                             blurred = True
                             tmp_poster = poster
-                        r = ep_table.query.filter(ep_table.guid == guid).all()
+                        print(tmp_poster)
                         table = ep_table
                         g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
                         g = str(g[0].guids)
@@ -783,13 +646,16 @@ def tv_episode_poster(app, epwebhook, poster):
                             pass
                 except Exception as e:
                     logger.error(i.title+ ' '+repr(e))
+            
             logger.info("tv Poster Script has finished")
+            exit()
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         tv = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -814,6 +680,15 @@ def restore_episodes_from_database(app):
         height = 720
         width = 1280
         def run_script():
+            def get_poster(poster):
+                req = requests.get(poster_url_base+poster, stream=True)
+                if req.status_code == 200:
+                    logger.debug(b_file)
+                    with open(b_file, 'wb') as f:
+                        for chunk in req:
+                            f.write(chunk)
+                        #shutil.copyfileobj(req.raw, f)
+                        i.uploadPoster(filepath=b_file)
             def restore_tmdb(g):
                 logger.info("RESTORE: restoring posters from TheMovieDb")
                 tmdb_search = ''
@@ -824,26 +699,24 @@ def restore_episodes_from_database(app):
                         tmdb_search = tmdbtv.details(name=i.grandparentTitle, episode_num=episode, season_num=season)
                 else:
                     tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
-                return tmdb_search
-            def get_poster(poster):
-                req = requests.get(poster_url_base+poster, stream=True)
-                if req.status_code == 200:
-                    logger.debug(b_file)
-                    with open(b_file, 'wb') as f:
-                        for chunk in req:
-                            f.write(chunk)
-                        #shutil.copyfileobj(req.raw, f)
-                        i.uploadPoster(filepath=b_file)
-            try:
+                #return tmdb_search
+
+                try:
                 
-                tmdb_poster = restore_tmdb(g)
-                poster = tmdb_poster.still_path
-                get_poster(poster) 
-            except TypeError:
-                logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
+                    #tmdb_poster = restore_tmdb(g)
+                    poster = tmdb_search.still_path
+                    get_poster(poster) 
+                except TypeError:
+                    logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
                 pass
             logger.info('Restoring TV Posters')
-            for i in tv.search(libtype='episode'):
+            advanced_filters = {
+                'or': [
+                    {'hdr':'True'},
+                    {'resolution':'4k'}
+                ]
+            }
+            for i in tv.search(libtype='episode', filters=advanced_filters, sort="titleSort:desc"):
                 img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
                 g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
                 g = str(g[0].guids)
@@ -884,16 +757,20 @@ def restore_episodes_from_database(app):
                         except (TypeError, IndexError, FileNotFoundError) as e:
                             logger.error('Restore from db: '+repr(e))  
                 else:
-                    if (resolution == '4k' or hdr != 'none'):
-                        logger.debug(img_title)
-                        b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
+                    logger.debug('file not in database')
+                    b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
+                    logger.debug('filename = '+str(b_file))
+                    if 'tmdb' in g:
                         g = module.get_tmdb_guid(g)
                         restore_tmdb(g)
+                    else:
+                        restore_tmdb('')
 
             logger.info('Finished restoring TV Posters')
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
                     for l in range(10):
@@ -919,7 +796,7 @@ def restore_episode_from_database(app, var):
         b_dir = '/config/backup/tv/episodes/'
         def run_script():
 
-            def restore_tmdb(g):
+            def restore_tmdb(g, b_file):
                 logger.info("RESTORE: restoring posters from TheMovieDb")
                 if g == '':
                     tmdb_show= TV()
@@ -943,14 +820,21 @@ def restore_episode_from_database(app, var):
                     logger.info("RESTORE: "+i.title+" This poster could not be found on TheMoviedb")
                     pass
             logger.info('Restoring TV Posters')
-            for i in tv.search(libtype='episode', guid=var):
+            advanced_filters = {
+                'or': [
+                    {'hdr':'True'},
+                    {'resolution':'4k'}, 
+                    {'guid': guid}
+                ]
+            }
+            for i in tv.search(libtype='episode', filters=advanced_filters, sort="titleSort:desc"):
                 img_title = i.grandparentTitle+"_"+i.parentTitle+"_"+i.title
                 g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
                 g = str(g[0].guids)
                 title = i.title
                 guid = str(i.guid)
                 logger.info('restoring '+title)
-                logger.debug(guid)
+                logger.debug("guid= "+str(guid))
                 season = str(i.parentIndex)
                 episode = str(i.index)
                 logger.debug(i.grandparentTitle+' '+season+' '+episode)
@@ -987,18 +871,22 @@ def restore_episode_from_database(app, var):
                         except (TypeError, IndexError, FileNotFoundError) as e:
                             logger.error('Restore from db: '+repr(e))  
                 else:
+                    logger.debug('file not in database')
+                    b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
+                    logger.debug('filename = '+str(b_file))
                     if 'tmdb' in g:
                         g = module.get_tmdb_guid(g)
-                        restore_tmdb(g)
+                        restore_tmdb(g, b_file)
                     else:
-                        restore_tmdb('')
+                        restore_tmdb('', b_file)
             logger.info('Finished restoring TV Posters')
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         tv = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1145,10 +1033,11 @@ def restore_from_database(app):
                     logger.error(repr(e))  
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1179,10 +1068,11 @@ def restore_single(var):
                     logger.error(repr(e)) 
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1218,10 +1108,11 @@ def restore_single_bannered(var):
                     return msg
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         msg = run_script()
             except IndexError:
@@ -1257,10 +1148,11 @@ def restore_seasons():
                     logger.error(repr(e)) 
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         tv = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1290,10 +1182,11 @@ def restore_single_season(var):
                     logger.error(repr(e)) 
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         tv = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1329,10 +1222,11 @@ def restore_single_bannered_season(var):
                     return msg
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         tv = plex.library.section(lib[l])
                         msg = run_script()
             except IndexError:
@@ -1376,11 +1270,13 @@ def hide4k(app):
                 logger.info("Hide-4K: Hide 4K Script has finished.")
             else:
                 logger.warning('Hide 4K films is not enabled in the config so will not run')  
+                exit()
         lib = config[0].filmslibrary.split(',')
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -1661,10 +1557,11 @@ def autocollections(app):
                 recommended() 
             logger.info("Auto Collections has finished")
         lib = config[0].filmslibrary.split(',')
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -2013,10 +1910,11 @@ def fill_database(app):
                 pass
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -2047,10 +1945,11 @@ def add_labels(app):
             logger.info('Labels Added')
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:
@@ -2087,10 +1986,11 @@ def maintenance():
                         db.session.delete(row)
                         db.session.commit()
                     except: db.session.rollback()  
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         clean_database(film_table, films)
             except IndexError:
@@ -2269,10 +2169,11 @@ def restore_posters(app):
                     logger.error(e)
 
         lib = config[0].filmslibrary.split(',')
-        if len(lib) <= 2:
+        n = len(lib)
+        if n <= 2:
             try:
                 while True:
-                    for l in range(10):
+                    for l in range(n):
                         films = plex.library.section(lib[l])
                         run_script()
             except IndexError:

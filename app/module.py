@@ -442,29 +442,29 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
     elif True in banners:
         logger.debug('Poster has Banners')
         if r:
-                logger.debug("File is in database")
-                p = os.path.exists(re.sub('static', '/config', r[0].poster))
-                logger.debug(p)
-                if p == True:
-                    logger.debug("poster found")
-                    if 'poster_not_found' not in r[0].poster:
-                        b_file = r[0].poster
-                        return b_file
-                else: #  p == 'False':
-                    logger.debug("restoring from tmbd")
-                    g = get_tmdb_guid(g)
-                    if 'films' in b_dir:
-                        tmdb_search = movie.details(movie_id=g)
-                        poster = tmdb_search.poster_path
-                    elif 'tv' in b_dir:
-                        season = str(i.parentIndex)
-                        episode = str(i.index)
-                        tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
-                        poster = tmdb_search.still_path
-                    logger.info(i.title)
-                    b_file = get_tmdb_poster(fname, poster)
-                    b_file = re.sub('static', '/config', b_file)
-                    return b_file                        
+            logger.debug("File is in database")
+            p = os.path.exists(re.sub('static', '/config', r[0].poster))
+            logger.debug(p)
+            if p == True:
+                logger.debug("poster found")
+                if 'poster_not_found' not in r[0].poster:
+                    b_file = r[0].poster
+                    return b_file
+            else: #  p == 'False':
+                logger.debug("restoring from tmbd")
+                g = get_tmdb_guid(g)
+                if 'films' in b_dir:
+                    tmdb_search = movie.details(movie_id=g)
+                    poster = tmdb_search.poster_path
+                elif 'tv' in b_dir:
+                    season = str(i.parentIndex)
+                    episode = str(i.index)
+                    tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
+                    poster = tmdb_search.still_path
+                logger.info(i.title)
+                b_file = get_tmdb_poster(fname, poster)
+                b_file = re.sub('static', '/config', b_file)
+                return b_file                        
         else:
             logger.debug('not in database')
             if (config[0].tmdb_restore == 1 and old_backup == False):
@@ -592,21 +592,23 @@ def blur(tmp_poster, r, table, db, guid):
     return poster
 
 def check_tv_banners(i, tmp_poster, img_title):
-    logger.debug(tmp_poster)
+    logger.debug(tmp_poster[0])
     box_4k= (42,45,290,245)
     hdr_box = (32,440,303,559)
     a_box = (32,560,306,685)
     cutoff = 10
     logger.debug(img_title+' Checking for Banners')
-    try:
-        size = (1280,720)
-        background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-        background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
-        background = Image.fromarray(background)
-        background = background.resize(size,Image.LANCZOS)
-    except OSError as e:
-        logger.error(e)
-        pass
+    size = (1280,720)
+    background = open_poster(tmp_poster, size)
+    #try:
+    #    
+    #    background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+    #    background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+    #    background = Image.fromarray(background)
+    #    background = background.resize(size,Image.LANCZOS)
+    #except OSError as e:
+    #    logger.error(e)
+    #    pass
         #try:    
         #    title = img_title
         #    get_poster(i, tmp_poster, title)
@@ -716,7 +718,10 @@ def check_for_new_poster(tmp_poster, r, i, table, db):
     new_poster = 'False'
     if r:
         try:
-            poster_file = r[0].bannered_poster
+            try:
+                poster_file = r[0].bannered_poster
+            except AttributeError:
+                poster_file = r[0].bannered_season
             poster_file = re.sub('static', '/config', poster_file)
             
             try:
@@ -757,7 +762,7 @@ def check_for_new_poster(tmp_poster, r, i, table, db):
                 new_poster = 'True'
     else:
         new_poster='True'
-    if new_poster == 'True':
+    if (new_poster == 'True' and r):
         try:
             row = r[0].id
             media = table.query.get(row)
@@ -881,17 +886,18 @@ def remove_tmp_files(tmp_poster):
     
 def final_poster_compare(tmp_poster, plex_poster):
     size = (2000,3000)
+    cropped = (1000,1500,2000,3000)
     new_poster = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
     new_poster = cv2.cvtColor(new_poster, cv2.COLOR_BGR2RGB)
     new_poster = Image.fromarray(new_poster)
     new_poster = new_poster.resize(size,Image.LANCZOS)
-    new_poster = new_poster.crop(1000,1500,2000,3000)
+    new_poster = new_poster.crop(cropped)
 
     plex_poster = cv2.imread(plex_poster, cv2.IMREAD_ANYCOLOR)
     plex_poster = cv2.cvtColor(plex_poster, cv2.COLOR_BGR2RGB)
     plex_poster = Image.fromarray(plex_poster)
     plex_poster = plex_poster.resize(size,Image.LANCZOS)
-    plex_poster = plex_poster.crop(1000,1500,2000,3000)
+    plex_poster = plex_poster.crop(cropped)
 
     new_poster_hash = imagehash.average_hash(new_poster)
     plex_poster_hash = imagehash.average_hash(plex_poster)
@@ -903,5 +909,22 @@ def final_poster_compare(tmp_poster, plex_poster):
         logger.debug('poster is fucked')
         return False
 
+def open_poster(tmp_poster, size):
+    try:
+        background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
+        background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+        background = Image.fromarray(background)
+        background = background.resize(size,Image.LANCZOS)
+        return background
+    except  OSError as e:
+        logger.error(repr(e)) 
 
+def add_banner(tmp_poster, banner, size):
+    try:
+        background = open_poster(tmp_poster, size)     
+        background.paste(banner, (0, 0), banner)
+        background.save(tmp_poster)
+
+    except OSError as e:
+        logger.error('Poster Background error: '+repr(e))    
 
