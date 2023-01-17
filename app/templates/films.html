@@ -28,7 +28,9 @@
         <th>Poster</th>
         <th>Bannered Poster</th>
         <th>Checked</th>
+        <th>Re-Run</th>
         <th>Delete</th>
+
       </tr>
     </thead>
   </table>
@@ -52,17 +54,35 @@
       ajax: '/api/data',
       serverSide: true,
       columns: [
-        {data: 'title'},
+        {data: 'url'},
         {data: 'res'},
         {data: 'hdr'},
         {data: 'audio'},
         {data: 'poster'},
         {data: 'bannered_poster'},
         {data: 'checked'},
+        {data: 'title'},
         {data: 'delete'}
       ],
     });
   });
 </script>
+<script>
+  function searchFunction() {
+    var dt = $('#data').DataTable();
+    //hide the first column
 
+    var version = document.getElementById("version")
+    if (version.innerText.includes("alpha") || version.innerText.includes("dev"))  {
+      dt.column(6).visible(true);
+
+      console.log(version);
+    }
+    else
+    {
+      dt.column(6).visible(false);
+    }
+  }
+  //window.onload = searchFunction
+</script>
 {% endblock %}

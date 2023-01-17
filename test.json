@@ -1,0 +1,48 @@
+{
+    "series": {
+        "id": 509,
+        "title": "Harley Quinn",
+        "path": "/tv/Harley Quinn",
+        "tvdbId": 365677,
+        "tvMazeId": 33452,
+        "imdbId": "tt7658402",
+        "type": "standard"
+    },
+    "episodes": [
+        {
+            "id": 31425,
+            "episodeNumber": 11,
+            "seasonNumber": 1,
+            "title": "Harley Quinn Highway",
+            "airDate": "2020-02-07",
+            "airDateUtc": "2020-02-07T08:00:00Z"
+        }
+    ],
+    "episodeFile": {
+        "id": 39190,
+        "relativePath": "Season 01/Harley Quinn - S01E11 - Harley Quinn Highway.mp4",
+        "path": "/downloads/Harley.Quinn.S01E11.1080p.WEBRip.x265/32e1f74253da4ab69f4613b5f1c84b5c.mp4",
+        "quality": "WEBRip-1080p",
+        "qualityVersion": 1,
+        "sceneName": "Harley.Quinn.S01E11.1080p.WEBRip.x265",
+        "size": 383563459
+    },
+    "isUpgrade": "True",
+    "downloadClient": "SAB",
+    "downloadClientType": "SABnzbd",
+    "downloadId": "SABnzbd_nzo_wgu971pz",
+    "deletedFiles": [
+        {
+            "id": 31877,
+            "relativePath": "Season 01/Harley Quinn - S01E11 - Harley Quinn Highway h264.mkv",
+            "path": "/tv/Harley Quinn/Season 01/Harley Quinn - S01E11 - Harley Quinn Highway h264.mkv",
+            "quality": "WEBDL-1080p",
+            "qualityVersion": 1,
+            "releaseGroup": "NTb",
+            "sceneName": "Harley.Quinn.S01E11.Harley.Quinn.Highway.1080p.DCU.WEB-DL.DDP5.1.H264-NTb",
+            "size": 555086926
+        }
+    ],
+    "eventType": "Download"
+}
+

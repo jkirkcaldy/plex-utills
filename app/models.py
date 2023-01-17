@@ -1,5 +1,5 @@
 from app import db
-import re
+
 
 class Plex(db.Model):
     __tablename__ = 'plex_utills'
@@ -105,51 +105,63 @@ class film_table(db.Model):
     poster = db.Column(db.String)
     checked = db.Column(db.Integer)
     bannered_poster = db.Column(db.String)
+    url= db.Column(db.String)
     
 
 
 
     def to_dict(self):
-
-        print(self.bannered_poster)
-        reguid = re.sub('static/backup/films/', '', self.poster)
-        reguid = re.sub('.png', '', reguid)
-        rerun = '/rerun-posters4k/'+reguid
-        restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+        rerun = '/rerun-posters4k/'+self.guid
+        rerun_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-undo-alt"></i>
           </span>
-            <span class="text">"""+self.title+"""</span>
         </a>
         """
-        delete = '/delete_row/'+self.guid
+        #<span class="text">"""+self.title+"""</span>
+        #restore = '/restore/film/'+self.guid
+        #restore_btn =  """<a href="""+restore+""" class="btn btn-secondary btn-icon-split" id="rerun">
+        #    <span class="icon text-white-50">
+        #      <i class="fas fa-undo-alt"></i>
+        #  </span>
+
+        #</a>
+        #"""
+        delete = '/delete_row/film/'+self.guid
         delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
             <span class="icon text-white-50">
               <i class="fas fa-exclamation-triangle"></i>
           </span>
         </a>
         """
+        try:
+            url_link = """<a href="""+self.url+""">"""+self.title+"""</a>"""
+        except:
+            url_link = self.title
+        #title = 
         if self.bannered_poster == None:
             return {
-            'title': restore_btn,
+            'title': rerun_btn,
             'res': self.res,
             'hdr': self.hdr,
             'audio': self.audio,
-            'poster': "<a href='restore/film/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>",
+            'poster': "<a href='restore/film/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>",
             'checked': self.checked,
-            'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>" ,               
-            'delete': delete_btn
+            'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=100px src=''></a>" ,               
+            'delete': delete_btn,
+            'url': url_link
             }
         elif self.bannered_poster != None:
             return {
-                'title': restore_btn,
+                'title': rerun_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
-                'poster': "<a href='restore/film/"+self.guid+"'><img    height=150px src='"+self.poster+"'></a>",
+                'poster': "<a href='restore/film/"+self.guid+"'><img    height=100px src='"+self.poster+"'></a>",
                 'checked': self.checked,
-                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=150px src='"+self.bannered_poster+"'></a>", 
-                'delete': delete_btn              
+                'bannered_poster': "<a href='restore/bannered_film/"+self.guid  +"'><img height=100px src='"+self.bannered_poster+"'></a>", 
+                'delete': delete_btn,
+                'url': url_link              
             }
 
 class ep_table(db.Model):
@@ -167,32 +179,77 @@ class ep_table(db.Model):
     bannered_poster = db.Column(db.String)
     checked = db.Column(db.Integer)
     blurred = db.Column(db.Integer)
+    show_season = db.Column(db.String, index=True)
 
     def to_dict(self):
-        poster = "<a href='restore/episode/"+self.guid+"'><img height=150px src='"+self.poster+"'></a>"
-        
+        poster = "<a href='restore/episode/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>"
+        rerun = '/rerun-tv-posters/'+self.guid
+        restore_btn =  """<a href="""+rerun+""" class="btn btn-secondary btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-undo-alt"></i>
+          </span>
+            <span class="text">"""+self.title+"""</span>
+        </a>
+        """
+        delete = '/delete_row/episode/'+self.guid
+        delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation-triangle"></i>
+          </span>
+        </a>
+        """
         if self.bannered_poster == None:
             return {
-                'title': self.title,
+                'show_season': self.show_season,
+                'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
-                'bannered_poster': "<a href='restore/bannered_film/"+self.guid+"'><img height=150px src=''></a>",
+                'bannered_poster': "<a href='restore/bannered_poster/"+self.guid+"'><img height=100px src=''></a>",
                 'checked': self.checked,
-                'blurred': self.blurred
+                'blurred': self.blurred,
+                'delete': delete_btn
             }
         else:
-            bannered_poster = "<a href='restore/season/"+self.guid+"'><img height=150px src='"+self.bannered_poster+"'></a>"
+            bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=100px src='"+self.bannered_poster+"'></a>"
             return {
-                'title': self.title,
+                'show_season': self.show_season,
+                'title': restore_btn,
                 'res': self.res,
                 'hdr': self.hdr,
                 'audio': self.audio,
                 'poster': poster,
                 'bannered_poster': bannered_poster,
                 'checked': self.checked,
-                'blurred': self.blurred
+                'blurred': self.blurred,
+                'delete': delete_btn
             }            
 
-       
+class season_table(db.Model):
+    __tablename__ = 'seasons'
+    __bind_key__ = 'db1'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, index=True)
+    guid = db.Column(db.String, index=True)
+    poster = db.Column(db.String)
+    bannered_season = db.Column(db.String)
+    checked = db.Column(db.Integer)
+
+    def to_dict(self):
+        delete = '/delete_row/season/'+self.guid
+        delete_btn = """<a href="""+delete+""" class="btn btn-danger btn-icon-split" id="rerun">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation-triangle"></i>
+          </span>
+        </a>
+        """
+        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=100px src='"+self.bannered_season+"'></a>"
+        poster = "<a href='restore/season/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>"
+        return {
+            'title': self.title,
+            'poster': poster,
+            'bannered_season': bannered_poster,
+            'checked': self.checked,
+            'delete': delete_btn
+        }        
