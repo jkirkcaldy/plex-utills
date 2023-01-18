@@ -386,7 +386,12 @@ def setup_helper():
             add_season_table()                                  
     #log.debug('Running setup Helper')
     table_check()
-
+    if os.path.exists(b_dir):
+        pass
+        #log.info('Backup directory exists')
+    else:
+        os.makedirs(b_dir)
+        
     if os.path.exists(b_dir+'/films'):
         pass
         #log.info('Backup directory exists')
