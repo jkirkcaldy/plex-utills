@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- ENTER your content here -->
+
+
+<div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+    <p>Search through the backup database for content. Here you can see what the backup posters and the bannered posters are. </p>
+
+    <div class="form-group">
+        <form method="post" action="{{ url_for('search') }}" id="search">
+        <input class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search}}" />
+        </form>
+    </div>
+    
+    {% for message in get_flashed_messages() %}
+    <div class=flash>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% if show %}
+    <section class="u-clearfix u-section-1" id="sec-2a0a">
+        <div class="u-clearfix u-sheet u-valign-left u-sheet-1">
+          <a href="/info/{{show[0].parent_guid}}"><img class="u-image u-image-default u-image-1" src="{{show[0].parent_poster}}" alt="" data-image-width="853" data-image-height="1280"></a>
+          <h1 class="u-text u-text-default u-title u-text-1">{{ show[0].parentTitle }}</h1>
+        </div>
+      </section>
+
+
+    {%endif%}
+        {% for show in show %}  
+
+
+        <a href="/episode/{{ show.guid }}"><img src="{{ show.poster }}"  width="200" style="margin:5px 5px" id="myImg"></a>
+
+
+
+        {% endfor %}
+
+    
+</div>
+
+{% endblock %}
+{% block scripts %}
+{% endblock %}
