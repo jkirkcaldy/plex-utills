@@ -15,4 +15,4 @@ services:
             - 80:80
         cap_add:
           - SYS_ADMIN
-          - DAC_READ_SEARCH            
+          - DAC_READ_SEARCH

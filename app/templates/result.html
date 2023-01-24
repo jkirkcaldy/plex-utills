@@ -18,11 +18,17 @@
         					  <p class="lead">There is nothing for you here.</p>
                         
         				  {% endif %}
-                        
+
+						  {% if poster %}
+								<p>This is now your poster on Plex:</p>
+								<img src="{{ poster }}", width="200">
+								
+						  {% endif %}
         					  <!-- links 
         					  <p><a href="{{ url_for('config') }}">Return to the config page.</a></p>-->
-                              <p><a href="{{ url_for('index') }}">Return home.</a></p>
-                        
+
+							  <p><a href="{{ url_for('index') }}">Return home.</a></p>
+						  
                         
         					  </div>
         				  </div>

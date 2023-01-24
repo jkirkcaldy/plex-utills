@@ -15,6 +15,7 @@ COPY ./version .
 # Install requirements
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install git+https://github.com/AnthonyBloomer/tmdbv3api.git
 
 EXPOSE 80
 EXPOSE 5000
@@ -23,7 +24,7 @@ VOLUME [ "/config" ]
 VOLUME [ "/logs" ]
 RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-19_all.deb
 RUN dpkg -i repo-mediaarea_1.0-19_all.deb
-RUN apt-get update && apt-get install -y supervisor mediainfo nginx ffmpeg libsm6 libxext6 nano \
+RUN apt update && apt upgrade -y && apt install -y supervisor mediainfo nginx ffmpeg libsm6 libxext6 nano \
 && rm -rf /var/lib/apt/lists/*
 COPY supervisord-debian.conf /etc/supervisor/conf.d/supervisord.conf
 COPY app/static/dockerfiles/default /etc/nginx/sites-enabled/default

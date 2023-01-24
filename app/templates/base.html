@@ -20,6 +20,7 @@
     <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/plex-utills.css') }}" rel="stylesheet">    
     <link href="https:////cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel=""stylesheet type="text/css">
     
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
@@ -39,11 +40,17 @@
           <div class="sidebar-brand-text mx-3">Plex-Utills</div>
       </a>
       <hr class="sidebar-divider my-0">
+
       <li class="nav-item">
           <a class="nav-link" href="{{ url_for('index')  }}">
               <i class="fas fa-fw fa-home"></i>
               <span>Home</span></a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('search')  }}">
+            <i class="fas fa-fw fa-search"></i>
+            <span>Search</span></a>
+      </li>      
       <!-- Nav Item - Config Collapse Menu -->
       <li class="nav-item">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
@@ -89,19 +96,32 @@
         </li>   
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for('get_films')  }}">
-                <i class="fas fa-fw fa-table"></i>
-                <span>Film Database</span></a>
+                <i class="fas fa-fw fa-film"></i>
+                <span>Films</span></a>
           </li>     
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('get_episodes')  }}">
-                <i class="fas fa-fw fa-table"></i>
-                <span>TV Episode Database</span></a>
-          </li>  
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('get_seasons')  }}">
-                <i class="fas fa-fw fa-table"></i>
-                <span>TV Season Database</span></a>
-          </li>                          
+            <a class="nav-link" href="{{ url_for('get_shows')  }}">
+                <i class="fas fa-fw fa-tv"></i>
+                <span>TV Shows</span></a>
+          </li>           
+
+   
+        <!-- Nav Item - Config Collapse Menu -->
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree"
+              aria-expanded="true" aria-controls="collapseThree">
+              <i class="fas fa-fw fa-cogs"></i>
+              <span>Plex-Utills Database</span>
+          </a>
+          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
+              <div class="bg-white py-2 collapse-inner rounded">
+                  <h6 class="collapse-header">Library Pages:</h6>
+                  <a class="collapse-item" href="{{ url_for('get_db_films')  }}">Films</a>
+                  <a class="collapse-item" href="{{ url_for('get_db_seasons')  }}">Seasons</a>
+                  <a class="collapse-item" href="{{ url_for('get_db_episodes')  }}">Episodes</a>
+              </div>
+          </div>
+    </li>                                  
             <!-- Sidebar Message -->
             <div class="sidebar-card d-none d-lg-flex">
                 <p class="text-center mb-2"><strong>Plex-Utills</strong> Version</p>
@@ -124,17 +144,17 @@
                                 <h6 class="dropdown-header bg-gray-900" >
                                     Donate to help the development of Plex-Utills
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                <a class="dropdown-item d-flex align-items-center" href="https://www.paypal.com/paypalme/jkirkcaldy">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-primary">
                                             <i class="fab fa-paypal text-white"></i>
                                         </div>
                                     </div>
                                     <div>
-                                       <span class="font-weight-bold" onclick='location="https://www.paypal.com/paypalme/jkirkcaldy"'>Donate with Paypal</span>
+                                       <span class="font-weight-bold" onclick="location='https://www.paypal.com/paypalme/jkirkcaldy'">Donate with Paypal</span>
                                     </div>
                                 </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                <a class="dropdown-item d-flex align-items-center" href="https://opencollective.com/themainframe">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-success">
                                             <i class="fas fa-donate text-white"></i>
@@ -147,6 +167,7 @@
                             </div>
                         </li>
                     </ul>
+                    
                 </nav>
                 <div class="container-fluid">
                 
@@ -162,7 +183,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; jkirkcaldy 2022</span>
+                        <span>Copyright &copy; jkirkcaldy 2023</span>
                         
                     </div>
                 </div>

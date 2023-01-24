@@ -212,7 +212,7 @@ class ep_table(db.Model):
                 'delete': delete_btn
             }
         else:
-            bannered_poster = "<a href='restore/episode/"+self.guid+"'><img height=100px src='"+self.bannered_poster+"'></a>"
+            bannered_poster = "<a href='restore/bannered_episode/"+self.guid+"'><img height=100px src='"+self.bannered_poster+"'></a>"
             return {
                 'show_season': self.show_season,
                 'title': restore_btn,
@@ -233,7 +233,7 @@ class season_table(db.Model):
     title = db.Column(db.String, index=True)
     guid = db.Column(db.String, index=True)
     poster = db.Column(db.String)
-    bannered_season = db.Column(db.String)
+    bannered_poster = db.Column(db.String)
     checked = db.Column(db.Integer)
 
     def to_dict(self):
@@ -244,12 +244,12 @@ class season_table(db.Model):
           </span>
         </a>
         """
-        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=100px src='"+self.bannered_season+"'></a>"
+        bannered_poster = "<a href='restore/bannered_season/"+self.guid+"'><img height=100px src='"+self.bannered_poster+"'></a>"
         poster = "<a href='restore/season/"+self.guid+"'><img height=100px src='"+self.poster+"'></a>"
         return {
             'title': self.title,
             'poster': poster,
-            'bannered_season': bannered_poster,
+            'bannered_poster': bannered_poster,
             'checked': self.checked,
             'delete': delete_btn
         }        

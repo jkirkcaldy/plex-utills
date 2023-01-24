@@ -1,21 +1,8 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_bootstrap import Bootstrap5
-from app.scripts import posters3d, hide4k, setup_logger, autocollections, collective4k
-import os, sys, stat
-from flask_apscheduler import APScheduler
+import os
 import sqlite3
-import logging
 import shutil
 from plexapi.server import PlexServer
 import re
-import plexapi
-import tzlocal
-import time
-from apscheduler.triggers.cron import CronTrigger
-from croniter import croniter
-import time
-import platform
 from app import log
 b_dir = '/config/backup/' 
 
@@ -316,7 +303,7 @@ def setup_helper():
                     	"Title"	TEXT NOT NULL,
                     	"GUID"	TEXT NOT NULL,
                         "poster" TEXT,
-                        "bannered_season" TEXT,
+                        "bannered_poster" TEXT,
                         "checked" INTEGER,
                     	PRIMARY KEY("ID" AUTOINCREMENT)
                     ); """
@@ -384,14 +371,16 @@ def setup_helper():
         except sqlite3.OperationalError as e:
             pass #log.debug(repr(e))
             add_season_table()                                  
-    #log.debug('Running setup Helper')
+    log.debug('Running setup Helper')
     table_check()
+    exit()
+def backup_dirs():
     if os.path.exists(b_dir):
         pass
         #log.info('Backup directory exists')
     else:
         os.makedirs(b_dir)
-        
+
     if os.path.exists(b_dir+'/films'):
         pass
         #log.info('Backup directory exists')
@@ -426,4 +415,5 @@ def setup_helper():
     os.chmod(b_dir , 0o777)
     for root,dirs,_ in os.walk(b_dir):
         for d in dirs :
-            os.chmod(os.path.join(root,d) , 0o777)           
+            os.chmod(os.path.join(root,d) , 0o777)    
+    exit()       
