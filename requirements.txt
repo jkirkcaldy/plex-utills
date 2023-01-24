@@ -17,4 +17,4 @@ pymediainfo
 tautulli
 croniter
 opencv-python-headless
-flask_pagination
+flask_paginate

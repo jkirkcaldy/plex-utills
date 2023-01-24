@@ -20,44 +20,43 @@
     {% endfor %}
 
     {% if item %}
-	<h1 class="pt-5 pb-2">Result</h1>
-	<table class="table">
-        <tr>
-            <td><strong>Title</strong></td>
-            <td><strong>Backup Poster</strong></td>
-            <td><strong>Bannered Poster</strong></td>
-            <td>Resolution</td>
-            <td>HDR</td>
-            <td>Audio</td>
-            
-        </tr>
-	    <tr>
-	        <th scope="row"><strong>{{ item.title }}</strong></th>
-	        <td><img src='/{{ item.poster }}' width="200"></img></td>
-	        <td><img src='/{{ item.bannered_poster }}' width="200"></img></td>
-            <td>{{ item.res }}</td>
-            <td>{{ item.hdr }}</td>
-            <td>{{item.audio}}</td>
-	    </tr>
-    </table>
+	    <h1 class="pt-5 pb-2">Result</h1>
+	    <table class="table">
+            <tr>
+                <td><strong>Title</strong></td>
+                <td><strong>Backup Poster</strong></td>
+                <td><strong>Bannered Poster</strong></td>
+                <td>Resolution</td>
+                <td>HDR</td>
+                <td>Audio</td>
 
-        {% if posters %}
-            <h3>TMDB Posters</h3>
-            <p> click on a poster to change out your plex poster, if banners are enabled, they will automatically be added before uplaoding</p>
-        {% for posters in posters %}
-            <a href='/api/upload/&{{item.guid}}&/poster=&{{posters}}'><img src='{{poster_url}}{{ posters }}' width="200" style="margin:5px 5px"></img></a>
-        {% endfor %}
+            </tr>
+	        <tr>
+	            <th scope="row"><strong>{{ item.title }}</strong></th>
+	            <td><img src='/{{ item.poster }}' width="200"></img></td>
+	            <td><img src='/{{ item.bannered_poster }}' width="200"></img></td>
+                <td>{{ item.res }}</td>
+                <td>{{ item.hdr }}</td>
+                <td>{{item.audio}}</td>
+	        </tr>
+        </table>
 
-        {% endif %}
+            {% if posters %}
+                <h3>TMDB Posters</h3>
+                <p> click on a poster to change out your plex poster, if banners are enabled, they will automatically be added before uplaoding</p>
+                {% for posters in posters %}
+                    <a href='/api/upload/&{{item.guid}}&/poster=&{{posters}}'><img src='{{poster_url}}{{ posters }}' width="200" style="margin:5px 5px"></img></a>
+                {% endfor %}
+            {% endif %}
     {% else %}
     <div style="margin:10px">
-    <p>This film is not found in the plex-utills database. This likely means that it has not been processed yet.</p>
-    <a href="/api/process/{{guid}}" class="btn btn-info btn-icon-split" id="process">
-        <span class="icon text-white-50">
-          <i class="fas fa-undo-alt"></i>
-      </span>
-        <span class="text">process</span>
-    </a>
+        <p>This film is not found in the plex-utills database. This likely means that it has not been processed yet.</p>
+        <a href="/api/process/{{guid}}" class="btn btn-info btn-icon-split" id="process">
+            <span class="icon text-white-50">
+              <i class="fas fa-undo-alt"></i>
+            </span>
+            <span class="text">process</span>
+        </a>
     </div>
     <div>
         {% if posters %}
@@ -68,8 +67,9 @@
         {% endfor %}
         
         {% endif %}
-    {% endif %}
+    
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}
