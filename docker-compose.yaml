@@ -6,13 +6,28 @@ services:
         container_name: plex-utills
         restart: unless-stopped
         volumes: 
-            - <your Plex media directory>:/films
             - <your config location>:/config
             - <your log location>:/logs
+            ### WINDOWS ###
+            - films:/films
+            ### Linix ###
+            - <your Plex media directory>:/films:ro
         environment: 
             - TZ=Europe/London
+            - UID=1000
+            - GID=1000
         ports:
             - 80:80
         cap_add:
           - SYS_ADMIN
           - DAC_READ_SEARCH
+
+
+### WINDOWS ###
+volumes: 
+  films:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: username=<username>,password=<password>,ro,domain=localhost
+      device: "\\\\<IP address>\\<share>"
