@@ -21,7 +21,19 @@ def get_version():
     with open('./version') as f: s = f.read()
     return s
 version = get_version()
-
+@app.before_first_request
+def sys_info():
+    import platform
+    uname = platform.uname()
+    log.info({"System: "+uname.system,
+        "Node Name: "+uname.node,
+        "Release: "+uname.release,
+        "Version: "+uname.version,
+        "Machine: "+uname.machine})
+    from app.setup import setup_helper, backup_dirs
+    backup_dirs()
+    setup_helper()
+    sys_info()
 @app.route('/')
 @app.route('/index', methods=["GET"])
 def index():

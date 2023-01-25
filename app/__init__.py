@@ -13,27 +13,11 @@ b_dir = '/config/backup/'
 
 
 
-def sys_info():
-    #log.info("System Information")
-    uname = platform.uname()
-    log.info({"System: "+uname.system,
-        "Node Name: "+uname.node,
-        "Release: "+uname.release,
-        "Version: "+uname.version,
-        "Machine: "+uname.machine})
+
         
 class Plex_utills(Flask):
 
-    from app.setup import setup_helper, backup_dirs
-    backup_dirs
-    setup_helper
-    sys_info
     def run(self, host=None, port=None, debug=False, threaded=True, **options):
-       # if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
-       # from app.setup import setup_helper
-            #with self.app_context():
-       # sys_info()
-       # setup_helper()
         super(Plex_utills, self).run(host=host, port=port, debug=debug, threaded=threaded, **options)
 
 timezone = str(tzlocal.get_localzone())

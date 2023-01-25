@@ -373,7 +373,7 @@ def setup_helper():
             add_season_table()                                  
     log.debug('Running setup Helper')
     table_check()
-    exit()
+
 def backup_dirs():
     if os.path.exists(b_dir):
         pass
@@ -416,4 +416,4 @@ def backup_dirs():
     for root,dirs,_ in os.walk(b_dir):
         for d in dirs :
             os.chmod(os.path.join(root,d) , 0o777)    
-    exit()       
+    
