@@ -14,17 +14,16 @@
                         </div>                                           
 {% endblock %}                              
 {% block scripts %}          
-                                        <script>
-                                            setInterval(function updateScroll(){
-                                                var element = document.getElementById  ("logging_window");
-                                                element.scrollTop = element.scrollHeight;
-                                            }, 100);
-                                            setInterval(function read_log(){
-                                                fetch("{{ url_for('syslog_stream')  }}")
-                                                .then(x => x.text())
-                                                .then(y => document.getElementById("output").innerHTML = y); 
-                                            }, 1000);
-                                        </script>
+<script>
+
+
+    setInterval(function read_log(){
+        fetch("{{ url_for('syslog_stream')  }}")
+        .then(x => x.text())
+        .then(y => document.getElementById("output").innerHTML = y); 
+    }, 1000);  
+
+</script>
                                                        
 
 {% endblock %}

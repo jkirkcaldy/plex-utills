@@ -12,9 +12,10 @@ flask_apscheduler
 flask_wtf
 wtforms
 #tmdbv3api
-gunicorn
+#gunicorn
 pymediainfo
 tautulli
 croniter
 opencv-python-headless
 flask_paginate
+gunicorn

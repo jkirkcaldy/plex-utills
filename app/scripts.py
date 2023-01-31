@@ -58,25 +58,10 @@ tmdb.api_key = '758d054ea2656332403b34471f1f2c5a'
 search = Search()
 movie = Movie()
 discover = Discover()
+b_dir = '/config/backup/' 
 
 
 
-banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
-banner_4k = Image.fromarray(banner_4k)
-mini_4k_banner = cv2.imread("app/img/4K-mini-Template.png", cv2.IMREAD_UNCHANGED)
-mini_4k_banner = Image.fromarray(mini_4k_banner)
-banner_dv = cv2.imread("app/img/dolby_vision.png", cv2.IMREAD_UNCHANGED)
-banner_dv = Image.fromarray(banner_dv)
-banner_hdr10 = cv2.imread("app/img/hdr10.png", cv2.IMREAD_UNCHANGED)
-banner_hdr10 = cv2.cvtColor(banner_hdr10, cv2.COLOR_BGR2RGBA)
-banner_hdr10 = Image.fromarray(banner_hdr10)
-
-banner_new_hdr = cv2.imread("app/img/hdr.png", cv2.IMREAD_UNCHANGED)
-banner_new_hdr = Image.fromarray(banner_new_hdr)
-atmos = cv2.imread("app/img/atmos.png", cv2.IMREAD_UNCHANGED)
-atmos = Image.fromarray(atmos)
-dtsx = cv2.imread("app/img/dtsx.png", cv2.IMREAD_UNCHANGED)
-dtsx = Image.fromarray(dtsx)
 size = (2000,3000)
 bannerbox= (0,0,2000,246)
 mini_box = (0,0,350,275)
@@ -96,6 +81,22 @@ def posters4k(app, webhooktitle, poster_var):
         global b_dir
         tmdb.api_key = config[0].tmdb_api
         b_dir = 'static/backup/films/'
+        banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
+        banner_4k = Image.fromarray(banner_4k)
+        mini_4k_banner = cv2.imread("app/img/4K-mini-Template.png", cv2.IMREAD_UNCHANGED)
+        mini_4k_banner = Image.fromarray(mini_4k_banner)
+        banner_dv = cv2.imread("app/img/dolby_vision.png", cv2.IMREAD_UNCHANGED)
+        banner_dv = Image.fromarray(banner_dv)
+        banner_hdr10 = cv2.imread("app/img/hdr10.png", cv2.IMREAD_UNCHANGED)
+        banner_hdr10 = cv2.cvtColor(banner_hdr10, cv2.COLOR_BGR2RGBA)
+        banner_hdr10 = Image.fromarray(banner_hdr10)
+        
+        banner_new_hdr = cv2.imread("app/img/hdr.png", cv2.IMREAD_UNCHANGED)
+        banner_new_hdr = Image.fromarray(banner_new_hdr)
+        atmos = cv2.imread("app/img/atmos.png", cv2.IMREAD_UNCHANGED)
+        atmos = Image.fromarray(atmos)
+        dtsx = cv2.imread("app/img/dtsx.png", cv2.IMREAD_UNCHANGED)
+        dtsx = Image.fromarray(dtsx)
         blurred=False
         episode=''
         season=''
@@ -1716,17 +1717,19 @@ def fill_database(app):
                             logger.error(repr(e))
 
                 def insert_intoTable(hdr, audio, tmp_poster):
-                    if config[0].manualplexpath == 1:
-                        newdir = os.path.dirname(re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file))+'/'
-                    else:
-                        newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
-                    backup = os.path.exists(newdir+'poster_bak.png')            
                     logger.debug('Adding '+i.title+' to database') 
                     logger.debug(i.title+' '+hdr+' '+audio)  
                     b_file = backup_poster(tmp_poster)
-                    #b_file = re.sub('/config', 'static', pblob)
+                    b_file = re.sub('/config', 'static', b_file)
+                    logger.debug(tmp_poster)
+                    if True in banners:
+                        b_poster = '/config/backup/bannered_films/'+t+'.png'
+                        shutil.copy(tmp_poster, b_poster)
+                        bannered_poster = re.sub('/config', 'static', b_poster)
+                    else:
+                        bannered_poster = ''
                     if not r:
-                        film = film_table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file)
+                        film = film_table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, bannered_poster=bannered_poster)
                         db.session.add(film)   
                         db.session.commit()
                     elif r[0].size != size:
@@ -1758,26 +1761,21 @@ def fill_database(app):
                     else:
                         newdir = os.path.dirname(re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file))+'/'
                     old_backup = os.path.exists(newdir+'poster_bak.png')
-                    fname = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
                     b_file = ''
                     if old_backup == True:
+                        logger.debug('Backup file found')
                         bak_file = newdir+'poster_bak.png'
-                        b_file = b_dir+'films/'+fname+'.png'
+                        logger.debug(bak_file)
+                        b_file = b_dir+'films/'+t+'.png'
+                        logger.debug(b_file)
                         shutil.copy(bak_file, b_file)
-                        #return b_file
+
                     elif True not in banners:
                         logger.debug(i.title+" No banners detected so adding backup file to database")
-                        #try:
-                        #    if r[0].poster:
-                        #        b_file = re.sub('static', '/config', r[0].poster)
-                        #    else:
-                        #        b_file = b_dir+'films/'+fname+'.png'
-                        #except:
-                        b_file = b_dir+'films/'+fname+'.png'
+                        b_file = b_dir+'films/'+t+'.png'
                         shutil.copy(tmp_poster, b_file)
-                        #return b_file
-                    elif True in banners:
-                        b_file = b_dir+'films/'+fname+'.png'
+                    elif (True in banners and old_backup == False and config[0].tmdb_restore == 1):
+                        b_file = b_dir+'films/'+t+'.png'
                         tmdb_poster = restore_tmdb()
                         shutil.copy(tmdb_poster, b_file)
                     return b_file
@@ -1896,7 +1894,12 @@ def fill_database(app):
 
                 def get_poster():
                     logger.debug(i.title+' Getting poster')
-                    imgurl = i.posterUrl
+                    imgurl = plex.transcodeImage(
+                        i.thumbUrl,
+                        height=3000,
+                        width=2000,
+                        imageFormat='png'
+                    )
                     img = requests.get(imgurl, stream=True)
                     filename = tmp_poster
                     try:
@@ -1913,26 +1916,29 @@ def fill_database(app):
                         logger.error(e)
 
                 t = re.sub('plex://movie/', '', guid)
-                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                tmp_poster = re.sub(' ','_', '/tmp/'+t+'.png')
                 tmp_poster = get_poster()
-                banners = check_banners(tmp_poster)
+                poster_size = (2000,3000)
+                banners = module.check_banners(tmp_poster, poster_size)
                 logger.debug(banners)
-                #backup_poster(tmp_poster)
-                if config[0].skip_media_info == 1:
-                    hdr = module.get_plex_hdr(i, plex)
-                    audio = ''
-                    insert_intoTable(hdr, audio, tmp_poster)
-                else:
-                    try:
-                        scan = scan_files()
-                        audio = scan[0]
-                        hdr = str.lower(scan[1])
-                        insert_intoTable(hdr, audio, tmp_poster)
-                    except:
-                        logger.error('Can not scan '+title+': Please check your permissions. Looping back to Plex Metadata')
+                if True in banners:
+                    logger.info('Migrating: '+i.title)
+                    if config[0].skip_media_info == 1:
                         hdr = module.get_plex_hdr(i, plex)
                         audio = ''
+                        insert_intoTable(hdr, audio, tmp_poster)
+                    else:
+                        try:
+                            scan = scan_files()
+                            audio = scan[0]
+                            hdr = str.lower(scan[1])
+                        except Exception as e:
+                            logger.error(repr(e))
+                            logger.error('Can not scan '+title+': Please check your permissions. Using Plex Metadata')
+                            hdr = module.get_plex_hdr(i, plex)
+                            audio = ''
                         insert_intoTable(hdr, audio, tmp_poster)  
+                
             for i in films.search():
                 logger.debug(i.title)
                 title = i.title
@@ -1948,7 +1954,16 @@ def fill_database(app):
                         logger.info(title+' is already in the database')
                     else:
                         main()
-
+            try:
+                row = config[0].id
+                plex_utills = Plex.query.get(row)
+                plex_utills.migrated = '1'
+                db.session.commit()
+            except Exception as e:
+                logger.error(repr(e))
+                db.session.rollback()
+            finally:
+                db.session.close()
             logger.debug('Database has been seeded')
             try:
                 os.remove('tmdb_poster_restore.png')
@@ -1959,10 +1974,9 @@ def fill_database(app):
         n = len(lib)
         if n <= 2:
             try:
-                ##while true:
-                    for l in range(n):
-                        films = plex.library.section(lib[l])
-                        run_script()
+                for l in range(n):
+                    films = plex.library.section(lib[l])
+                    run_script()
             except IndexError:
                 pass 
 

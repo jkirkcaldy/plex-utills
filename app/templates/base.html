@@ -70,24 +70,21 @@
           <a class="nav-link" href="{{ url_for('run_scripts')  }}">
               <i class="fas fa-fw fa-play"></i>
               <span>Scripts</span></a>
-        </li>        
+        </li>       
+        <hr class="sidebar-divider"> 
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('script_logs')  }}">
               <i class="fas fa-fw fa-file"></i>
               <span>Script Logs</span></a>
         </li>               
-        <hr class="sidebar-divider">
+
              
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('application_logs')  }}">
               <i class="fas fa-fw fa-file"></i>
               <span>Application Logs</span></a>
         </li>               
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('system_logs')  }}">
-              <i class="fas fa-fw fa-file"></i>
-              <span>System Logs</span></a>
-        </li> 
+
         <hr class="sidebar-divider">              
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('help')  }}">

@@ -9169,8 +9169,8 @@ body.sidebar-toggled footer.sticky-footer{
 
     margin: auto;
     margin-bottom: 32px;
-    overflow-y: hidden;
-    overflow-x: hidden;
+    overflow-y: scroll;
+    overflow-x: scroll;
     max-height: 750px;
     height: 100%;
 

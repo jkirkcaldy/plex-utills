@@ -666,3 +666,9 @@ def api_process(var=''):
     if 'episode' in var:
         scripts.upload_tmdb_episode(app, var)
     return render_template('result.html', pagetitle='Upload', version=version, poster=poster)
+
+@app.route('/api/migrate')
+def migrate():
+    from threading import Thread
+    Thread(target=scripts.fill_database, args=[app]).start()
+    return render_template('script_log_viewer.html', pagetitle='Migrate', version=version)

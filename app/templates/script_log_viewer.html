@@ -17,25 +17,26 @@
 {% endblock %}        
                 
 {% block scripts %}          
-<script>
+ <script>
 
-                setInterval(function updateScroll(){
-                    var element = document.getElementById  ("logging_window");
-                    element.scrollTop = element.scrollHeight;
-                }, 100);
+
                 setInterval(function read_log(){
                     fetch("{{ url_for('script_stream')  }}")
                     .then(x => x.text())
                     .then(y => document.getElementById("output").innerHTML = y); 
                 }, 1000);  
 
-</script>
-
-<script>
-
-
-</script>
-
-                                          
-
+    </script>
+<!--
+    <script>
+      $(document).ready(function(){
+        var output = document.getElementById('output');
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "{{ url_for('script_stream') }}", true);
+        xhr.send();
+        setInterval(function() {
+          output.textContent = xhr.responseText;
+        }, 500);
+      });
+    </script>  -->              
 {% endblock %}

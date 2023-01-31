@@ -1,8 +1,10 @@
 import logging
-from flask import render_template, flash, request, redirect, send_file
+from flask import render_template, flash, request, redirect, send_file, url_for
 from flask_paginate import Pagination, get_page_args
 from app import db
 from app import app
+import os
+import sqlite3
 from app.forms import AddRecord_config, AddRecord_config_options, admin_config
 from app.models import Plex, film_table, ep_table, season_table
 import threading
@@ -22,23 +24,76 @@ def get_version():
     return s
 version = get_version()
 @app.before_first_request
-def sys_info():
-    import platform
-    uname = platform.uname()
-    log.info({"System: "+uname.system,
-        "Node Name: "+uname.node,
-        "Release: "+uname.release,
-        "Version: "+uname.version,
-        "Machine: "+uname.machine})
-    from app.setup import setup_helper, backup_dirs
-    backup_dirs()
-    setup_helper()
-    sys_info()
+def update_plex_path():
+
+    import requests
+    import re
+    from plexapi.server import PlexServer
+    try:
+        conn = sqlite3.connect('/config/app.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM plex_utills")
+        config = c.fetchall()
+        plex = PlexServer(config[0][1], config[0][2])
+        lib = config[0][3].split(',')
+        if len(lib) <= 2:
+            try:
+                films = plex.library.section(lib[0])
+            except IndexError:
+                pass
+        else:
+            films = plex.library.section(config[0][3])
+        media_location = films.search(limit='1')
+        if config[0][37] == 1:
+            plexpath = config[0][38]
+            c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
+            conn.commit()
+            c.close()
+        elif config[0][37] == 0:
+            filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
+            try:
+                plexpath = '/'+filepath.split('/')[2]
+                plexpath = '/'+filepath.split('/')[1]
+            except IndexError as e:
+                plexpath = '/'
+            c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
+            conn.commit()
+            c.close()
+    except Exception:
+        try:
+            conn = sqlite3.connect('/config/app.db')
+            c = conn.cursor()
+            c.execute("SELECT * FROM plex_utills")
+            config = c.fetchall()
+            plex = PlexServer(config[0][1], config[0][2])
+            lib = config[0][3].split(',')
+            if len(lib) <= 2:
+                try:
+                    films = plex.library.section(lib[0])
+                except IndexError:
+                    pass
+            else:
+                films = plex.library.section(config[0][3])     
+            media_location = films.search(limit='1')
+            for i in media_location:
+                if config[0][37] == 1:
+                    newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+                elif config[0][37] == 0:
+                    if config[0][5] == '/':
+                        newdir = '/films'+i.media[0].parts[0].file
+                    else:
+                        newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
+        except:pass
+
 @app.route('/')
 @app.route('/index', methods=["GET"])
 def index():
     plex = Plex.query.filter(Plex.id == '1').all()
-    return render_template('index.html', plex=plex, pagetitle='Home', version=version)
+    if plex[0].migrated == 0:
+        return render_template('migrate.html', pagetitle='Home', version=version)
+        #Thread(target=scripts.fill_database).start()
+    else:
+        return render_template('index.html', plex=plex, pagetitle='Home', version=version)
 
 ######### SITE ##############
 
@@ -82,8 +137,8 @@ def script_logs():
 def script_stream():
     def script_generate():
         with open('/logs/script_log.log', "rb") as f:
-            while chunk := f.read(1024 * 10):
-                yield chunk
+            for line in reversed(list(f)):
+                yield line
     return app.response_class(script_generate(), mimetype='text/plain')
 
 @app.route('/view_application_logs')
@@ -93,20 +148,20 @@ def application_logs():
 def stream():
     def generate():
         with open('/logs/application_log.log', "rb") as f:
-            while chunk := f.read(1024):
-                yield chunk
+            for line in reversed(list(f)):
+                yield line
     return app.response_class(generate(), mimetype='text/plain') 
 
-@app.route('/view_system_logs')
-def system_logs():
-    return render_template('syslog.html', pagetitle='System Logs', version=version)
-@app.route("/system_log_stream", methods=["GET"])
-def syslog_stream():
-    def generate():
-        with open('/logs/SYSTEM.log', "rb") as f:
-            while chunk := f.read(1024):
-                yield chunk
-    return app.response_class(generate(), mimetype='text/plain')
+#@app.route('/view_system_logs')
+#def system_logs():
+#    return render_template('syslog.html', pagetitle='System Logs', version=version)
+#@app.route("/system_log_stream", methods=["GET"])
+#def syslog_stream():
+#    def generate():
+#        with open('/logs/SYSTEM.log', "rb") as f:
+#            for line in reversed(list(f)):
+#                yield line
+#        return app.response_class(generate(), mimetype='text/plain')
 
 ########## SCRIPTS ###################
 

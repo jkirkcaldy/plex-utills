@@ -18,7 +18,7 @@ b_dir = '/config/backup/'
 class Plex_utills(Flask):
 
     def run(self, host=None, port=None, debug=False, threaded=True, **options):
-        super(Plex_utills, self).run(host=host, port=port, debug=debug, threaded=threaded, **options)
+        super(Plex_utills, self).run(host='0.0.0.0', port=port, debug=True, threaded=threaded, **options)
 
 timezone = str(tzlocal.get_localzone())
 class Config: 

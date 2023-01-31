@@ -48,8 +48,9 @@ class Plex(db.Model):
     manualplexpathfield = db.Column(db.String)
     skip_media_info = db.Column(db.Integer)
     spoilers = db.Column(db.Integer)
+    migrated = db.Column(db.Integer)
     
-    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield, skip_media_info, spoilers):
+    def __init__(self, plexurl, token, filmslibrary, library3d, plexpath, mountedpath, t1, t2, t4, t5, backup, posters4k, mini4k, hdr, posters3d, mini3d, disney, pixar, hide4k, transcode, tvlibrary, tv4kposters, films4kposters, tmdb_api, tmdb_restore, recreate_hdr, new_hdr, default_poster, autocollections, tautulli_server, tautulli_api, mcu_collection, tr_r_p_collection, audio_posters, loglevel, manualplexpath, manualplexpathfield, skip_media_info, spoilers, migrate):
         self.plexurl = plexurl
         self.token = token
         self.filmslibrary = filmslibrary
@@ -90,6 +91,7 @@ class Plex(db.Model):
         self.manualplexpathfield = manualplexpathfield
         self.skip_media_info = skip_media_info
         self.spoilers = spoilers
+        self.migrated = migrated
 
 class film_table(db.Model):
     __tablename__ = 'films'

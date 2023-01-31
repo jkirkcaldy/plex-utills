@@ -146,7 +146,6 @@ def setup_helper():
                 #log.debug(repr(e))         
             c.close()
         def update_plex_path():
-            #log.debug('update plex path')
             import requests
             try:
                 conn = sqlite3.connect('/config/app.db')
@@ -165,36 +164,21 @@ def setup_helper():
                 media_location = films.search(limit='1')
 
                 if config[0][37] == 1:
-                    #log.info('Plexpath Manual override enabled') 
                     plexpath = config[0][38]
-                    #log.debug(plexpath)
-                    #log.debug('plexpath = '+plexpath)
                     c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
                     conn.commit()
                     c.close()
-                    #log.info("Setup Helper: Your plexpath has been changed from "+plexpath+" to '/films'")
                 elif config[0][37] == 0:
                     filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-                    #log.debug("Plex Movie location is: "+filepath)
                     try:
                         plexpath = '/'+filepath.split('/')[2]
                         plexpath = '/'+filepath.split('/')[1]
-                        #log.debug('plexpath split = '+plexpath)
-                        #log.debug('Testing to see if plexpath is mounted at root')
                     except IndexError as e:
-                        #log.debug(repr(e))
                         plexpath = '/'
-                    #log.debug('plexpath = '+plexpath)
                     c.execute("UPDATE plex_utills SET plexpath = '"+plexpath+"' WHERE ID = 1;")
                     conn.commit()
                     c.close()
-                    #log.info("Setup Helper: Your plexpath has been changed from "+plexpath+" to '/films'")
             except Exception:
-                #log.error(repr(e))
-                #log.warning('This looks like a first run')
-        #def update_database():
-            #log.debug('update database')
-            #try:
                 conn = sqlite3.connect('/config/app.db')
                 c = conn.cursor()
                 c.execute("SELECT * FROM plex_utills")
@@ -211,36 +195,17 @@ def setup_helper():
                 media_location = films.search(limit='1')
                 for i in media_location:
                     if config[0][37] == 1:
-                        #log.debug(i.media[0].parts[0].file)
                         newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
-                        #log.debug(newdir)
                     elif config[0][37] == 0:
                         if config[0][5] == '/':
                             newdir = '/films'+i.media[0].parts[0].file
-                            #log.debug(newdir)
                         else:
                             newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
-                            #log.debug(newdir)
-                    testfile = newdir+'test'
-                    #log.debug('Plex-Utills file path is here: '+newdir)
-                    #try:
-                    #    open(testfile, 'w')
-                    #    #log.info('Permissions, look to be correct')
-                    #except PermissionError as e:
-                    #    #log.error(e)
-                    #if os.path.exists(testfile) == True:
-                    #    os.remove(testfile)
-                    #break   
-            #except (plexapi.exceptions.NotFound, OSError, ConnectionError, NameError) as e:
-            #    log.error(e)
-
         add_new_columns()
         try:
             update_plex_path()
         except:
-            log.error("first run?")
-        #update_database()
-        #add_database()
+            raise Exception('looks like this is a first run')
         add_new_table()
     def create_table():
           shutil.copy('app/static/default_db/default_app.db', '/config/app.db')
@@ -375,6 +340,7 @@ def setup_helper():
     table_check()
 
 def backup_dirs():
+    log.info('creating backup directory now')
     if os.path.exists(b_dir):
         pass
         #log.info('Backup directory exists')
