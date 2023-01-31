@@ -1,5 +1,5 @@
 # Changelog
-## Version 23.25
+## Version 23.01.31
 
 #### Changes
 * plex-Utills now no longer needs write access to your media, docker compose example adds read only tag to /films directory. 
@@ -7,7 +7,7 @@
 * Plex Utills now keeps a database of all your processed films and TV shows. Backups are kept separately to your media files.
 * You can now search through your plex libraries inside Plex-utills. If you set your TMDB api key you are able to upload new posters from TMDB which will be processed and bannered immediately before upload. As well as creating a backup for the unbannered version. This works for Films, Shows, Seasons and episodes. Though bannered posters are not supported on Shows. 
 * Docker Compose file options for Windows systems are in the example compose file. 
-
+* On the first run after updating, it ask you to migrate, this will seed the database of your bannered films. 
 ### Posters 4K:
 #### Changes:
 * Poster backups as well as a bannered poster backup are now stored in a backup folder next to your config files.
