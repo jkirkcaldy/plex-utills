@@ -9,7 +9,7 @@ COPY app/static/dockerfiles/default /etc/nginx/sites-enabled/default
 RUN apt update && apt upgrade -y && apt install -y wget git
 RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb
 RUN dpkg -i repo-mediaarea_1.0-21_all.deb
-RUN apt install -y  mediainfo nginx ffmpeg libsm6 libxext6 nano \
+RUN apt install -y  mediainfo nginx ffmpeg libsm6 libxext6 \
 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

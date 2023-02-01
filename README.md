@@ -130,3 +130,6 @@ As above only with Pixar Films
 This update has been designed to run in docker only. 
 
 [Click here for installation instructions](https://github.com/jkirkcaldy/plex-utills/wiki)
+
+****
+This app uses the TMDB api but is not affiliated or endorsed by TMDB. 
