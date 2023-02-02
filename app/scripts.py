@@ -2750,7 +2750,7 @@ def upload_tmdb_episode(app, var):
                         episode = e.index
                         season = e.parentIndex 
                         guids = e.guids
-                        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+                        g = [s for s in tv.search(libtype='show', guid=e.grandparentGuid)]
                         g = str(g[0].guids) 
                         if r:
                             module.updateTable(guid, guids, size, resolution, hdr, audio, tmp_poster, ep_banners, title, config, table, db, r, e, b_dir, g, False, episode, season)
