@@ -214,7 +214,7 @@ def run_tvposters4k():
 
 @app.route('/restore_seasons')
 def restore_seasons():
-    Thread(target=scripts.restore_seasons).start()
+    Thread(target=scripts.restore_seasons, args=[app]).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)  
 
 
@@ -273,10 +273,16 @@ def run_restore_from_database():
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
       
 @app.route('/restore_tv', methods=['GET'])
-def run_episode_restore():   
-    Thread(target=scripts.restore_episodes_from_database, args=[app]).start()
+def run_episode_restore(): 
+    b_dir = '/config/backup/tv/episodes/' 
+    Thread(target=scripts.restore_episodes_from_database, args=[app, b_dir]).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
+@app.route('/restore_tv_banners', methods=['GET'])
+def run_episode_bannered_restore(): 
+    b_dir = '/config/backup/tv/bannered_episodes/' 
+    Thread(target=scripts.restore_episodes_from_database, args=[app, b_dir]).start()
+    return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
 @app.route('/recreate_hdr')
 def run_recreate_hdr():   
@@ -298,21 +304,6 @@ def run_backup_poster_check():
     Thread(target=scripts.backup_poster_check, args=[app]).start()
     return render_template('script_log_viewer.html', pagetitle='Script Logs', version=version)
 
-#@app.route('/search', methods=['GET', 'POST'])
-#def search():
-#    if request.method == 'POST':
-#        F_results = E_results = S_results = ''
-#        try:
-#            F_results = db.session.execute(db.select(film_table).where(film_table.title.contains(request.form['search']))).scalars()
-#        except: pass
-#        try:
-#            E_results = db.session.execute(db.select(ep_table).where(ep_table.title.contains(request.form['search']))).scalars()
-#        except: pass
-#        try:
-#            S_results = db.session.execute(db.select(season_table).where(season_table.title.contains(request.form['search']))).scalars()
-#        except: pass
-#        return render_template('search_results.html', pagetitle='search', F_results=F_results, E_results=E_results, S_results=S_results, version=version)
-#    return render_template('search.html', pagetitle='search', version=version)
 
 @app.route('/info/<path:var>')
 def info(var=''):
@@ -328,7 +319,7 @@ def info(var=''):
         return render_template('/info.html', pagetitle='Info', guid=guid, item=item, poster_url=poster_url_base, posters=posters, version=version)
     elif 'show' in var:
         item = ''
-        posters = ''
+        posters = scripts.get_tmdb_show_posters(var)
         return render_template('/info.html', pagetitle='Info', guid=guid, item=item, poster_url=poster_url_base, posters=posters, version=version)
     elif 'season' in var:
         i = db.session.execute(db.select(season_table).filter_by(guid=var)).scalar()
@@ -410,7 +401,7 @@ def search():
     from app.models import Plex
     config = Plex.query.filter(Plex.id == '1')
     plex = PlexServer(config[0].plexurl, config[0].token)   
-    from app.items import Film, Episode, Season
+    from app.items import Film, Episode, Season, Shows
     if request.method == 'POST':
         F_results = E_results = S_results = ''
         lib = config[0].filmslibrary.split(',')
@@ -420,7 +411,8 @@ def search():
  
         F_results =[]
         E_results = []
-        S_results = []            
+        S_results = []   
+        Show_results =[]         
         for l in range(n):
             F= plex.library.section(lib[l]).search(title=request.form['search'])
             for F in F:
@@ -435,9 +427,11 @@ def search():
                 epdb = db.session.execute(db.select(ep_table).where(ep_table.title.contains(ep.title))).scalars()
                 print(ep.title)
                 ep_poster = ''
+                parent_poster = ep.parentThumb
+                parent_guid = ep.parentGuid
                 for row in epdb:
                     ep_poster = row.poster
-                E_results.append(Episode(ep.title, ep.parentTitle, ep.grandparentTitle, ep.guid, ep.thumbUrl, ep_poster))
+                E_results.append(Episode(ep.title, ep.parentTitle, ep.grandparentTitle, ep.guid, ep.thumbUrl, ep_poster, parent_poster, parent_guid))
             
             season = plex.library.section(tvlib[l]).search(title=request.form['search'], libtype='season')
             for s in season:
@@ -446,7 +440,9 @@ def search():
                 for row in sdb:
                     s_poster = row.poster
                 S_results.append(Season(s.title, s.parentTitle, s.guid, s.thumbUrl, s_poster))
+            show = plex.library.section(tvlib[l]).search(title=request.form['search'], libtype='show')
+            for s in show:
+                Show_results.append(Shows(s.title, s.guid, s.thumbUrl, backup_poster=''))
 
-
-        return render_template('results.html', pagetitle='search', F_results=F_results, S_results=S_results, E_results=E_results, version=version)
+        return render_template('results.html', pagetitle='search', F_results=F_results, S_results=S_results, E_results=E_results, Show_results=Show_results, version=version)
     return render_template('search.html', pagetitle='search', version=version)

@@ -303,7 +303,7 @@ def upload_poster(tmp_poster, title, db, r, table, i, banner_file):
                 if (valid == True and changed == 'True'):
                     logger.debug('uploading poster')
                     i.uploadPoster(filepath=tmp_poster)
-                    time.sleep(2)
+                    #time.sleep(2)
                     try:
                         row = r[0].id
                         media = table.query.get(row)
@@ -681,7 +681,7 @@ def add_season_to_db(db, title, table, pguid, banner_file, poster):
             db.session.commit()          
         else:
             logger.debug(title+' '+pguid+' '+poster+' '+banner_file)
-            season = table(title=title, guid=pguid, poster=poster, bannered_season=banner_file)
+            season = table(title=title, guid=pguid, poster=poster, bannered_poster=banner_file)
             try:
                 db.session.add(season)
                 db.session.commit()
@@ -1001,3 +1001,10 @@ def film_banner_decision(i, tmp_poster, banners, poster_size, res, audio, hdr):
                 add_banner(tmp_poster, banner_4k, poster_size)
         else:
             logger.debug(i.title+' Has 4k banner')                     
+
+
+def clear_old_posters():
+    dirpath = '/tmp/'
+    for files in os.listdir(dirpath):
+        if files.endswith(".png"):
+            os.remove(dirpath+files) 

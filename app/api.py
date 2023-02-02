@@ -114,7 +114,6 @@ def restore_season_poster(var=""):
     else:
         library = get_library(lib, plexserver)
     for i in library.search(guid=var, libtype='season'):
-        print(i)
         poster = get_poster(i, season_table)
         poster = '/static/img/tmp/'+poster[1]
     return render_template('result.html', message=message, pagetitle='Restored', version=version, poster=poster)
@@ -438,7 +437,7 @@ def recently_added():
                 #    sleep(600)
                 #    threading.Thread(target=scripts.spoilers(guid), name='Spoiler_webhook').start   ()                    
                 #    return 'ok', 200
-                else:
+                elif mediatype == 'movie':
                     #threading.Thread(target=scripts.hide4k,  args=[app], name='hide4K_Webhook').start()
                     threading.Thread(target=scripts.posters4k, args=[app, title], name='4k_posters_webhook').start()
                     return 'ok', 200

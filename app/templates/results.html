@@ -35,6 +35,14 @@
 					  </tr>
 					{% endfor %}
 				{% endif %}
+				{% if Show_results %}
+				 	{% for Show_results in Show_results %} 
+    				  <tr>
+						<th scope="row"><a href="/seasons/{{ Show_results.guid }}"><strong>{{ Show_results.title }}</strong></a></th>
+						<td><img src='{{ Show_results.poster }}' width="200"></img></td>
+					  </tr>
+					{% endfor %}
+				{% endif %}				
 				{% if S_results %}
 				 	{% for S_results in S_results %} 
     				  <tr>
@@ -58,7 +66,7 @@
 					{% endfor %}
 				{% endif %}
 			</table>														
-    		{% if not F_results or  S_results or E_results %}
+    		{% if not F_results or  S_results or E_results or Show_results %}
     			  <p class="lead">There is nothing for you here.</p>
     		{% endif %}
 		</div>

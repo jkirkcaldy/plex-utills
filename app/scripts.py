@@ -8,7 +8,7 @@ import re
 import imagehash
 import logging
 from logging.handlers import RotatingFileHandler
-from tmdbv3api import TMDb, Search, Movie, Discover, Season, Episode
+from tmdbv3api import TMDb, Search, Movie, Discover, Season, Episode, TV
 from pymediainfo import MediaInfo
 import json
 from tautulli import RawAPI
@@ -308,10 +308,7 @@ def posters4k(app, webhooktitle, poster_var):
                         process(tmp_poster, guid)
                 except Exception as e:
                     logger.error("script error: "+repr(e))
-            dirpath = '/tmp/'
-            for files in os.listdir(dirpath):
-                if files.endswith(".png"):
-                    os.remove(dirpath+files)       
+            module.clear_old_posters()      
             logger.info('4k Poster script has finished')
             
         lib = config[0].filmslibrary.split(',')
@@ -602,7 +599,6 @@ def tv_episode_poster(app, epwebhook, poster):
                             pass
                         try:
                             logger.info("Season Poster")
-
                             pguid = ep.parentGuid
                             rs = season_table.query.filter(season_table.guid == pguid).all()
                             if 'plex://' in guid:
@@ -612,9 +608,7 @@ def tv_episode_poster(app, epwebhook, poster):
                             season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
                             logger.debug(season_poster)
                             season_poster = module.get_season_poster(ep, season_poster, config)    
-
                             new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
-
                             size = (2000, 3000)
                             s_banners = module.check_banners(season_poster, size)
                             logger.debug('Season poster banners: '+str(s_banners))
@@ -638,17 +632,18 @@ def tv_episode_poster(app, epwebhook, poster):
                                 title = ep.grandparentTitle
                                 table = season_table
                                 module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
-                                db.session.close()                       
+                                #db.session.close()                       
                                 for s in tv.search(guid=pguid, libtype='season'):
-                                    r = season_table.query.filter(season_table.guid == pguid).all()
-                                    module.upload_poster(season_poster, title, db, r, table, s, banner_file)
-                            module.remove_tmp_files(season_poster)
+                                    #r = season_table.query.filter(season_table.guid == pguid).all()
+                                    s.uploadPoster(filepath=season_poster)
+                                    #module.upload_poster(season_poster, title, db, rs, table, s, banner_file)
+                            #module.remove_tmp_files(season_poster)
                         except Exception as e:
                             logger.error("Season poster Error: "+repr(e))
                             pass
                 except Exception as e:
                     logger.error(i.title+ ' '+repr(e))
-            
+            #module.clear_old_posters()  
             logger.info("tv Poster Script has finished")
             
         lib = config[0].tvlibrary.split(',')
@@ -662,7 +657,7 @@ def tv_episode_poster(app, epwebhook, poster):
             except IndexError:
                 pass        
     
-def restore_episodes_from_database(app):
+def restore_episodes_from_database(app, b_dir):
     with app.app_context():    
         from app.models import Plex, ep_table
         from app import db, module
@@ -677,7 +672,7 @@ def restore_episodes_from_database(app):
         tmdbtv = Episode()
         discover = Discover()
         tmdb.api_key = config[0].tmdb_api
-        b_dir = '/config/backup/tv/episodes/'
+        b_dir = b_dir
         height = 720
         width = 1280
         def run_script():
@@ -701,9 +696,7 @@ def restore_episodes_from_database(app):
                 else:
                     tmdb_search = tmdbtv.details(tv_id=g, episode_num=episode, season_num=season)
                 #return tmdb_search
-
                 try:
-                
                     #tmdb_poster = restore_tmdb(g)
                     poster = tmdb_search.still_path
                     get_poster(poster) 
@@ -730,33 +723,40 @@ def restore_episodes_from_database(app):
                 resolution = i.media[0].videoResolution
                 hdr = module.get_plex_hdr(i, plex)
                 if r:
-                    if (resolution == '4k' or hdr != 'None'):
-                        try:
-                            b_file = r[0].poster 
-                            b_file = re.sub('static', '/config', b_file)
-                            if b_file:
-                                logger.debug(b_file)
-                                banners = module.check_tv_banners(i, b_file, img_title)
-                                logger.debug(banners)
-                                if True not in banners:
-                                    logger.debug('No banners detected')
-                                    i.uploadPoster(filepath=b_file)
+                    if 'bannered_episodes' in b_dir:
+                        logger.info('restoring '+i.title+"'s bannered poster")
+                        b_file = r[0].bannered_poster 
+                        b_file = re.sub('static', '/config', b_file)
+                        if b_file:
+                            i.uploadPoster(filepath=b_file)
+                    else:
+                        if (resolution == '4k' or hdr != 'None'):
+                            try:
+                                b_file = r[0].poster 
+                                b_file = re.sub('static', '/config', b_file)
+                                if b_file:
+                                    logger.debug(b_file)
+                                    banners = module.check_tv_banners(i, b_file, img_title)
+                                    logger.debug(banners)
+                                    if True not in banners:
+                                        logger.debug('No banners detected')
+                                        i.uploadPoster(filepath=b_file)
+                                    else:
+                                        logger.debug('Banners detected')
+                                        g = module.get_tmdb_guid(g)
+                                        logger.debug(g)
+                                        restore_tmdb(g)
                                 else:
-                                    logger.debug('Banners detected')
+                                    b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
                                     g = module.get_tmdb_guid(g)
-                                    logger.debug(g)
                                     restore_tmdb(g)
-                            else:
-                                b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
-                                g = module.get_tmdb_guid(g)
-                                restore_tmdb(g)
-                            row = r[0].id
-                            film = ep_table.query.get(row)
-                            film.checked = '0'
-                            film.blurred = '0'
-                            db.session.commit()
-                        except (TypeError, IndexError, FileNotFoundError) as e:
-                            logger.error('Restore from db: '+repr(e))  
+                                row = r[0].id
+                                film = ep_table.query.get(row)
+                                film.checked = '0'
+                                film.blurred = '0'
+                                db.session.commit()
+                            except (TypeError, IndexError, FileNotFoundError) as e:
+                                logger.error('Restore from db: '+repr(e))  
                 else:
                     logger.debug('file not in database')
                     b_file = b_dir+''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))+'.png'
@@ -1126,9 +1126,11 @@ def restore_single_bannered(app, var):
                 pass
         return msg
 
-def restore_seasons():
+def restore_seasons(app):
+    with app.app_context(): 
         from app.models import Plex, season_table
-        from app import db
+        from app import db, module
+        tmdbtvs = Season()
         config = Plex.query.filter(Plex.id == '1')
         plex = PlexServer(config[0].plexurl, config[0].token)
         def run_script():
@@ -1138,21 +1140,43 @@ def restore_seasons():
                     {'hdr': True}
                 ]
             }
-            for i in tv.search(libtype='season', filters=advanced_filters):
+            for i in tv.search(libtype='season'): #, filters=advanced_filters):
                 title = i.title
                 guid = i.guid
                 logger.info('restoring '+i.parentTitle+' - '+title)
                 r = season_table.query.filter(season_table.guid == guid).all()
-                try:
-                    b_file = re.sub('static', '/config', r[0].poster)
-                    i.uploadPoster(filepath=b_file)
-                    row = r[0].id
-                    film = season_table.query.get(row)
-                    film.checked = '0'
-                    db.session.commit()
-                except (TypeError, IndexError, FileNotFoundError, plexapi.exceptions.BadRequest) as e:
-                    logger.error(repr(e)) 
-
+                if r:
+                    try:
+                        b_file = re.sub('static', '/config', r[0].poster)
+                        i.uploadPoster(filepath=b_file)
+                        row = r[0].id
+                        film = season_table.query.get(row)
+                        film.checked = '0'
+                        db.session.commit()
+                    except (TypeError, IndexError, FileNotFoundError, plexapi.exceptions.BadRequest) as e:
+                        logger.error(repr(e)) 
+                else:
+                    if config[0].tmdb_restore == 1:
+                        try:
+                            for show in tv.search(libtype='show', guid=i.parentGuid):
+                                g = str(show.guids)
+                                g = g[1:-1]
+                                g = re.sub(r'[*?:"<>| ]',"",g)
+                                g = re.sub("Guid","",g)
+                                g = g.split(",")
+                                f = filter(lambda a: "tmdb" in a, g)
+                                g = list(f)
+                                g = str(g[0])
+                                gv = [v for v in g if v.isnumeric()]
+                                g = "".join(gv)
+                                tmdb_search = tmdbtvs.images(tv_id=g, season_num=i.index, include_image_language='en')
+                                poster = tmdb_search.posters[0].file_path
+                            fname = 'tmdb_poster_restore.png'
+                            module.get_tmdb_poster(fname, poster)
+                            i.uploadPoster(filepath=fname)
+                        except Exception as e:
+                            logger.error(repr(e))
+                            pass
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
         n = len(lib)
@@ -1177,8 +1201,10 @@ def restore_single_season(app, var):
                 logger.info('restoring '+title)
                 logger.debug(guid)
                 r = season_table.query.filter(season_table.guid == guid).all()
+
                 try:
                     b_file = re.sub('static', '/config', r[0].poster)
+                    print('poster file = '+b_file)                    
                     i.uploadPoster(filepath=b_file)
                     row = r[0].id
                     film = season_table.query.get(row)
@@ -1205,16 +1231,15 @@ def restore_single_bannered_season(app, var):
         plex = PlexServer(config[0].plexurl, config[0].token)
         msg = 'no message'
         def run_script():
-            for i in tv.search(guid=var, libtype='season'):
-                title = i.title
+            for season in tv.search(guid=var, libtype='season'):
+                title = season.title
                 guid = var
                 logger.info('restoring '+title)
                 logger.debug(guid)
-
                 r = season_table.query.filter(season_table.guid == guid).all()
                 try:
                     b_file = re.sub('static', '/config', r[0].bannered_poster)
-                    i.uploadPoster(filepath=b_file)
+                    season.uploadPoster(filepath=b_file)
                     row = r[0].id
                     film = season_table.query.get(row)
                     film.checked = '1'
@@ -1231,10 +1256,9 @@ def restore_single_bannered_season(app, var):
         n = len(lib)
         if n <= 2:
             try:
-                ##while true:
-                    for l in range(n):
-                        tv = plex.library.section(lib[l])
-                        msg = run_script()
+                for l in range(n):
+                    tv = plex.library.section(lib[l])
+                    msg = run_script()
             except IndexError:
                 pass
         return msg
@@ -2066,13 +2090,7 @@ def maintenance():
             except IndexError:
                 pass 
 
-        def clean_tmp_files():
-            logger.debug('Removing any old tmp poster files')
-            dir_path = '/tmp/'
-            for file in os.listdir(dir_path):
-                if file.endswith(".png"):
-                    os.remove(dir_path+file)
-        clean_tmp_files()
+        module.clear_old_posters()
 
 def collective4k(app):
     with app.app_context(): 
@@ -2107,34 +2125,10 @@ def restore_posters(app):
                 logger.info("Restore-posters: Restore backup posters starting now")
                 def restore_tmdb():
                     logger.info("RESTORE: restoring posters from TheMovieDb")
-                    def get_tmdb_guid():
-                        g = str(i.guids)
-                        g = g[1:-1]
-                        g = re.sub(r'[*?:"<>| ]',"",g)
-                        g = re.sub("Guid","",g)
-                        g = g.split(",")
-                        f = filter(lambda a: "tmdb" in a, g)
-                        g = list(f)
-                        g = str(g[0])
-                        gv = [v for v in g if v.isnumeric()]
-                        g = "".join(gv)
-                        return g
                     g = str(i.guids)
                     g = module.get_tmdb_guid(g)
                     tmdb_search = movie.details(movie_id=g)
                     logger.info(i.title)
-                    def get_poster(poster):
-                        req = requests.get(poster_url_base+poster, stream=True)
-                        if req.status_code == 200:
-                            #req.raw.decode_content = True
-                            with open('tmdb_poster_restore.png', 'wb') as f:
-                                for chunk in req:
-                                    f.write(chunk)                             
-                                #shutil.copyfileobj(req.raw, f)
-                                i.uploadPoster(filepath='tmdb_poster_restore.png')
-                                if r:
-                                    shutil.copy('tmdb_poster_restore.png', re.sub('static', '/config', r[0].poster))
-                                os.remove('tmdb_poster_restore.png')
                     try:
                         poster = tmdb_search.poster_path
                         fname = 'tmdb_poster_restore.png'
@@ -2440,6 +2434,42 @@ def backup_poster_check(app):
             return errors
         else: logger.info('Backup posters appear fine')
 
+def get_tmdb_show_posters(var):
+    from app.models import Plex
+    config = Plex.query.filter(Plex.id == '1')
+    plex = PlexServer(config[0].plexurl, config[0].token)
+    tmdbtvs = TV()
+    def run_script():
+        posters = []
+        for show in tv.search(libtype='show', guid=var):
+                g = str(show.guids)
+                g = g[1:-1]
+                g = re.sub(r'[*?:"<>| ]',"",g)
+                g = re.sub("Guid","",g)
+                g = g.split(",")
+                f = filter(lambda a: "tmdb" in a, g)
+                g = list(f)
+                g = str(g[0])
+                gv = [v for v in g if v.isnumeric()]
+                g = "".join(gv)
+                tmdb_search = tmdbtvs.images(tv_id=g, include_image_language='en')
+                for poster in tmdb_search.posters:
+                    posters.append(poster.file_path)
+        #print(posters)
+        return posters
+    lib = config[0].tvlibrary.split(',')
+    logger.debug(lib)
+    n = len(lib)
+    if n <= 2:
+        try:
+            ##while true:
+                for l in range(n):
+                    tv = plex.library.section(lib[l])
+                    posters = run_script()
+                    return posters
+        except IndexError:
+            pass  
+
 def get_tmdb_season_posters(var):
     from app.models import Plex
     config = Plex.query.filter(Plex.id == '1')
@@ -2565,48 +2595,42 @@ def upload_tmdb_season(app, var):
 
         def run_script():
             try:
-                advanced_filters = {
-                    'or': [
-                        {'hdr':'true'},
-                        {'resolution':'4k'}
-                        ]
-                    }
-                for e in tv.search(libtype='episode', filters=advanced_filters):
+                for e in tv.search(libtype='episode', filters={"season.guid":guid}):
                     hdr = 'None'
-                    if e.parentGuid == guid:
-                        print(e.title)
-                        ekey = e.key
-                        for m in plex.fetchItems(ekey):
-                            if m.media[0].parts[0].streams[0].DOVIPresent == True:
-                                hdr='Dolby Vision'
-                            elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
-                                hdr='HDR'
-                        res = e.media[0].videoResolution
-                        season = e.parentIndex
-                        t = re.sub('plex://season/', '', guid)
-                        tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                        print('poster= '+poster)
-                        season_poster = module.get_tmdb_poster(tmp_poster, poster)
+                    ekey = e.key
+                    title = e.grandparentTitle
+                    for m in plex.fetchItems(ekey):
+                        if m.media[0].parts[0].streams[0].DOVIPresent == True:
+                            hdr='Dolby Vision'
+                        elif 'HDR' in m.media[0].parts[0].streams[0].displayTitle:
+                            hdr='HDR'
+                    res = e.media[0].videoResolution
+                    t = re.sub('plex://season/', '', guid)
+                    tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                    print('poster= '+poster)
+                    season_poster = module.get_tmdb_poster(tmp_poster, poster)    
 
+                    if (hdr != 'None' or res == '4k'):
                         s_bak = '/config/backup/tv/seasons/'+t+'.png'
                         shutil.copy(season_poster, s_bak)
-                        if os.path.exists(s_bak) != True:
-                            raise Exception("Season poster has not copied")
                         s_banners = module.check_banners(season_poster, size)
                         module.season_decision_tree(config, s_banners, e, hdr, res, season_poster)
                         banner_file = '/config/backup/tv/bannered_seasons/'+t+'.png'
                         shutil.copy(season_poster, banner_file)
                         if os.path.exists(banner_file) != True:
                             raise Exception("Season poster has not copied")
-                        title = e.grandparentTitle
                         table = season_table
                         module.add_season_to_db(db, title, table, guid, banner_file, s_bak) 
                         db.session.close()                       
                         for s in tv.search(guid=guid, libtype='season'):
                             r = season_table.query.filter(season_table.guid == guid).all()
                             module.upload_poster(season_poster, title, db, r, table, s, banner_file)
-                        module.remove_tmp_files(season_poster)
-                        break
+                    else:
+                        for season in tv.search(libtype='season', guid=guid):
+                            print(season.parentTitle+': '+season.title)
+                            season.uploadPoster(filepath=season_poster)
+                    module.remove_tmp_files(season_poster)
+                    break
             except Exception as e:
                 logger.error("Season poster Error: "+repr(e))
                 pass
@@ -2687,37 +2711,54 @@ def upload_tmdb_episode(app, var):
         parts = var.split('&')
         guid = parts[1]
         poster = str(parts[3])
-
+        print(guid+' / '+poster)
         def run_script():
             try:
                 for e in tv.search(libtype='episode', guid=guid):
+                    print(e.title)
                     r = ep_table.query.filter(ep_table.guid == guid).all()
-                    row = r[0].id
-                    ep = ep_table.query.get(row)
-                    hdr = ep.hdr
-                    audio = ep.audio
-                    resolution = ep.res
-                    db.session.close()
-                    print(hdr+' - '+audio+' - '+resolution)
+                    if r:
+                        row = r[0].id
+                        ep = ep_table.query.get(row)
+                        hdr = ep.hdr
+                        audio = ep.audio
+                        resolution = ep.res
+                        db.session.close()
+                        print(hdr+' - '+audio+' - '+resolution)
+                    else:
+                        hdr = module.get_plex_hdr(e, plex)
+                        audio = ''
+                        resolution = e.media[0].videoResolution
+                        ep_banners = ''
+                        ep = e
+                    
                     t = re.sub('plex://episode/', '', guid)
                     tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
                     print('poster= '+poster)
                     episode_poster = module.get_tmdb_poster(tmp_poster, poster)
-                    ep_bak = '/config/backup/tv/episodes/'+t+'.png'
-                    shutil.copy(episode_poster, ep_bak)
-                    if os.path.exists(ep_bak) != True:
-                        raise Exception("Season poster has not copied")
-                    ep_banners = module.check_banners(episode_poster, size)
-                    module.tv_banner_decision(ep, tmp_poster, ep_banners, audio, hdr, resolution, size)
-                    banner_file = '/config/backup/tv/bannered_episodes/'+t+'.png'
-                    shutil.copy(episode_poster, banner_file)
-                    if os.path.exists(banner_file) != True:
-                        raise Exception("Episode poster has not copied")
-                    title = e.grandparentTitle
-                    table = ep_table
-                    module.add_season_to_db(db, title, table, guid, banner_file, ep_bak) 
-                    db.session.close()
-                    module.upload_poster(episode_poster, title, db, r, table, e, banner_file)
+                    if (hdr != 'none' or resolution == '4k' or audio != ''):
+                        ep_bak = '/config/backup/tv/episodes/'+t+'.png'
+                        shutil.copy(episode_poster, ep_bak)
+                        if os.path.exists(ep_bak) != True:
+                            raise Exception("Season poster has not copied")
+                        ep_banners = module.check_banners(episode_poster, size)
+                        module.tv_banner_decision(e, tmp_poster, ep_banners, audio, hdr, resolution, size)
+                        banner_file = '/config/backup/tv/bannered_episodes/'+t+'.png'
+                        shutil.copy(episode_poster, banner_file)
+                        title = e.grandparentTitle
+                        table = ep_table
+                        episode = e.index
+                        season = e.parentIndex 
+                        guids = e.guids
+                        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
+                        g = str(g[0].guids) 
+                        if r:
+                            module.updateTable(guid, guids, size, resolution, hdr, audio, tmp_poster, ep_banners, title, config, table, db, r, e, b_dir, g, False, episode, season)
+                        else:                    
+                            module.insert_intoTable(guid, guids, size, resolution, hdr, audio, tmp_poster, ep_banners, title, config, table, db, r, e, b_dir, g, False, episode, season) 
+                        module.upload_poster(episode_poster, title, db, r, table, e, banner_file)
+                    else:
+                        e.uploadPoster(filepath=episode_poster)
                     module.remove_tmp_files(episode_poster)
                     break
             except Exception as e:
@@ -2827,7 +2868,7 @@ def get_tv_episodes(var):
             return episodes
         except IndexError:
             pass   
-        
+
 def get_season_posters(var):
     from app.models import Plex
     config = Plex.query.filter(Plex.id == '1')
