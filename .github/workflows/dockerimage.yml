@@ -6,7 +6,7 @@ on:
 
 jobs:   
   build:    
-    runs-on: ubuntu-20.04    
+    runs-on: ubuntu-22.04    
     env:      
       DOCKER_REGISTRY: hub.docker.com
       DOCKER_IMAGE: jkirkcaldy/plex-utills      
@@ -33,5 +33,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: |
+          type=raw,value=latest,enable={{is_default_branch}}
+          ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
