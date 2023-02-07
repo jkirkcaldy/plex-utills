@@ -17,6 +17,7 @@
 
     {{ bootstrap.load_css() }}
     <!-- Custom fonts for this template-->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='/img/favicon/favicon.ico') }}">
     <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/sb-admin-2.min.css') }}" rel="stylesheet">
@@ -35,9 +36,9 @@
     <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
       <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url_for('index')  }}">
           <div class="sidebar-brand-icon">
-              <i class="fas fa-cog"></i>
+              <img src="{{ url_for('static', filename='/img/plex-utills_wide_transparent.png') }}", height="75px"></i>
           </div>
-          <div class="sidebar-brand-text mx-3">Plex-Utills</div>
+          
       </a>
       <hr class="sidebar-divider my-0">
 

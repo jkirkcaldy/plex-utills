@@ -12,7 +12,7 @@ from pathlib import PureWindowsPath, PurePosixPath
 import cv2
 import time
 from app.models import Plex
-
+from app import error
 
 
 
@@ -100,8 +100,9 @@ def get_tmdb_poster(fname, poster):
 
 def check_banners(tmp_poster, size):
     try:
-        background = cv2.imread(tmp_poster, cv2.IMREAD_ANYCOLOR)
-        background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
+        from app import items, banner
+
+        background = cv2.imread(tmp_poster, cv2.IMREAD_UNCHANGED)
         background = Image.fromarray(background)
         background = background.resize(size,Image.LANCZOS)
 
@@ -122,50 +123,34 @@ def check_banners(tmp_poster, size):
         poster_audio_hash = imagehash.average_hash(audiochk)
         # HDR Banner
         poster_hdr_hash = imagehash.average_hash(hdrchk)
-        # General Hashes
-        chk_banner = Image.open("app/img/chk-4k.png")
-        chk_banner_hash = imagehash.average_hash(chk_banner)
-        chk_mini_banner = Image.open("app/img/chk-mini-4k2.png")
-        chk_mini_banner_hash = imagehash.average_hash(chk_mini_banner)
-        chk_hdr = Image.open("app/img/chk_hdr.png")
-        chk_hdr_hash = imagehash.average_hash(chk_hdr)
-        chk_dolby_vision = Image.open("app/img/chk_dolby_vision.png")
-        chk_dolby_vision_hash = imagehash.average_hash  (chk_dolby_vision)
-        chk_hdr10 = Image.open("app/img/chk_hdr10.png")
-        chk_hdr10_hash = imagehash.average_hash(chk_hdr10)
-        chk_new_hdr = Image.open("app/img/chk_hdr_new.png")
-        chk_new_hdr_hash = imagehash.average_hash(chk_new_hdr)
-        atmos_box = Image.open("app/img/chk_atmos.png")
-        chk_atmos_hash = imagehash.average_hash(atmos_box)
-        dtsx_box = Image.open("app/img/chk_dtsx.png")
-        chk_dtsx_hash = imagehash.average_hash(dtsx_box)
+
         wide_banner = mini_banner = audio_banner = hdr_banner = old_hdr = False
-        if poster_banner_hash - chk_banner_hash <= cutoff:
+        if poster_banner_hash - banner.chk_banner_hash <= cutoff:
             wide_banner = True
-        if poster_mini_hash - chk_mini_banner_hash <= cutoff:
+        if poster_mini_hash - banner.chk_mini_banner_hash <= cutoff:
             mini_banner = True
         if (
-            poster_audio_hash - chk_atmos_hash < cutoff
-            or poster_audio_hash - chk_dtsx_hash < cutoff
+            poster_audio_hash - banner.chk_atmos_hash < cutoff
+            or poster_audio_hash - banner.chk_dtsx_hash < cutoff
         ):
             audio_banner = True
-        if poster_hdr_hash - chk_hdr_hash < cutoff:
+        if poster_hdr_hash - banner.chk_hdr_hash < cutoff:
             old_hdr = True
         if (
-            poster_hdr_hash - chk_new_hdr_hash < cutoff 
-            or poster_hdr_hash - chk_dolby_vision_hash < cutoff 
-            or poster_hdr_hash - chk_hdr10_hash < cutoff
+            poster_hdr_hash - banner.chk_new_hdr_hash < cutoff 
+            or poster_hdr_hash - banner.chk_dolby_vision_hash < cutoff 
+            or poster_hdr_hash - banner.chk_hdr10_hash < cutoff
         ):
             hdr_banner = True
-        #background.save(tmp_poster)
-        return wide_banner, mini_banner, audio_banner, hdr_banner,  old_hdr
+        banners = items.Banners(wide_banner, mini_banner, hdr_banner, audio_banner)
+        return banners #wide_banner, mini_banner, audio_banner, hdr_banner,  old_hdr
     except OSError as e:
         logger.error('Cannot open image: '+repr(e))
 
-def get_poster(i, tmp_poster, title, b_dir, height, width, r):
-    logger.debug(i.title+' Getting poster')
+def get_poster(item, tmp_poster, title, b_dir, height, width, r):
+    logger.debug(item.title+' Getting poster')
     imgurl = plex.transcodeImage(
-        i.thumbUrl,
+        item.thumbUrl,
         height=height,
         width=width,
         imageFormat='png'
@@ -205,21 +190,21 @@ def get_poster(i, tmp_poster, title, b_dir, height, width, r):
                     return tmp_poster, valid
         except:
             logger.warning("poster is blank, getting poster from TMDB")
-            if 'movie' in i.guid:
-                t = re.sub('plex://movie/', '', i.guid)
+            if 'movie' in item.guid:
+                t = re.sub('plex://movie/', '', item.guid)
                 tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                g = str(i.guids)
+                g = str(item.guids)
                 g = get_tmdb_guid(g)
-                poster = tmdb_poster_path(b_dir, i, g, '', '')
+                poster = tmdb_poster_path(b_dir, item, g, '', '')
                 tmp_poster = get_tmdb_poster(tmp_poster, poster)
-            elif 'episode' in i.guid:
-                t = re.sub('plex://episode/', '', i.guid)
+            elif 'episode' in item.guid:
+                t = re.sub('plex://episode/', '', item.guid)
                 tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                g = str(i.guids)
+                g = str(item.guids)
                 g = get_tmdb_guid(g)
-                season = str(i.parentIndex)
-                episode = str(i.index)
-                poster = tmdb_poster_path(b_dir, i, g, episode, season)            
+                season = str(item.season_number)
+                episode = str(item.episode_number)
+                poster = tmdb_poster_path(b_dir, item, g, episode, season)            
                 tmp_poster = get_tmdb_poster(tmp_poster, poster)
             return tmp_poster, valid
     
@@ -334,60 +319,54 @@ def upload_poster(tmp_poster, title, db, r, table, i, banner_file):
             db.session.rollback()
         logger.error("Can't upload the poster: "+repr(e))         
 
-def scan_files(config, i, plex):
-    logger.debug('Scanning '+i.title)
-    p = PureWindowsPath(i.media[0].parts[0].file)
+def scan_files(config, i, plex): 
+    p = PureWindowsPath(i.file)
     p1 = re.findall('[A-Z]', p.parts[0])
     if p1 != []:
         logger.debug('path is: '+str(p1))
         file = PurePosixPath('/films', *p.parts[1:])
-    elif config[0].manualplexpath == 1:
-        file = re.sub(config[0].manualplexpathfield, '/films', i.media[0].parts[0].file)
+    if config[0].manualplexpath == 1:
+        file = re.sub(config[0].manualplexpathfield, '/films', i.file)
     else:
-        file = re.sub(config[0].plexpath, '/films', i.media[0].parts[0].file)
-    logger.debug(file)
+        file = re.sub(config[0].plexpath, '/films', i.file)
+    logger.debug('Scanning '+file)
     try:
         m = MediaInfo.parse(file, output='JSON')
         x = json.loads(m)
-        hdr_version = get_plex_hdr(i, plex)
-        if hdr_version != 'none':
-            try:
-                hdr_version = x['media']['track'][1]['HDR_Format_String']
-            except (KeyError, IndexError):
-                if "dolby" not in str.lower(hdr_version):
-                    try:
-                        hdr_version = x['media']['track'][1]    ['HDR_Format_Commercial']
-                    except (KeyError, IndexError):
-                        try:
-                            hdr_version = x['media']['track'][1]        ['HDR_Format_Commercial_IfAny']
-                        except (KeyError, IndexError):
-                            try:
-                                hdr_version = x['media']['track'][1]        ['HDR_Format_Compatibillity']
-                            except:
-                                pass
-        elif not hdr_version:
+    except FileNotFoundError as e:
+        logger.error("can not scan "+i.title+" reverting to plex metadata")
+        audio = i.audio
+        hdr_version = i.hdr
+        return audio, hdr_version
+    try:
+        if 'HDR10' in i.hdr:
+            hdr_version = x['media']['track'][1]['HDR_Format_Compatibility']
+        elif 'DoVi' not in i.hdr:
             hdr_version = 'none'
+        else:
+            hdr_version = i.hdr
         audio = "unknown"
         try:
-            while True:
-                for f in range(10):
-                    if 'Audio' in x['media']['track'][f]['@type']:
-                        if 'Format_Commercial_IfAny' in x['media']  ['track'][f]:
-                            audio = x['media']['track'][f]  ['Format_Commercial_IfAny']
-                            if 'XLL X' in x['media']['track'][f]    ["Format_AdditionalFeatures"]:
-                                audio = 'DTS:X'
-                            break
-                        elif 'Format' in x['media']['track'][f]:
-                            audio = x['media']['track'][f]['Format']
-                            break
-                if audio != "":
-                    break
-        except (IndexError, KeyError) as e:
-            logger.debug(i.title+' '+repr(e))
+            for f in range(10):
+                if 'Audio' in x['media']['track'][f]['@type']:
+                    if 'XLL X' in x['media']['track'][f]["Format_AdditionalFeatures"]:
+                        audio = 'DTS:X'
+                        break
+                    elif '16-ch' in x['media']['track'][f]["Format_AdditionalFeatures"]:
+                        audio = 'Atmos'
+                        break
+                    else:
+                        audio - i.audio
+                        break
+        except Exception as e:
+            if 'TypeError' in e:
+                pass
+            else:
+                logger.debug(i.title+' '+repr(e))
     except Exception as e:
         logger.warning('No access to files: '+repr(e))
-        audio = 'None'
-        hdr_version = get_plex_hdr(i, plex)
+        audio = i.audio
+        hdr_version = i.hdr
     return audio, hdr_version
 
 def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid):
@@ -483,7 +462,6 @@ def backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, 
                 logger.warning("Creating backup file from TMDb didn't work")
 
 def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season):
-    logger.debug(table)
     logger.debug(tmp_poster)
     url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
     db.session.close()
@@ -512,14 +490,15 @@ def insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, ti
     if ('film_table' in str(table) or 'season_table' in str(table)):
         film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0', url=url)
     elif 'ep_table' in str(table):
+
         show_season = i.grandparentTitle+': '+i.parentTitle
-        film = table(title=title, guid=guid, guids=guids, size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0', show_season=show_season)
+        film = table(title=title, guid=guid, guids=str(guids), size=size, res=res, hdr=hdr, audio=audio, poster=b_file, checked='0', show_season=show_season)
     try:
         db.session.add(film)
         db.session.commit()
-    except:
+    except Exception as e:
         db.session.rollback()
-        raise logger.error(Exception('Database Roll back error'))
+        logger.error(repr(e))
     finally:
         db.session.close()
 
@@ -694,7 +673,7 @@ def add_season_to_db(db, title, table, pguid, banner_file, poster):
     finally:
         db.session.close() 
 
-def check_for_new_poster(tmp_poster, r, i, table, db):
+def check_for_new_poster(tmp_poster, r, item, table, db):
     new_poster = 'False'
     if r:
         try:
@@ -718,15 +697,15 @@ def check_for_new_poster(tmp_poster, r, i, table, db):
             except OSError as e:
                     logger.error('Check for new poster OSError: '+repr(e))
                     if ('FileNotFoundError'  or 'Errno 2 ') in e:
-                        logger.debug(i.title+' - Poster Not found')
+                        logger.debug(item.title+' - Poster Not found')
                         new_poster = 'BLANK'
 
                     else:
-                        logger.debug(i.title)
+                        logger.debug(item.title)
                         logger.warning('Check for new Poster: '+repr(e))
 
             if poster_hash - bak_poster_hash > cutoff:
-                logger.debug(i.title+' - Poster has changed')
+                logger.debug(item.title+' - Poster has changed')
                 new_poster = 'True'
                     
             else:
@@ -815,11 +794,9 @@ def bannered_poster_compare(bannered_poster, r, i):
     return new_poster
 
 def season_decision_tree(config, banners, ep, hdr, res, tmp_poster):
-    wide_banner = banners[0]
-    mini_banner = banners[1]
-    hdr_banner = banners[3]
-
-    logger.debug(banners)
+    wide_banner = banners.wide_banner
+    mini_banner = banners.mini_banner
+    hdr_banner = banners.hdr_banner
     logger.debug("Decision tree")    
 
     if (hdr != 'none' and config[0].hdr == 1 and hdr_banner == False):
@@ -1008,3 +985,7 @@ def clear_old_posters():
     for files in os.listdir(dirpath):
         if files.endswith(".png"):
             os.remove(dirpath+files) 
+
+def find_localMetadata(item):
+    if 'local' in str.lower(item.guid):
+        raise error.MetaDataError(item)

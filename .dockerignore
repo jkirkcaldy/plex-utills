@@ -12,3 +12,4 @@ app.db
 test*.py
 Changelog*
 *support.zip
+*.ipynb

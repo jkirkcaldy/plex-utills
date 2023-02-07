@@ -14,16 +14,13 @@ import plexapi
 
 scheduler = APScheduler()
 scheduler.init_app(app)
-   
-if not scheduler.running:
-    scheduler.start()
-scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * *'))
+
 def update_scheduler(app):
     with app.app_context():
+        scheduler.delete_all_jobs()
+        scheduler.add_job('maintenance', func=maintenance, trigger=CronTrigger.from_crontab('0 4 * * *'))
         config = Plex.query.filter(Plex.id == '1')
-        plex = PlexServer(config[0].plexurl, config[0].token)
         log.debug('Running Updater')
-        scheduler.remove_all_jobs()
         def check_schedule_format(input):
             try:
                 time.strptime(input, '%H:%M')
@@ -69,38 +66,3 @@ def update_scheduler(app):
         #        scheduler.add_job('spoilers', func=spoilers_scheduled, args=[app], trigger=CronTrigger.from_crontab('0 0 * * 0'))
         for j in scheduler.get_jobs():
             log.info(j)
-        def update_plex_path():
-            lib = config[0].filmslibrary.split(',')
-            if len(lib) <= 2:
-                try:
-                    films = plex.library.section(lib[0])
-                except IndexError:
-                    pass
-            else:
-                films = plex.library.section(config[0][3])
-            media_location = films.search(limit='1')
-            if config[0].manualplexpathfield == 1:
-                plexpath = config[0].manualplexpathfield
-            elif config[0].manualplexpath == 0:
-                filepath = os.path.dirname(os.path.dirname(media_location[0].media[0].parts[0].file))
-
-                try:
-                    plexpath = '/'+filepath.split('/')[2]
-                    plexpath = '/'+filepath.split('/')[1]
-
-                except IndexError as e:
-                    log.debug(repr(e))
-                    plexpath = '/'
-            try:
-                db.session.close()
-                row = config[0].id
-                c = Plex.query.get(row)
-                c.plexpath = plexpath
-                db.session.commit()
-            except:
-                db.session.rollback()
-                raise log.error()
-        try:
-            update_plex_path()
-        except (plexapi.exceptions.NotFound, OSError) as e:
-            log.error(e)

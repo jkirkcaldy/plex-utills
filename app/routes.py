@@ -11,6 +11,8 @@ import threading
 from threading import Thread
 import datetime
 from app import scripts
+from apscheduler.triggers.cron import CronTrigger
+
 date = datetime.datetime.now()
 date = date.strftime("%y.%m.%d-%H%M")
 poster_url_base = 'https://www.themoviedb.org/t/p/original'
@@ -84,6 +86,11 @@ def update_plex_path():
                     else:
                         newdir = os.path.dirname(re.sub(config[0][5], '/films', i.media[0].parts[0].file))+'/'
         except:pass
+    from app.schedule import scheduler, update_scheduler
+    if not scheduler.running:
+        scheduler.start()
+    scheduler.delete_all_jobs()
+    update_scheduler(app)
 
 @app.route('/')
 @app.route('/index', methods=["GET"])

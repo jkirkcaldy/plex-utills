@@ -16,7 +16,8 @@ import unicodedata
 import cv2
 import random
 import string
-
+from app import banner, items
+from app.error import MetaDataError
 
 
 
@@ -69,142 +70,121 @@ hdr_box = (0,1342,493,1608)
 a_box = (0,1608,493,1766)
 cutoff = 10
 
-
 def posters4k(app, webhooktitle, poster_var):
     with app.app_context():
         logger.debug(webhooktitle)
         from app.models import Plex, film_table
-        from app import db
-        from app import module
+        from app import db, module, items
         config = Plex.query.filter(Plex.id == '1')
         plex = PlexServer(config[0].plexurl, config[0].token)
         global b_dir
         tmdb.api_key = config[0].tmdb_api
         b_dir = 'static/backup/films/'
-        banner_4k = cv2.imread("app/img/4K-Template.png", cv2.IMREAD_UNCHANGED)
-        banner_4k = Image.fromarray(banner_4k)
-        mini_4k_banner = cv2.imread("app/img/4K-mini-Template.png", cv2.IMREAD_UNCHANGED)
-        mini_4k_banner = Image.fromarray(mini_4k_banner)
-        banner_dv = cv2.imread("app/img/dolby_vision.png", cv2.IMREAD_UNCHANGED)
-        banner_dv = Image.fromarray(banner_dv)
-        banner_hdr10 = cv2.imread("app/img/hdr10.png", cv2.IMREAD_UNCHANGED)
-        banner_hdr10 = cv2.cvtColor(banner_hdr10, cv2.COLOR_BGR2RGBA)
-        banner_hdr10 = Image.fromarray(banner_hdr10)
-        
-        banner_new_hdr = cv2.imread("app/img/hdr.png", cv2.IMREAD_UNCHANGED)
-        banner_new_hdr = Image.fromarray(banner_new_hdr)
-        atmos = cv2.imread("app/img/atmos.png", cv2.IMREAD_UNCHANGED)
-        atmos = Image.fromarray(atmos)
-        dtsx = cv2.imread("app/img/dtsx.png", cv2.IMREAD_UNCHANGED)
-        dtsx = Image.fromarray(dtsx)
-        blurred=False
-        episode=''
-        season=''
         height = 3000
         width = 2000
-        poster_size = (width, height)
+        poster_size = (2000, 3000)
+        table = film_table
+        errors = []
         def run_script(): 
 
             def decision_tree(tmp_poster, banners, guid):
-
-                wide_banner = banners[0]
-                mini_banner = banners[1]
-                audio_banner = banners[2]
-                hdr_banner = banners[3]
-
-                logger.debug(banners)
                 logger.debug("Decision tree")
                 def database_decision(banners):
                     logger.debug("Database Decision")
                     audio = hdr = ''
                     if config[0].skip_media_info == 1:
                         if r:
-                            hdr = module.get_plex_hdr(i, plex)
-                            audio = i.media[0].audioCodec
-                            if str(r[0].guid) == guid and str(r[0].size) != str(size):
-                                logger.debug(title+" has changed")
+                            #hdr = module.get_plex_hdr(i, plex)
+                            #audio = i.media[0].audioCodec
+                            if str(r[0].guid) == str(film.guid) and str(r[0].size) != str(film.size):
+                                logger.debug(film.title+" has changed")
 
-                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                                module.updateTable(film.guid, film.guids, size, film.resolution, film.hdr, film.audio, tmp_poster, banners, film.title, config, table, db, r, film, b_dir, film.guids, '', '','')
                         else:
-                            logger.info(title+" is not in database, skip media info scan is true")
-                            hdr = module.get_plex_hdr(i, plex)
-                            audio = i.media[0].audioCodec
+                            logger.info(film.title+" is not in database, skip media info scan is true")
+                            #hdr = module.get_plex_hdr(i, plex)
+                            #audio = i.media[0].audioCodec
                             if ('none' not in hdr or ('atmos' or 'dts:x') in audio):
-                                module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+
+                                module.insert_intoTable(film.guid, film.guids, film.size, film.resolution, film.hdr, film.audio, tmp_poster, banners, film.title, config, table, db, r, film, b_dir, film.guids, '', '','')
                     else:
                         if r:
-                            if (str(r[0].guid) == guid and str(r[0].size) != str(size)):
-                                logger.debug(title+" has changed, rescanning")
-                                scan = module.scan_files(config, i, plex)
+                            if (str(r[0].guid) == film.guid and str(r[0].size) != str(film.size)):
+                                logger.debug(film.title+" has changed, rescanning")
+                                scan = module.scan_files(config, film, plex)
                                 audio = str.lower(scan[0])
                                 hdr = str.lower(scan[1])
-                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                                module.updateTable(film.guid, film.guids, size, film.resolution, film.hdr, film.audio, tmp_poster, banners, film.title, config, table, db, r, film, b_dir, film.guids, '', '','')
                             else:
                                 if new_poster == 'True':
                                     audio = r[0].audio
                                     hdr = r[0].hdr
-                                    module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                                    module.updateTable(film.guid, film.guids, size, film.resolution, film.hdr, film.audio, tmp_poster, banners, film.title, config, table, db, r, film, b_dir, film.guids, '', '','')
                                 else:
                                     logger.debug('backing up poster')
                                     audio = r[0].audio
                                     hdr = r[0].hdr
-                                    module.backup_poster(tmp_poster, banners, config, r, i, b_dir, g, episode, season, guid)
+                                    module.backup_poster(tmp_poster, banners, config, r, film, b_dir, film.guids, '', '', guid)
                         elif not r:
-                            logger.info(title+" is not in database, skip media info scan is false")
-                            scan = module.scan_files(config, i, plex)
+                            logger.info(film.title+" is not in database, skip media info scan is false")
+                            scan = module.scan_files(config, film, plex)
+                            print('Scan complete')
                             audio = str.lower(scan[0])
                             hdr = str.lower(scan[1])
-                            if ('none' not in hdr or ('atmos' or 'dts:x') in audio or res == '4k'):
-                                module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+
+                            print(audio)
+                            print(hdr)
+                            if ('none' not in hdr or 'atmos' in audio or 'dts:x' in audio or film.resolution == '4k'):
+                                module.insert_intoTable(film.guid, film.guids, film.size, film.resolution, film.hdr, film.audio, tmp_poster, banners, film.title, config, table, db, r, film, b_dir, film.guids, '', '','')
                         else:
                             logger.debug("error message")
                     return audio, hdr
 
                 def banner_decision(audio, hdr):
                     logger.debug("Banner Decision")
-                    if (audio_banner == False and config[0].audio_posters == 1):
+                    if (banners.audio_banner == False and config[0].audio_posters == 1):
                         logger.debug("AUDIO decision: "+audio)         
                         if 'atmos' in audio:
-                            module.add_banner(tmp_poster, atmos, poster_size)
+                            module.add_banner(tmp_poster, banner.atmos, poster_size)
                             #atmos_poster(tmp_poster)
                         elif audio == 'dts:x': 
-                            module.add_banner(tmp_poster, atmos, poster_size)
+                            module.add_banner(tmp_poster, banner.atmos, poster_size)
                             #dtsx_poster(tmp_poster)
 
-                    if (hdr_banner == False and config[0].hdr == 1):
+                    if (banners.hdr_banner == False and config[0].hdr == 1):
                         logger.debug("HDR: "+hdr) 
                         if 'dolby vision' in str.lower(hdr):
-                            module.add_banner(tmp_poster, banner_dv, poster_size)
+                            module.add_banner(tmp_poster, banner.banner_dv, poster_size)
                             #dolby_vision(tmp_poster)
                         elif "hdr10+" in str.lower(hdr):
-                            module.add_banner(tmp_poster, banner_hdr10, poster_size)
+                            module.add_banner(tmp_poster, banner.banner_hdr10, poster_size)
                             #hdr10(tmp_poster)
                         elif str.lower(hdr) == "none":
                             pass
                         elif (hdr != "" and str.lower(hdr) != 'none'):
-                            module.add_banner(tmp_poster, banner_new_hdr, poster_size)
+                            module.add_banner(tmp_poster, banner.banner_new_hdr, poster_size)
                             #hdrp(tmp_poster)
                     if 'dolby vision' in str.lower(hdr):
-                        i.addLabel('Dolby Vision', locked=False)
+                        f.addLabel('Dolby Vision', locked=False)
                     elif 'hdr10+' in str.lower(hdr):
-                        i.addLabel('HDR10+', locked=False)
+                        f.addLabel('HDR10+', locked=False)
                     elif hdr != '':
-                        i.addLabel('HDR', locked=False)
-
+                        f.addLabel('HDR', locked=False)
+#
                     if 'atmos' in audio:
-                        i.addLabel('Dolby Atmos', locked=False)
+                        f.addLabel('Dolby Atmos', locked=False)
                     elif audio == 'dts:x':
-                        i.addLabel('DTS:X', locked=False) 
+                        f.addLabel('DTS:X', locked=False) 
 
-                    if (res == '4k' and config[0].films4kposters == 1):
-                        if wide_banner == mini_banner == False:
+                    if (film.resolution == '4k' and config[0].films4kposters == 1):
+                        if banners.wide_banner == banners.mini_banner == False:
                             if config[0].mini4k == 1:
-                                module.add_banner(tmp_poster, mini_4k_banner, poster_size)
+                                module.add_banner(tmp_poster, banner.mini_4k_banner, poster_size)
                             else:
-                                module.add_banner(tmp_poster, banner_4k, poster_size)
+                                module.add_banner(tmp_poster, banner.banner_4k, poster_size)
                             #add_banner(tmp_poster)
                         else:
-                            logger.debug(i.title+' Has 4k banner')                 
+                            logger.debug(film.title+' Has 4k banner')                 
 
                 audio_hdr = database_decision(banners)
                 audio = audio_hdr[0]
@@ -213,103 +193,117 @@ def posters4k(app, webhooktitle, poster_var):
                 banner_decision(audio, hdr)
                 return(audio, hdr)
 
-            def process(tmp_poster, guid):
-                size = (2000, 3000)
-                banners = module.check_banners(tmp_poster, size)
-                audio_hdr = decision_tree(tmp_poster, banners, guid)
-                bname = re.sub('plex://movie/', '', guid)
+            def process(tmp_poster):
+                logger.info('Processing '+film.title)
+                banners = module.check_banners(tmp_poster, poster_size)
+                audio_hdr = decision_tree(tmp_poster, banners, film.guid)
+                bname = re.sub('plex://movie/', '', film.guid)
                 banner_file = '/config/backup/bannered_films/'+bname+'.png'
-                banners = module.check_banners(tmp_poster, size)
+                banners = module.check_banners(tmp_poster, poster_size)
                 if (True in banners and config[0].backup == 1):
-                    module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
+                    module.add_bannered_poster_to_db(tmp_poster, db, film.title, table, film.guid, banner_file)
 
                 if (
                     'none' not in audio_hdr[1]
                     or 'atmos' in str.lower(audio_hdr[0])
                     or 'dts:x' in str.lower(audio_hdr[0])
-                    or res == '4k'
+                    or film.resolution == '4k'
                 ):
-                    logger.debug(str(audio_hdr)+' - '+res)
-                    r = film_table.query.filter(film_table.guid == guid).all()
-                    #logger.warning('upload poster would happen now but is disabled')
+                    r = film_table.query.filter(film_table.guid == film.guid).all()
                     poster_good = module.final_poster_compare(tmp_poster, plex_poster)
                     if poster_good == True:
-                        module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+                        module.upload_poster(tmp_poster, film.title, db, r, table, f, banner_file)
                     else: 
-                        logger.debug('It looks like there may be some corruption, not uploading poster for: '+title) 
+                        logger.debug('It looks like there may be some corruption, not uploading poster for: '+film.title) 
                 else:
-                    logger.debug('Not uploading poster for: '+title)  
-            def add_url(i, r, table, plex):
+                    logger.debug('Not uploading poster for: '+film.title)  
+            def add_url(f, r, table, plex):
                 try:
-                    url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(i.ratingKey)
+                    url = "https://app.plex.tv/desktop#!/server/"+str(plex.machineIdentifier)+'/details?key=%2Flibrary%2Fmetadata%2F'+str(f.ratingKey)
                     row = r[0].id
                     film = table.query.get(row)
                     film.url = url
                     db.session.commit()
-                except:
-                    db.session.rollback()
-                    raise logger.error(Exception)
-
-            for i in films.search(title=webhooktitle):
-                try:
-                    table = film_table
-                    i.title = unicodedata.normalize('NFD', i.title).encode('ascii', 'ignore').decode('utf8')
-                    i.title = re.sub('#', '', i.title)
-                    logger.info(i.title)           
-                    title = i.title
-                    guid = str(i.guid)
-                    guids = str(i.guids)
-                    g = guids
-                    size = i.media[0].parts[0].size
-                    r = table.query.filter(table.guid == guid).all()
-                    res = i.media[0].videoResolution    
-                    t = re.sub('plex://movie/', '', guid)
-                    tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                    plex_poster = re.sub(' ','_', '/tmp/'+t+'_plex_poster.png')
-                    if poster_var == '':
-                        g_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width, r) 
-                        tmp_poster = g_poster[0]
-                    else:
-                        tmp_poster = module.get_tmdb_poster(tmp_poster, poster_var) 
-                    plex_poster = shutil.copy(tmp_poster, plex_poster)
-                    new_poster = ''
-                    if r:
-                        logger.debug(g_poster[1])
-                        if g_poster[1] == True:
-                            new_poster = module.check_for_new_poster(tmp_poster, r, i, table, db)
-                        else: 
-                            new_poster = 'True'                       
-                        logger.debug('New poster = '+new_poster)
-                        try:
-                            if (
-                                r[0].checked == 0
-                                or str(r[0].size) != str(size)
-                                or new_poster == 'True'
-                            ):
-                                logger.debug('Processing '+i.title)
-                                process(tmp_poster, guid)
-                            elif (new_poster == 'BLANK' and config[0].tmdb_restore == 1):
-                                logger.warning("Poster has returned a blank image, restoring from TMDB and continuing")
-                                tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
-                                g = module.get_tmdb_guid(g)
-                                poster = module.tmdb_poster_path(b_dir, i, g, episode, season)
-                                tmp_poster = module.get_tmdb_poster(tmp_poster, poster)
-                                process(tmp_poster, guid)
-                            elif (new_poster == 'BLANK' and config[0].tmdb_restore == 1):
-                                logger.error("Poster has returned a blank image, enable TMDB restore to continue with a poster from TheMovieDB")
-                            else:
-                                logger.info(title+' has been processed and the file has not changed, skiping')
-                        except Exception as e:
-                            logger.error(repr(e))
-                        add_url(i, r, table, plex)
-                    else:
-                        logger.debug(title+' not in database')
-
-                        process(tmp_poster, guid)
                 except Exception as e:
-                    logger.error("script error: "+repr(e))
+                    db.session.rollback()
+                    logger.error(repr(e))
+
+            key = [film.key for film in films.search(title=webhooktitle, sort='titleSort:desc')]
+            n = len(key)
+            for x in range(n):
+                for f  in plex.fetchItems(key[x]):
+                    audio = ''
+                    try:
+                        if 'Atmos' in f.media[0].parts[0].streams[1].extendedDisplayTitle:
+                            audio = 'Dolby Atmos'
+
+                        if (f.media[0].parts[0].streams[1].title and 'DTS:X' in f.media[0].parts[0].streams[1].title):
+                                    audio = 'DTS:X'
+                    except: pass
+                    else:
+                        audio = f.media[0].parts[0].streams[1].displayTitle
+
+                    film = items.film_processing(f.title, f.guid, f.guids, f.media[0].parts[0].size, f.media[0].videoResolution, f.media[0].parts[0].streams[0].extendedDisplayTitle, audio, f.media[0].parts[0].file)
+                    try:
+                        module.find_localMetadata(film)
+                    except MetaDataError as e:
+                        logger.error(repr(e))
+                        errors.append(film)
+                        continue
+
+                    if ('DoVi' in film.hdr or 'HDR10' in film.hdr or 'TrueHD' in film.audio or 'DTS-HD' in film.audio or film.resolution == '4k'):
+                    
+
+                        t = re.sub('plex://movie/', '', film.guid)
+                        tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                        plex_poster = re.sub(' ','_', '/tmp/'+t+'_plex_poster.png')
+
+                        try:
+                            r = table.query.filter(table.guid == film.guid).all()   
+                            if poster_var == '':
+                                g_poster = module.get_poster(f, tmp_poster, film.title, b_dir, height, width, r) 
+                                tmp_poster = g_poster[0]
+                            else:
+                                tmp_poster = module.get_tmdb_poster(tmp_poster, poster_var)
+                            plex_poster = shutil.copy(tmp_poster, plex_poster)
+                            new_poster = ''
+                            if r:
+                                if g_poster[1] == True:
+                                    new_poster = module.check_for_new_poster(tmp_poster, r, film, table, db)
+                                else: 
+                                    new_poster = 'True'                       
+                                try:
+                                    if (
+                                        r[0].checked == 0
+                                        or str(r[0].size) != str(film.size)
+                                        or new_poster == 'True'
+                                    ):
+                                        process(tmp_poster)
+                                    elif (new_poster == 'BLANK'):
+                                        if config[0].tmdb_restore == 1:
+                                            logger.warning("Poster has returned a blank image, restoring from TMDB and continuing")
+                                            tmp_poster = re.sub(' ','_', '/tmp/'+t+'_poster.png')
+                                            g = module.get_tmdb_guid(g)
+                                            poster = module.tmdb_poster_path(b_dir, film, film.guids, '', '')
+                                            tmp_poster = module.get_tmdb_poster(tmp_poster, poster)
+                                            process(tmp_poster)
+                                        else:
+                                            logger.error("Poster has returned a blank image, enable TMDB restore to continue with a poster from TheMovieDB")
+                                    else:
+                                        logger.info(film.title+' has been processed and the file has not changed, skiping')
+                                except Exception as e:
+                                    logger.error(repr(e))
+                                add_url(f, r, table, plex)
+                            else:
+                                process(tmp_poster)
+                        except Exception as e:
+                            logger.error("script error: "+repr(e))
             module.clear_old_posters()      
             logger.info('4k Poster script has finished')
+            if errors:
+                logger.error('The following files had metadata errors')
+                for error in errors:
+                    logger.error(error.title+' - '+error.file)
             
         lib = config[0].filmslibrary.split(',')
         logger.debug(lib)
@@ -410,50 +404,36 @@ def tv_episode_poster(app, epwebhook, poster):
         b_dir = 'static/backup/tv/episodes/'
         poster_size = (1280, 720)
         logger.info('Starting 4k Tv poster script')
+        errors = []
         def run_script():
             def decision_tree(tmp_poster):
-                banners = module.check_tv_banners(i, tmp_poster, img_title)
+                banners = module.check_tv_banners(ep, tmp_poster, img_title)
                 banner_4k = banners[0]
                 audio_banner = banners[1]
                 hdr_banner = banners[2]
-                season = str(i.parentIndex)
-                episode = str(i.index)
                 logger.debug(banners)
                 def database_decision(r):
+                    if config[0].skip_media_info == 0:
+                        scan = module.scan_files(config, episode, plex)
+                        audio = scan[0]
+                        hdr = str.lower(scan[1])
+                    else:
+                        audio = episode.audio
+                        hdr = episode.hdr
+                    logger.info(episode.title+' - '+audio+' - '+hdr)
                     if r:
                         audio = r[0].audio
                         hdr= r[0].hdr
-                        if str(r[0].guid) == guid:
+                        if str(r[0].guid) == episode.guid:
                             logger.debug(title+' GUID match')
-                            if str(r[0].size) != size:
-                                    logger.debug(title+" has changed, rescanning")
-                                    scan = module.scan_files(config, i, plex)
-                                    audio = scan[0]
-                                    hdr = str.lower(scan[1])                            
-                                    module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
-                            else:
-                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
-
-                            if not r[0].poster and True not in banners:
-                                module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                            if (str(r[0].size) != size or not r[0].poster and True not in banners):
+                                    module.updateTable(episode.guid, episode.guids, episode.size, episode.resolution, hdr, audio, tmp_poster, banners, episode.title, config, table, db, r, ep, b_dir, g, blurred, episode.episode_number, episode.season_number)
                             else:
                                 logger.debug(title+' is the same')
-
-                        else:
-                            scan = module.scan_files(config, i, plex)
-                            audio = scan[0]
-                            hdr = str.lower(scan[1])
-                            logger.debug(hdr)
-                            if hdr == "":
-                                hdr = module.get_plex_hdr(i, plex)
-                            module.updateTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
                     else:
                         logger.debug('File not in Database')
-                        scan = module.scan_files(config, i, plex)
-                        audio = scan[0]
-                        hdr = str.lower(scan[1])
                         try:
-                            module.insert_intoTable(guid, guids, size, res, hdr, audio, tmp_poster, banners, title, config, table, db, r, i, b_dir, g, blurred, episode, season)
+                            module.insert_intoTable(episode.guid, episode.guids, episode.size, episode.resolution, hdr, audio, tmp_poster, banners, episode.title, config, table, db, r, ep, b_dir, g, blurred, episode.episode_number, episode.season_number)
                         except Exception as e:
                             logger.warning('Database decision: '+repr(e))
 
@@ -462,11 +442,11 @@ def tv_episode_poster(app, epwebhook, poster):
                             logger.debug('creating backup')
                             module.add_banner(tmp_poster, banner_bg, poster_size)
 
-                        if resolution == '4k' and banner_4k == False:
+                        if episode.resolution == '4k' and banner_4k == False:
                             module.add_banner(tmp_poster, banner_4k_icon, poster_size)
-                        elif resolution != '4k' and banner_4k == False:
+                        elif episode.resolution != '4k' and banner_4k == False:
                             logger.debug(img_title+' does not need 4k banner') 
-                        elif resolution == '4k' and banner_4k != False:
+                        elif episode.resolution == '4k' and banner_4k != False:
                             logger.debug(img_title+' has 4k banner')
 
                         if (
@@ -507,7 +487,7 @@ def tv_episode_poster(app, epwebhook, poster):
                     banner_decision(audio, hdr)
                 database_decision(r)             
 
-                if res == '4k' and config[0].films4kposters == 1:
+                if episode.resolution == '4k' and config[0].films4kposters == 1:
                     if banner_4k == False:
                         module.add_banner(tmp_poster, banner_4k_icon, poster_size)
                     else:
@@ -520,131 +500,146 @@ def tv_episode_poster(app, epwebhook, poster):
                     {'hdr': True}
                 ]
             }
-            for ep in tv.search(libtype='episode', guid=epwebhook, filters=advanced_filters):
-                try:
-                    logger.debug(ep.title)
-                    i = ep
-                    img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
-                    resolution = ep.media[0].videoResolution
-                    title = ep.title
-                    logger.info(img_title)
-                    guid = str(ep.guid)
-                    guids = str(ep.guids)
-                    size = ep.media[0].parts[0].size
-                    res = ep.media[0].videoResolution 
-                    hdr = module.get_plex_hdr(ep, plex)
-                    height = 720
-                    width = 1280
-                    if 'plex://' in guid:
-                        tmp_poster = re.sub('plex://episode/', '/tmp/', guid)+'.png'     
-                    elif 'local://' in guid:
-                        tmp_poster = re.sub('local://', '/tmp/', guid)+'.png'   
+            ep_guid = 'plex://episode/'+epwebhook
+            #for ep in tv.search(libtype='episode', guid=ep_guid, filters=advanced_filters):
+            key = [show.key for show in tv.search(guid=ep_guid, libtype='episode', filters=advanced_filters)]
+            n = len(key)
+            for x in range(n):
+                for ep in plex.fetchItems(key[x]):
+                    audio = ''
+                    try:
+                        if 'Atmos' in ep.media[0].parts[0].streams[1].extendedDisplayTitle:
+                            audio = 'Dolby Atmos'
+                        if (ep.media[0].parts[0].streams[1].title and 'DTS:X' in ep.media[0].parts[0].streams[1].title):
+                                    audio = 'DTS:X'
+                    except: pass
+                    else:
+                        audio = ep.media[0].parts[0].streams[1].displayTitle
 
-                    if (res == '4k' or hdr != 'none'):
-                        r = ep_table.query.filter(ep_table.guid == guid).all()
-                        if poster == "":
-                            tmp_poster = module.get_poster(i, tmp_poster, title, b_dir, height, width, r)
-                            tmp_poster = tmp_poster[0]
-                            blurred = False
-                        else:
-                            blurred = True
-                            tmp_poster = poster
-                        print(tmp_poster)
-                        table = ep_table
-                        g = [s for s in tv.search(libtype='show', guid=i.grandparentGuid)]
-                        g = str(g[0].guids)
-                        logger.debug(g)
-                        if 'plex://' in guid:
-                            bname = re.sub('plex://episode/', '', guid)
-                        else:
-                            bname = re.sub('local://', '', guid)
-                        banner_file = '/config/backup/tv/bannered_episodes/'+bname+'.png'
-                        try:
-                            if r[0].checked == 1:
-                                logger.info(ep.title+' has been checked, checking to see if the file has changed')
-                                if str(r[0].size) == str(size):
-                                        logger.info(title+' has been processed and the file has not changed, skiping scan')
-                                        new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                                        if new_poster != 'False':
-                                            decision_tree(tmp_poster)
-                                            r = ep_table.query.filter(ep_table.guid == guid).all()                               
-                                            module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
+                    episode = items.tv_processing(ep.title, ep.guid, ep.guids, ep.grandparentTitle, ep.index, ep.parentIndex, ep.media[0].parts[0].size, ep.media[0].videoResolution, ep.media[0].parts[0].streams[0].extendedDisplayTitle, audio, ep.media[0].parts[0].file)
+                    try:
+                        module.find_localMetadata
+                    except MetaDataError as e:
+                        logger.error(repr(e))
+                        errors.append(episode)
+                        continue
+                    try:
+                        logger.debug(episode.title)
+                        #i = ep
+                        img_title = ep.grandparentTitle+"_"+ep.parentTitle+"_"+ep.title
+                        logger.info(img_title)
+                        height = 720
+                        width = 1280
+                        if 'plex://' in episode.guid:
+                            tmp_poster = re.sub('plex://episode/', '/tmp/', episode.guid)+'.png'     
+                        elif 'local://' in episode.guid:
+                            tmp_poster = re.sub('local://', '/tmp/', episode.guid)+'.png'   
+
+                        if (episode.resolution == '4k' or "HDR" in episode.hdr):
+                            r = ep_table.query.filter(ep_table.guid == episode.guid).all()
+                            if poster == "":
+                                tmp_poster = module.get_poster(ep, tmp_poster, episode.title, b_dir, height, width, r)
+                                tmp_poster = tmp_poster[0]
+                                blurred = False
+                            else:
+                                blurred = True
+                                tmp_poster = poster
+                            table = ep_table
+                            g = [s for s in tv.search(libtype='show', guid=ep.grandparentGuid)]
+                            g = str(g[0].guids)
+                            if 'plex://' in episode.guid:
+                                bname = re.sub('plex://episode/', '', episode.guid)
+                            else:
+                                bname = re.sub('local://', '', episode.guid)
+                            banner_file = '/config/backup/tv/bannered_episodes/'+bname+'.png'
+                            try:
+                                if r[0].checked == 1:
+                                    logger.info(ep.title+' has been checked, checking to see if the file has changed')
+                                    if str(r[0].size) == str(size):
+                                            logger.info(title+' has been processed and the file has not changed, skiping scan')
+                                            new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
+                                            if new_poster != 'False':
+                                                decision_tree(tmp_poster)
+                                                r = ep_table.query.filter(ep_table.guid == episode.guid).all()                               
+                                                module.upload_poster(tmp_poster, episode.title, db, r, table, ep, banner_file)
+                                    else:
+                                        decision_tree(tmp_poster)
+                                        r = ep_table.query.filter(ep_table.guid == episode.guid).all()                          
+                                        module.upload_poster(tmp_poster, episode.title, db, r, table, ep, banner_file)
                                 else:
-                                    decision_tree(tmp_poster)
-                                    r = ep_table.query.filter(ep_table.guid == guid).all()                          
-                                    module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-                            else:
+                                    new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
+                                    if new_poster == 'False':
+                                        decision_tree(tmp_poster)
+                                        r = ep_table.query.filter(ep_table.guid == episode.guid).all()
+                                        module.upload_poster(tmp_poster, episode.title, db, r, table, ep, banner_file)
+
+
+
+                            except IndexError: 
                                 new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                                if new_poster == 'False':
+                                if new_poster != 'False':
                                     decision_tree(tmp_poster)
-                                    r = ep_table.query.filter(ep_table.guid == guid).all()
-                                    module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-
-
-
-                        except IndexError: 
-                            new_poster = module.check_for_new_poster(tmp_poster, r, ep, table, db)
-                            if new_poster != 'False':
-                                decision_tree(tmp_poster)
-                                r = ep_table.query.filter(ep_table.guid == guid).all()
-                                module.upload_poster(tmp_poster, title, db, r, table, i, banner_file)
-                        logger.debug(tmp_poster)
-                        rechk_banners = module.check_tv_banners(i, tmp_poster, img_title)
-                        logger.debug('Rechecked banners: '+str(rechk_banners))
-                        if (True in rechk_banners and config[0].backup == 1):
-                            module.add_bannered_poster_to_db(tmp_poster, db, title, table, guid, banner_file)
-                        try:
-                            os.remove(tmp_poster)
-                        except:
-                            pass
-                        try:
-                            logger.info("Season Poster")
-                            pguid = ep.parentGuid
-                            rs = season_table.query.filter(season_table.guid == pguid).all()
-                            if 'plex://' in guid:
-                                st = re.sub('plex://season/', '', pguid)
-                            else:
-                                st = re.sub('local://', '', pguid)
-                            season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
-                            logger.debug(season_poster)
-                            season_poster = module.get_season_poster(ep, season_poster, config)    
-                            new_poster = module.check_for_new_poster(season_poster, rs, i, table, db)
-                            size = (2000, 3000)
-                            s_banners = module.check_banners(season_poster, size)
-                            logger.debug('Season poster banners: '+str(s_banners))
-                            logger.debug('Season poster: '+str(new_poster))
-                            if ('True' in s_banners or new_poster != 'True'):
-                                logger.info('Skipping season poster')
-                            else:
-                                s_bak = '/config/backup/tv/seasons/'+st+'.png'
-                                for b in str(s_banners):
-                                    banner_index = b.find('True')
-                                if (banner_index < 0):
-                                    shutil.copy(season_poster, s_bak)
-                                    if os.path.exists(s_bak) != True:
-                                        raise Exception("Season poster has not copied")
-                                module.season_decision_tree(config, s_banners, ep, hdr, res, season_poster)
-                                banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
+                                    r = ep_table.query.filter(ep_table.guid == episode.guid).all()
+                                    module.upload_poster(tmp_poster, episode.title, db, r, table, ep, banner_file)
+                            logger.debug(tmp_poster)
+                            rechk_banners = module.check_tv_banners(ep, tmp_poster, img_title)
+                            logger.debug('Rechecked banners: '+str(rechk_banners))
+                            if (True in rechk_banners and config[0].backup == 1):
+                                module.add_bannered_poster_to_db(tmp_poster, db, episode.title, table, episode.guid, banner_file)
+                            try:
+                                os.remove(tmp_poster)
+                            except:
+                                pass
+                            try:
+                                logger.info("Season Poster")
+                                pguid = ep.parentGuid
+                                rs = season_table.query.filter(season_table.guid == pguid).all()
+                                if 'plex://' in pguid:
+                                    st = re.sub('plex://season/', '', pguid)
+                                else:
+                                    st = re.sub('local://', '', pguid)
+                                season_poster = re.sub(' ','_', '/tmp/'+st+'_poster.png')
+                                logger.debug(season_poster)
+                                season_poster = module.get_season_poster(ep, season_poster, config)    
+                                new_poster = module.check_for_new_poster(season_poster, rs, ep, table, db)
+                                size = (2000, 3000)
                                 s_banners = module.check_banners(season_poster, size)
-                                shutil.copy(season_poster, banner_file)
-                                if os.path.exists(banner_file) != True:
-                                    raise Exception("Season poster has not copied")
-                                title = ep.grandparentTitle
-                                table = season_table
-                                module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
-                                #db.session.close()                       
-                                for s in tv.search(guid=pguid, libtype='season'):
-                                    #r = season_table.query.filter(season_table.guid == pguid).all()
-                                    s.uploadPoster(filepath=season_poster)
-                                    #module.upload_poster(season_poster, title, db, rs, table, s, banner_file)
-                            #module.remove_tmp_files(season_poster)
-                        except Exception as e:
-                            logger.error("Season poster Error: "+repr(e))
-                            pass
-                except Exception as e:
-                    logger.error(i.title+ ' '+repr(e))
-            #module.clear_old_posters()  
+                                
+                                logger.debug('Season poster: '+str(new_poster))
+                                season_banners = str(s_banners.wide_banner)+str(s_banners.mini_banner)+str(s_banners.hdr_banner)+str(s_banners.audio_banner)
+                                logger.debug("season poster banners: "+season_banners)
+                                if ('True' in season_banners or new_poster != 'True'):
+                                    logger.info('Skipping season poster')
+                                else:
+                                    s_bak = '/config/backup/tv/seasons/'+st+'.png'
+                                    if 'True' not in season_banners:
+                                        shutil.copy(season_poster, s_bak)
+                                        if os.path.exists(s_bak) != True:
+                                            raise Exception("Season poster has not copied")
+                                    module.season_decision_tree(config, s_banners, ep, episode.hdr, episode.resolution, season_poster)
+                                    banner_file = '/config/backup/tv/bannered_seasons/'+st+'.png'
+                                    s_banners = module.check_banners(season_poster, size)
+                                    shutil.copy(season_poster, banner_file)
+                                    if os.path.exists(banner_file) != True:
+                                        raise Exception("Season poster has not copied")
+                                    title = ep.grandparentTitle
+                                    table = season_table
+                                    module.add_season_to_db(db, title, table, pguid, banner_file, s_bak) 
+                      
+                                    for s in tv.search(guid=pguid, libtype='season'):
+                                        s.uploadPoster(filepath=season_poster)
+                                module.remove_tmp_files(season_poster)
+                            except Exception as e:
+                                logger.error("Season poster Error: "+repr(e))
+                                pass
+                    except Exception as e:
+                        logger.error(episode.title+ ' '+repr(e))
+            module.clear_old_posters()  
             logger.info("tv Poster Script has finished")
+            if errors:
+                logger.error('The following files had metadata errors')
+                for error in errors:
+                    logger.error(error.show+': '+error.season_number+': '+error.title+' '+error.file)
             
         lib = config[0].tvlibrary.split(',')
         logger.debug(lib)
@@ -655,8 +650,8 @@ def tv_episode_poster(app, epwebhook, poster):
                     tv = plex.library.section(lib[l])
                     run_script()
             except IndexError:
-                pass        
-    
+                pass 
+
 def restore_episodes_from_database(app, b_dir):
     with app.app_context():    
         from app.models import Plex, ep_table
@@ -1012,7 +1007,6 @@ def restore_from_database(app):
         from app import db
         config = Plex.query.filter(Plex.id == '1')
         plex = PlexServer(config[0].plexurl, config[0].token)
-        films = plex.library.section('Films')
         def convert_data(data, file_name):
             with open(file_name, 'wb') as file:
                 file.write(data)
@@ -2094,7 +2088,7 @@ def maintenance():
 
 def collective4k(app):
     with app.app_context(): 
-        posters4k(app, '')
+        posters4k(app, '', '')
         from time import sleep
         sleep(5)
         from app.models import Plex
