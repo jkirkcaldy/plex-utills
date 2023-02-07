@@ -113,5 +113,5 @@ poster.png
 test*.py
 *support.zip
 *.json
-*.png
+
 *.ipynb
