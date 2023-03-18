@@ -28,7 +28,7 @@ def posters4k(webhooktitle, posterVar):
                     audio = item.getAudio(f, db)
                 tmpPoster, t = item.tmpPoster(f, mediaType)
                 poster = item.poster(f, tmpPoster, size)
-                newPoster = item.newPoster(f, poster, db)
+                newPoster = item.newPoster(f, poster, mediaType, t, db)
                 checked = process.checked(f, db)
                 if newPoster == True or checked == False:
                     posterBannerHash = banners.posterBannerHash(poster, size)
@@ -42,17 +42,17 @@ def posters4k(webhooktitle, posterVar):
                             process.addBanner(f, t, 'hdr', poster, size, mediaType, db)  
                         if hdr == 'hdr10' and hdr10Banner == False:
                             process.addBanner(f, t, 'hdr10', poster, size, mediaType, db)
-#
-                    #if ('atmos' in audio or 'dtsx' in audio):
-                    #    atmosBanner, dtsxBanner = banners.audioBannerCheck(posterBannerHash)
-                    #    if audio == 'atmos' and atmosBanner == False:
-                    #        process.addBanner(f, t, 'atmos', poster, size, mediaType, db)
-                    #    if audio == 'dtsx' and dtsxBanner == False:
-                    #        process.addBanner(f, t, 'dtsx', poster, size, mediaType, db)
-#
-                    #if f.resolution == '4k':
-                    #    wideBanner, mini4kBanner  = banners.resolutionBannerCheck(posterBannerHash)
-                    #    if config.mini4k == True and mini4kBanner == False:
-                    #        process.addBanner(f, t, 'mini4k', poster, size, mediaType, db)
-                    #    elif config.mini4k == False and wideBanner == False:
-                    #        process.addBanner(f, t, 'banner_4k', poster, size, mediaType, db)
+
+                    if ('atmos' in audio or 'dtsx' in audio):
+                        atmosBanner, dtsxBanner = banners.audioBannerCheck(posterBannerHash)
+                        if audio == 'atmos' and atmosBanner == False:
+                            process.addBanner(f, t, 'atmos', poster, size, mediaType, db)
+                        if audio == 'dtsx' and dtsxBanner == False:
+                            process.addBanner(f, t, 'dtsx', poster, size, mediaType, db)
+
+                    if f.media[0].videoResolution == '4k':
+                        wideBanner, mini4kBanner  = banners.resolutionBannerCheck(posterBannerHash)
+                        if config.mini4k == True and mini4kBanner == False:
+                            process.addBanner(f, t, 'mini_4k', poster, size, mediaType, db)
+                        elif config.mini4k == False and wideBanner == False:
+                            process.addBanner(f, t, 'banner_4k', poster, size, mediaType, db)

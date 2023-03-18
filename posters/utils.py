@@ -51,7 +51,7 @@ class banners:
     def baseHash(bannerType):
 
         if bannerType == 'banner_4k':
-            hash = "/static/banners/chk-4k.png"
+            hash = "static/banners/chk-4k.png"
         elif bannerType == 'mini_4k':
             hash = "static/banners/chk-mini-4k2.png"
         elif bannerType == 'hdr10':
@@ -165,10 +165,11 @@ class banners:
     def resolutionBannerCheck(posterBannerHash):
         if posterBannerHash[0] - banners.baseHash('banner_4k') <= 10:
             wideBanner = True
+        else: wideBanner = False
         if posterBannerHash[1] - banners.baseHash('mini_4k') <= 10:
             mini4kBanner = True 
+        else: mini4kBanner = False
         return wideBanner, mini4kBanner       
-
 
 class item:
     def getConfig():
@@ -319,7 +320,7 @@ class item:
         i.save()
         return str.lower(hdrVersion), str.lower(audio)
     
-    def newPoster(self, poster, db):
+    def newPoster(self, poster, mediaType, t, db):
 
         dbPoster = db.objects.filter(guid=self.guid).first()
         try:
@@ -331,17 +332,20 @@ class item:
         except: newPoster = True
      
         if newPoster == True:
+            name = mediaType+'/backup/'+t+'.png'
+            if file.file_exists(name) == True:
+                os.remove(settings.MEDIA_ROOT+'/'+name)
+            with open(poster, 'rb') as f:
+                f = default_storage.save(name, f)
             i = db.objects.filter(guid=self.guid).first()
-            i.poster = poster
+            i.poster = name
             i.save()
 
         return newPoster
 
-
-
 class process:
     def addBanner(self, t, bannerType, poster, size, mediaType, db):
-        processedPoster = Image.fromarray(cv2.imread(poster, cv2.IMREAD_UNCHANGED))
+        processedPoster = Image.open(poster) #Image.fromarray(cv2.imread(poster, cv2.COLOR_BGR2RGBA))
         processedPoster.resize(size,Image.LANCZOS)
         if mediaType != 'episode':
             banner = banners.bannerTemplate(bannerType)
@@ -349,11 +353,13 @@ class process:
             banner = banners.episodeBannerTemplate(bannerType)
         processedPoster.paste(banner, (0,0), banner)
         processedPoster.save(poster)
-        name = t+'.png'
+        name = mediaType+'/bannered/'+t+'_bannered.png'
+        if file.file_exists(name) == True:
+            os.remove(settings.MEDIA_ROOT+'/'+name)
         with open(poster, 'rb') as f:
             f = default_storage.save(name, f)
         dbPoster = db.objects.filter(guid=self.guid).first()
-        ##dbPoster.bannered_poster = 
+        dbPoster.bannered_poster = name
         dbPoster.checked = True
         dbPoster.save()
 
@@ -367,8 +373,44 @@ class process:
         size = self.media[0].parts[0].size
         res = self.media[0].videoResolution
         try:
-            i = db.objects.fitler(guid=self.guid).first()
-            print(i.title+" exists")
-        except:
+            media = db.objects.filter(guid=self.guid).first()
+            print(media.title+" exists")
+        except Exception as e:
+            print(repr(e))
             i = db(title=self.title, guid=self.guid, guids=self.guids, size=size, res=res, url=url)
             i.save()
+ 
+    def finalCheck(self, poster, size):
+        cropped = (1000,1500,2000,3000)
+        new_poster = cv2.imread(poster, cv2.IMREAD_ANYCOLOR)
+        new_poster = cv2.cvtColor(new_poster, cv2.COLOR_BGR2RGB)
+        new_poster = Image.fromarray(new_poster)
+        new_poster = new_poster.resize(size,Image.LANCZOS)
+        new_poster = new_poster.crop(cropped)
+
+        plex_poster = item.poster(self, 'tmp/check.png', size)
+        plex_poster = cv2.imread(plex_poster, cv2.IMREAD_ANYCOLOR)
+        plex_poster = cv2.cvtColor(plex_poster, cv2.COLOR_BGR2RGB)
+        plex_poster = Image.fromarray(plex_poster)
+        plex_poster = plex_poster.resize(size,Image.LANCZOS)
+        plex_poster = plex_poster.crop(cropped)
+
+        new_poster_hash = imagehash.average_hash(new_poster)
+        plex_poster_hash = imagehash.average_hash(plex_poster)
+
+        if new_poster_hash == plex_poster_hash:
+            return True
+        else:
+            return False
+        
+    def upload(self, file):
+        self.uploadPoster(filepath=file)
+
+        
+class file:
+    def file_exists(file):
+        try:
+            if os.path.exists(settings.MEDIA_ROOT+'/'+file) == True:
+                return True
+            else: return False
+        except: pass

@@ -48,7 +48,7 @@ class Plex(models.Model):
 
 class film(models.Model):
     title = models.CharField(max_length=200)
-    guid = models.CharField(max_length=200)
+    guid = models.CharField(max_length=200, unique=True)
     guids = models.CharField(max_length=200)
     size = models.CharField(max_length=200, null=True, blank=True)
     res = models.CharField(max_length=200, null=True, blank=True)
@@ -61,7 +61,7 @@ class film(models.Model):
 
 class episode(models.Model):
     title = models.CharField(max_length=200)
-    guid = models.CharField(max_length=200)
+    guid = models.CharField(max_length=200, unique=True)
     guids = models.CharField(max_length=200)
     size = models.CharField(max_length=200,null=True, blank=True)
     res = models.CharField(max_length=200, null=True, blank=True)
@@ -75,7 +75,7 @@ class episode(models.Model):
 
 class season(models.Model):
     title = models.CharField(max_length=200)
-    guid = models.CharField(max_length=200)
+    guid = models.CharField(max_length=200, unique=True)
     poster = models.ImageField(upload_to='seasons/posters/', null=True, blank=True)
     bannered_poster = models.ImageField(upload_to='seasons/bannered_posters/',null=True, blank=True)
     checked = models.BooleanField(null=True, blank=True)
