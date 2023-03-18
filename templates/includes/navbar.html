@@ -1,0 +1,117 @@
+
+{% load static %}
+<div id="content-wrapper" class="d-flex flex-column">
+
+    <!-- Main Content -->
+    <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+            <!-- Sidebar Toggle (Topbar) -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Topbar Search -->
+            <form
+                class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                        aria-label="Search" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ml-auto">
+
+                <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                <li class="nav-item dropdown no-arrow d-sm-none">
+                    <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-search fa-fw"></i>
+                    </a>
+                    
+                </li>
+
+                
+                <div class="topbar-divider d-none d-sm-block"></div>
+                <li class="nav-item dropdown no-arrow mx-1">
+                    <a class="nav-link dropdown-toggle" href="#" id="donateDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-credit-card fa-fw"></i>
+                    </a>
+                    <!-- Dropdown - Alerts -->
+                    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        aria-labelledby="donateDropdown">
+                        <h6 class="dropdown-header bg-gray-900" >
+                            Donate to help the development of Plex-Utills
+                        </h6>
+                        <a class="dropdown-item d-flex align-items-center" href="https://www.paypal.com/paypalme/jkirkcaldy">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-primary">
+                                    <i class="fab fa-paypal text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                               <span class="font-weight-bold" onclick="location='https://www.paypal.com/paypalme/jkirkcaldy'">Donate with Paypal</span>
+                            </div>
+                        </a>
+                        <a class="dropdown-item d-flex align-items-center" href="https://opencollective.com/themainframe">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-success">
+                                    <i class="fas fa-donate text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-weight-bold" onclick='location="https://opencollective.com/themainframe"'>Donate with Open Collective</span>
+                             </div>
+                        </a>
+                    </div>
+                </li>
+                <!-- Nav Item - User Information -->
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
+                        <img class="img-profile rounded-circle"
+                            src="{% static 'img/profile.png' %}">
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        aria-labelledby="userDropdown">
+                        {% if user.is_superuser %}
+                        <a class="dropdown-item" href="/admin">
+                            <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        {% endif %}
+                        
+
+                        
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Logout
+                        </a>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-item" href="{% url 'login' %}" data-toggle="modal" data-target="#loginModal">
+                        <i class="fa-solid fa-fingerprint text-gray-400"></i>
+                        Login
+                    </a>
+                </li>
+                {% endif %}
+
+            </ul>
+
+        </nav>
+        <!-- End of Topbar -->

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+              <!-- ENTER your content here -->
+
+
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+                    
+                      <h1 class="pt-5 pb-2">Help and useful information</h1>
+                        <p>If you are having trouble with scripts not running and you don't know why, some information here may help you figure it out.</p>
+                      
+                      <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Useful information is shown below:</h6>
+                        </div>                      
+                        <div class="card-body">  
+                          <div class="table-responsive">
+                            <table class="table table-bordered">
+                              {% for plex in plex %}
+                              <tr>
+                                <th scope="row">Plex URL</th>
+                                <td>{{ plex.plexurl }}</td>
+                              </tr>
+                              <tr>
+                                  <th scope="row">Plex Path</th>
+                                  <td>{{ plex.plexpath }}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Films Library</th>
+                                <td>{{ plex.filmslibrary }}</td>
+                              </tr>
+                              {% endfor %}     
+                              <tr>
+                                <th scope='row'>Version</th>
+                                <td>{{ version }}</td>
+                              </tr>                    
+                              
+                            </table>
+                          </div>
+                        </div>
+                      </div>                      
+                    </div>
+                  </div>
+
+                  <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Posters</h6>
+                    </div>
+                    <div class="card-body">
+                      <p>This will show you if there are any issues with your permissions or file paths</p>
+
+                      <p>This searches for the first 4K film in your library and shows you it's relative filepath. That is the file path that this container sees the file.</p>
+                      <p>The file path where Plex sees the film. </p>
+                      <p>The current poster, and the backup poster, if it exists.</p>
+
+                      <table class="table table-bordered">
+                        <tr>
+                          <th scope="row">Title</th>
+                          <td>{{ filmtitle }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" rowspan='2'>Plex Path</th>
+                            <td>{{ plex_filepath }}</td>
+                        </tr>
+                        <tr>
+                          <td>This is the path where your Plex Server sees your media</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" rowspan='2'>Plex-utills path</th>
+                          <td>{{ newdir }} </td>
+                        </tr>
+                        
+                        <tr>
+                          <td>This is the path where Plex-Utills expects to see your media sees your media. (Plex-Utills can see this file: {{ exists }})</td>
+                        </tr>                     
+                        <tr>
+                          <th scope="row" rowspan='2'>/films Content</th>
+                          <td>{{ mpath }}</td>
+                        </tr>      
+                        <tr>
+                          <td>This is the content of your /films directory inside Plex-utills. This is useful for figuring out whether you need to use the manual override for your plexpath.</td>
+                        </tr>                   
+                      </table>
+
+                        <div class='container'>
+                            <div class="row text-center text-lg-start">
+
+                                <div class="col-lg-3 col-md-4 col-6">
+                                    <a class="d-block mb-4 h-auto">
+                                        <h4>Current Poster</h4>
+                                        <img class="img-fluid img-thumbnail" src="{{ current_poster }}" alt="">
+                                    </a>
+                                </div>
+                                <div class="col-lg-3 col-md-4 col-6">
+                                    <a class="d-block mb-4 h-auto">
+                                        <h4>Backup Poster</h4>
+                                        <img class="img-fluid img-thumbnail" src="{{ backup_poster }}" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="card-body">
+                  <p>
+                      <a href="/export_support" class="btn btn-primary btn-icon-split" id="export_support">
+                          <span class="icon text-white-50">
+                            <i class="fas fa-cog"></i>
+                        </span>
+                          <span class="text">Export Support Files</span>
+                      </a>
+                  </p>
+              </div>
+                  
+              
+
+              <!--END of your content-->
+
+{% endblock %}

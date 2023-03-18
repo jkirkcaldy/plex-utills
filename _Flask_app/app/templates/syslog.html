@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+                        <!-- ENTER your content here -->  
+                        <div class="container">
+
+                            <div>                 
+                                <div>
+                                    <h2 align="center">Log file Output:</h2>
+                                    <div class="logging_window" id='logging_window'>
+                                        <pre id="output"></pre>
+                                    </div>                            
+                                </div>
+                            </div>
+                        </div>                                           
+{% endblock %}                              
+{% block scripts %}          
+<script>
+
+
+    setInterval(function read_log(){
+        fetch("{{ url_for('syslog_stream')  }}")
+        .then(x => x.text())
+        .then(y => document.getElementById("output").innerHTML = y); 
+    }, 1000);  
+
+</script>
+                                                       
+
+{% endblock %}

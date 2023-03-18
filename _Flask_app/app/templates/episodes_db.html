@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class=" mb-4">
+
+      <p>Here are the episodes in the plex-utills database. Clicking on a poster will restore that poster. </p>
+      <p>If you have changed a poster but it has not updated here, perform a full refresh (usually ctrl+Shift+R or ctrl+Shift+f5) of the page or clear your browser image cache.</p>
+      <p>
+        <a href="/restore_tv" class="btn btn-warning btn-icon-split" id="restore_all">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation"></i>
+          </span>
+            <span class="text">Restore All Episodes</span>
+        </a>
+    </p>
+</div>
+
+  <table id="ep_data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Show</th>
+        <th>Episode</th>
+        <th>Resolution</th>
+        <th>HDR Version</th>
+        <th>Audio Track</th>
+        <th>Poster</th>
+        <th>Bannered Poster</th>
+        <th>Checked</th>
+        <th>Blurred</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  
+  <div class="card-body">
+    <p>
+        <a href="/delete_tv_database" class="btn btn-warning btn-icon-split" id="delete_database">
+          <span class="icon text-white-50">
+            <i class="fas fa-exclamation"></i>
+        </span>
+          <span class="text">Delete database</span>
+      </a>
+    </p>
+</div>    
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+  $(document).ready(function () {
+    $('#ep_data').DataTable({
+      ajax: '/api/episodes',
+      serverSide: true,
+      columns: [
+        {data: 'show_season'},
+        {data: 'title'},
+        {data: 'res'},
+        {data: 'hdr'},
+        {data: 'audio'},
+        {data: 'poster', orderable: false},
+        {data: 'bannered_poster', orderable: false},
+        {data: 'checked'},
+        {data: 'blurred'},
+        {data: 'delete'}
+
+      ],
+    });
+  });
+</script>
+<script>
+  function searchFunction() {
+    var dt = $('#ep_data').DataTable();
+    //hide the first column
+
+    var version = document.getElementById("version")
+    if (version.innerText.includes("alpha") || version.innerText.includes("dev"))  {
+      dt.column(8).visible(true);
+      dt.column(7).visible(true);
+      console.log(version);
+    }
+    else
+    {
+      dt.column(8).visible(false);
+      dt.column(7).visible(false);
+    }
+  }
+  //window.onload = searchFunction
+</script>
+
+{% endblock %}

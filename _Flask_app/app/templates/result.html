@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+                    <!-- ENTER your content here -->
+                    
+        			<div class="container">
+        				<div class="row pb-5">
+        				  <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+                        
+        					  <h1 class="pt-5 pb-2">Result</h1>
+                        
+        				  {% if message %}
+                        
+        					  <!-- the form was submitted and message exists -->
+        					  <p class="lead"><strong>{{ message }}</strong></p>
+						  {% elif broken_posters %}
+
+								{% for poster in broken_posters %}
+								<p>{{poster}}</p><br>
+								{% endfor %}
+
+                        
+        				  {% else %}
+                        
+        					  <p class="lead">There is nothing for you here.</p>
+                        
+        				  {% endif %}
+
+						  {% if poster %}
+								<p>This is now your poster on Plex:</p>
+								<img src="{{ poster }}", width="200">
+								
+						  {% endif %}
+        					  <!-- links 
+        					  <p><a href="{{ url_for('config') }}">Return to the config page.</a></p>-->
+
+							  <p><a href="{{ url_for('index') }}">Return home.</a></p>
+						  
+                        
+        					  </div>
+        				  </div>
+        			  </div>
+                  
+                    <!--END of your content-->
+                  
+<script>
+
+</script> 
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+            function schedule_updater() {
+                qr=new XMLHttpRequest();
+                qr.open('get', "/update_schedules");
+                qr.send
+            }
+            window.onload = schedule_updater
+    </script>
+{% endblock %}

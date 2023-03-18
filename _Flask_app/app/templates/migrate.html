@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+      <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+        <h1 class="pt-5 pb-2">It looks like you've upgraded and need to migrate.</h1>
+        <p>Click the button below to migrate your install.</p>
+        <a href="{{ url_for('migrate') }}" class="btn btn-primary btn-icon-split" id="migrate">
+            <span class="icon text-white-50">
+                <i class="fas fa-map-signs"></i>
+            </span>
+            <span class="text">Migrate</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

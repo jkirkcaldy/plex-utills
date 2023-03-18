@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+<p>Go through your library to find blank/broken posters. If found it will automatically replace them with a poster from TheMovieDB. You must have an api key in the config for this to work. </p>
+
+<p>
+    <a href="{{ url_for('find_broken_films') }}" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-film"></i>
+        </span>
+        <span class="text">Films</span>
+    </a>
+</p>
+<p>
+    <a href="{{ url_for('find_broken_shows') }}" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-film"></i>
+        </span>
+        <span class="text">Shows</span>
+    </a>
+</p>
+<p>
+    <a href="{{ url_for('find_broken_seasons') }}" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-film"></i>
+        </span>
+        <span class="text">Seasons</span>
+    </a>
+</p>
+<p>
+    <a href="{{ url_for('find_broken_episodes') }}" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-film"></i>
+        </span>
+        <span class="text">Episodes</span>
+    </a>
+</p>
+</div>
+{% endblock %}

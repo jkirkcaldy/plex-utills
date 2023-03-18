@@ -1,0 +1,131 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+              <!-- ENTER your content here -->
+
+
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+                    
+                      <h1 class="pt-5 pb-2">Here is the schedule for your scripts:</h1>
+                    
+                      
+                      <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Enabled scripts are shown below:</h6>
+                        </div>                      
+                        <div class="card-body">  
+                          <div class="table-responsive">
+                            <table class="table table-bordered" id="schedules">
+                              {% for plex in plex %}
+                              <tr>
+                                <th scope="row">Plex URL</th>
+                                <td>{{ plex.plexurl }}</td>
+                              </tr>
+                              <tr>          
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="posters4k">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">4K/HDR Posters</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t1 }}</td>
+                                <td style="display:none;">{{ plex.posters4k }}</td>
+                              </tr>
+
+                              <tr>          
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="tvposters4k">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">TV 4K/HDR Posters</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t1 }}</td>
+                                <td style="display:none;">{{ plex.tv4kposters }}</td>
+                              </tr> 
+
+                              <tr>
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="posters3d">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">3D Posters</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t5 }}</td>
+                                <td style="display:none;">{{ plex.posters3d }}</td>
+                              </tr>
+                              <tr>
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="hide4k">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">Hide 4K</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t4 }}</td>
+                                <td style="display:none;">{{ plex.hide4k }}</td>
+                              </tr>
+                              <tr>
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="autocollections">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">Auto Collections</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t2 }}</td>
+                                <td style="display:none;">{{ plex.autocollections }}</td>
+                              </tr>
+                              <tr>
+                                <th socpe="row"><a href="" class="btn btn-primary btn-icon-split" id="spoilers">
+                                  <span class="icon text-white-50">
+                                      <i class="fas fa-film"></i>
+                                  </span>
+                                  <span class="text">TV Spoilers</span>
+                                  </a>
+                                </th>
+                                <td>{{ plex.t3 }}</td>
+                                <td style="display:none;">{{ plex.spoilers }}</td>
+                              </tr>
+
+                              {% endfor %}
+                            </table>
+                          </div>
+                        </div>
+                      </div>                      
+                    </div>
+                  </div>
+
+                </div>
+{% endblock %}
+
+{% block extra_js %}
+
+          
+
+<script>
+
+  function searchFunction() {
+        var input, filter, table, tr, td, i, txtValue;
+  
+        filter = "1";
+        table = document.querySelector(".table");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+           td = tr[i].getElementsByTagName("td")[1];
+           if (td) {
+              txtValue = td.textContent || td.innerText;
+              if (txtValue.indexOf(filter) > -1) {
+                 tr[i].style.display = "";
+              } else {
+                 tr[i].style.display = "none";
+              }
+           }
+        }
+     }
+  window.onload = searchFunction
+  </script>
+{% endblock %}

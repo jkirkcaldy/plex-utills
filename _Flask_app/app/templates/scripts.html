@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% block content %}
+                    <!-- ENTER your content here -->
+                    <!-- Page Content -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">4K/HDR Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_posters4k') }}" class="btn btn-primary btn-icon-split" id="posters4k">
+                <span class="icon text-white-50">
+                    <i class="fas fa-film"></i>
+                </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p>This script will go through your library and add a 4k banner to your posters. Configurable options include:</p>
+        <ul>
+            <li>Selecting full width banners or mini corner banners</li>
+            <li>enabling HDR banners</li>
+            <li>Backup your original posters alongside your media</li>
+        </ul>
+        <div class='container'>
+            <h2 class="fw-light text-center text-lg-start mt-4 mb-0">Available Banners</h2>
+            <hr class="mt-2 mb-5">
+            <h5>The 4K/3D banners will be combined with the HDR posters if they are enabled.</h5>
+            <p>
+                &nbsp
+            </p>
+            <hr class="mt-2 mb-5">
+            <div class="row text-center text-lg-start">
+
+                    <div class="column">
+                        <h4>4K Banner</h4>
+                        <img class="img-fluid img-thumbnail" src="/static/img/Examples/4k_banner.png" alt="">
+                    </div>
+
+
+                <div class='column'>
+                    <h4>Mini 4K Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/mini4k.png" alt="">
+                </div>
+
+
+                    <div class='column'>
+                        <h4>Old HDR Banner</h4>
+                        <img class="img-fluid img-thumbnail" src="/static/img/Examples/old_hdr.png" alt="">
+                    </div>
+
+            </div>
+            <div class="row text-center text-lg-start">
+                <div class='column'>
+                    <h4>New Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/new_hdr.png" alt="">
+                </div>
+
+                <div class='column'>
+                    <h4>Dolby Vision Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/DV.png" alt="">
+                </div>
+
+                <div class='column'>
+                    <h4>HDR10 Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/new_hdr10.png" alt="">
+                </div>
+            </div>
+        </div>
+    
+    
+    
+    </div>
+</div>
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">TV 4K/HDR Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_tvposters4k') }}" class="btn btn-primary btn-icon-split" id="tvposters4k">
+                <span class="icon text-white-50">
+                    <i class="fas fa-film"></i>
+                </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p>This script will go through your TV Shows and add a 4k banner to your posters. Configurable options follow the same options as your Movie posters.</p>
+
+        <div class='container'>
+            <h2 class="fw-light text-center text-lg-start mt-4 mb-0">Example</h2>
+            <hr class="mt-2 mb-5">
+            <div class="text-center">
+
+                <img class="img-fluid " src="/static/img/Examples/tv_example.png" alt="" style="width:640px;height:360px">
+
+            </div>
+
+        </div>
+    
+    
+    
+    </div>
+</div>
+
+
+
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">3D Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_posters3d') }}" class="btn btn-primary btn-icon-split">
+                <span class="icon text-white-50">
+              <i class="fas fa-film"></i>
+          </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p></p>
+        <p>Much like the 4K poster script, this will go through your films and add a 3D banner to your films. Currently as Plex has no support for labelling content as 3D this will only work for 3D films keptin a separate library. You can configure the script to have full width banners or the mini corner banners.</p>
+        <p></p>
+        <div class="text-center">
+            <div class="row">
+                <div class="column">
+                    <h4>3D Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/3D_banner.png" alt="">
+                </div>
+
+                <div class="column">
+                    <h4>Mini 3D Banner</h4>
+                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/mini3d.png" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Restore Film Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_restore') }}" class="btn btn-primary btn-icon-split">
+                <span class="icon text-white-50">
+              <i class="fas fa-film"></i>
+          </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p></p>
+        <p>If you don't like the banners or want to try a different style, this script will restore your posters. First it will try to restore from a local backup, if this isn't enabled or a poster doesn't have a local backup file for whatever reason it will fallback to themoviedb to find a poster for you.</p>
+        <p></p>
+        <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Restore TV Posters</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_episode_restore') }}" class="btn btn-primary btn-icon-split">
+                <span class="icon text-white-50">
+              <i class="fas fa-film"></i>
+          </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p></p>
+        <p>If you don't like the banners or want to try a different style, this script will restore your posters. First it will try to restore from a local backup, if this isn't enabled or a poster doesn't have a local backup file for whatever reason it will fallback to themoviedb to find a poster for you.</p>
+        <p></p>
+        <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Hide 4K</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_hide4k') }}" class="btn btn-primary btn-icon-split" id="hide4k">
+                <span class="icon text-white-50">
+                  <i class="fas fa-film"></i>
+              </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p>For those of you who don't separate your 4K and non-4K content into separate libraries. This script will go through your films library and add an "Untranscodable" tag to any of your films that only have a single 4K copy of the film available. By adding this tag to your users restrictions, they simply won't see these 4K films giving your hardware a break.</p>
+        <p></p>
+        <p>If your hardware is powerful enough, there is the option to create an optimized version so that your users can play this version. This will send your film to be optimized with the Plex optimize feature baked directly into Plex. This means all the hardwork is done by your plex server, (useful if you're hosting these scripts on a lower powered device.) Once the transcode has finished, the untranscodable tag will be removed the next time the script runs and your users will be able to see the film.</p>
+        <p></p>
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Auto Collections</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_autocollections') }}" class="btn btn-primary   btn-icon-split" id="autocollections">
+                <span class="icon text-white-50">
+                    <i class="fas fa-film"></i>
+                </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <h3>TMDB api key needed to use this script</h3>
+        <p>This script will create a "Popular", "Top Rated" and a "Recommended" collection. The idea being that you should set these collections to be visible on your and your users home pages for easier content discovery.</p>
+        <p>As the films in these collections will change over time this is designed to be a good place to find content quickly, without having to dig through your library. Especially useful for those with large libraries.</p>
+        <p>The "Top Rated" and "Popular" Collections are based on the TheMovieDb user votes. The Reccomended collection takes the film with the highest play count from your server and shows recommended movies based on that film.</p>
+
+        <p></p>
+        <p>This is now the script that will create the Disney, Pixar and Marvel Cinematic Universe collections. These can be individually toggled in the config options page.</p>
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Hide Spoilers</h6>
+    </div>
+    <div class="card-body">
+        <p>
+            <a href="{{ url_for('run_tvspoilers') }}" class="btn btn-primary btn-icon-split" id="spoilers">
+                <span class="icon text-white-50">
+                  <i class="fas fa-film"></i>
+              </span>
+                <span class="text">Run Script</span>
+            </a>
+        </p>
+        <p>This script will go through your TV posters and blur the thumbnail for all the unwatched episodes. A Backup will be made in the database and restored once the episode has been watched.</p>
+        <p></p>
+        <p>The blur will be removed either once the script runs again as scheduled. Alternatively you can set up a Tautulli webhook that will remove the blur as soon as the episode has been watched.</p>
+    </div>
+</div>
+
+{% endblock %}

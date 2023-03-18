@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% from 'bootstrap4/form.html' import render_form, render_field %}
+{% block content %}
+
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row pb-5">
+                          <div class="col-lg-10 mx-lg-auto">
+                            
+                            <h1 class="pt-5 pb-2">
+                              Plex-Utills
+                            </h1>
+                        
+                        
+                              <p class="lead alert alert-success">Edit your config data.</p>
+                        
+                        
+                                   {% with errors = get_flashed_messages() %}
+                                       {% if errors %}
+                                           {% for err in errors %}
+                                           <div class="alert alert-danger alert-dismissible" role="alert">
+                                               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                               {{ err }}
+                                           </div>
+                                           {% endfor %}
+                                       {% endif %}
+                                   {% endwith %}
+                                   <form method="post" action="{{ url_for('config_options') }}" id="update">
+                                            {{ form.csrf_token }}
+                                            {{ form.id_field(value=plex.id) }}
+                                            <h2>Options</h2>   
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            <h3>Poster Scripts</h3>       
+                                            {{ render_field(form.skip_media_info, value=plex.skip_media_info) }}
+                                            {{ render_field(form.posters4k, value=plex.posters4k) }}  
+                                            {{ render_field(form.audio_posters, value=plex.audio_posters) }}                                                                            
+                                            {{ render_field(form.films4kposters, value=plex.films4kposters) }}
+                                            {{ render_field(form.tv4kposters, value=plex.tv4kposters) }}                                            
+                                            {{ render_field(form.mini4k, value=plex.mini4k) }}
+                                            {{ render_field(form.hdr, value=plex.hdr ) }}
+                                            {{ render_field(form.recreate_hdr, value=plex.recreate_hdr) }}
+                                            {{ render_field(form.posters3d, value=plex.posters3d) }}
+                                            {{ render_field(form.mini3d, value=plex.mini3d) }}
+                                            <h3>Collections</h3>
+                                            {{ render_field(form.autocollections, value=plex.autocollections) }}
+                                            {{ render_field(form.tr_r_p_collection, value=plex.tr_r_p_collection) }}
+                                            {{ render_field(form.disney, value=plex.disney) }}
+                                            {{ render_field(form.pixar, value=plex.pixar) }}
+                                            {{ render_field(form.mcu_collection, value=plex.mcu_collection) }}
+                                            {{ render_field(form.default_poster, value=plex.default_poster) }}
+                                            <h3>Utilities</h3>
+                                            {{ render_field(form.hide4k, value=plex.hide4k) }}
+                                            {{ render_field(form.transcode, value=plex.transcode) }}
+                                            {{ render_field(form.spoilers, value=plex.spoilers) }}
+                                            <p></p>
+                                            <hr class="sidebar-divider">
+                                            <p></p>
+                                            {{ render_field(form.submit, button_map={'submit':'success'}) }}
+                                            
+                                  </form>
+                              </div>
+                            
+                          </div>
+                      </div>
+
+{% endblock %}

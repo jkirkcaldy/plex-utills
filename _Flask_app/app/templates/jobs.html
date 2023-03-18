@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<div class="col-xs-6" style="padding:15px">
+    <div class="table-responsive">
+      <table class="table" id ='data'>
+        <tr>
+            <th>Threads</th>
+            <th></th>
+        </tr>
+  
+        <!-- here is a for-loop to give us all the socks -->
+        {% for thread in t_name %}
+        <tr>
+            <td>{{ thread }}</td>
+            <td> <a href="/kill/{{thread}}" class="btn btn-primary btn-icon-split">
+                <span class="text">Kill Thread</span>
+                </a></td>
+        </tr>
+        {% endfor %} 
+      </table>
+    </div>
+</div>
+
+ 
+{% endblock %}      
