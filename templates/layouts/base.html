@@ -18,13 +18,15 @@
 
     <!-- Custom fonts for this template-->
     <link rel="icon" type="image/x-icon" href="{% static '/img/favicon/favicon.ico' %}">
-    <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/plex-utills.css' %}" rel="stylesheet">    
-    <link href="https:////cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel=""stylesheet type="text/css">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/brands.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/datatables/css/dataTables.bootstrap5.css' %}">
+    <!--<link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">-->
+    <link href="{% static 'css/plex-utils.css' %}" rel="stylesheet">    
+
     
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 
     {% endblock %}
     <title>Plex-Utills</title>
@@ -33,6 +35,31 @@
 
 <body id='page-top'>
     <div id="wrapper">
+        <script>
+
+            const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+            darkThemeMq.addListener(e => {
+             if (e.matches) {
+                body.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+             } else {
+                document.documentElement.removeAttribute('checked')
+                body.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+              }
+            });
+            const theme = localStorage.getItem('theme');
+            
+            document.documentElement.setAttribute('data-bs-theme', theme)
+            const body = document.getElementsByTagName('body')[0];
+            if (theme == 'dark'){
+                body.classList.add('dark');
+            } else {
+                document.documentElement.removeAttribute('checked')
+                body.classList.remove('dark');
+            };
+        </script>
+        
         {% block sidebar %}
         {% include 'includes/sidebar.html' %}
         {% endblock %}

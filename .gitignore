@@ -115,3 +115,4 @@ test*.py
 *.json
 
 *.ipynb
+/mediafiles/*

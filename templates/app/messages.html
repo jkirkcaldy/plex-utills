@@ -1,0 +1,20 @@
+{% if message %}
+    {% if tag == 'success' %}
+    <div class="alert alert-success alert-dismissible" id="message" role="alert">
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <p id='message_content'>{{message}}</p>
+    </div>
+    {% elif tag == 'error' %}
+    <div class="alert alert-danger alert-dismissible" id="message" role="alert">
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h5>Error</h5>
+        <p id='message_content'>{{message}}</p>
+    </div>
+    {% else %}
+    <div class="alert alert-warning alert-dismissible" id="message" role="alert">
+        <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h5>Error</h5>
+        <p id='message_content'>{{message}}</p>
+    </div>
+    {% endif %}
+{% endif %}

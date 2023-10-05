@@ -1,28 +1,42 @@
-from django.urls import path, include
-from . import views
+from django.urls import path
+from api import api
+from posters import views
 from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
     path('', views.index, name='index'),
-
-    path('search', views.search, name='search'),
     
     # config
-    path('config', views.config, name='config'),
-    path('config_options', views.config_options, name='config_options'),
+    #path('config', views.config, name='config'),
+    #path('config_options', views.config_options, name='config_options'),
     # scripts
     path('run_scripts', views.run_scripts, name='run_scripts'),
-    path('script_logs', views.script_logs, name='script_logs'),
-    path('application_logs', views.application_logs, name='application_logs'),
-    path('help', views.help, name='help'),
 
+
+    
+    path('help', api.help, name='help'),
     path('get_films', views.get_films, name='get_films'),
     path('get_shows', views.get_shows, name='get_shows'),
-    path('get_db_films', views.get_db_films, name='get_db_films'),
-    path('get_db_shows', views.get_db_shows, name='get_db_shows'),
-    path('get_db_seasons', views.get_db_seasons, name='get_db_seasons'),    
-    path('get_db_episodes', views.get_db_episodes, name='get_db_episodes'),    
+    path('get_seasons', views.get_seasons, name='get_seasons'),
+    path('get_episodes', views.get_episodes, name='get_episodes'),
+    
+    path('get_plex_films', views.get_plex_films, name='get_plex_films'),
+    path('get_plex_shows', views.get_plex_shows, name='get_plex_shows'),
+    path('get_plex_seasons/<path:guid>', views.get_plex_seasons, name='get_plex_seasons'),
+    path('get_plex_episodes/<path:guid>', views.get_plex_episodes, name='get_plex_episodes'),
+
+    
+    # Database
+
+    path('reprocess_film/<path:var>', views.help, name='reprocess_film'),
+    path('delete_film/<path:var>', views.help, name='delete_film'),
+    
+
+    path('info/<path:var>', views.info, name='info'),
+    
+
+
 
     # Authentication
     path('auth/register/', views.UserRegistrationView.as_view(), name='register'),

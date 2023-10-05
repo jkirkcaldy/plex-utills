@@ -1,0 +1,52 @@
+server {
+    listen 80 ;
+
+    gzip on;
+    access_log /logs/nginx/plex-utills.access.log;
+
+    error_log  /logs/nginx/plex-utills.error.log  warn;
+
+    location /static/ {
+        alias /plex-utils/static/;
+    }
+    location /protected/ {   
+        internal;   
+        alias /config/ ;
+    }
+
+
+    location / {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+        include /etc/nginx/sites-enabled/uwsgi_conf;
+        uwsgi_pass 127.0.0.1:5000;
+    }
+}
+
+#server {
+#    listen 80;
+#    gzip on;
+#
+#    access_log /logs/nginx/plex-utills.access.log;
+#
+#    error_log  /logs/nginx/plex-utills.error.log  warn;
+#
+#    location /static/ {
+#        alias /home/josh/plex-utills/static/;
+#    }
+#    location /protected/ {   
+#        internal;   
+#        alias /config/ ;
+#    }
+#
+#
+#    location / {
+#        add_header 'Access-Control-Allow-Origin' '*';
+#        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+#        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+#        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+#        proxy_pass http://127.0.0.1:5000;
+#    }    
+#}

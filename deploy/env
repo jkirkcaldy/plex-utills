@@ -1,0 +1,52 @@
+## Set to production for deployment
+DJANGO_SETTINGS_MODULE="Glympse.settings.production"
+
+# Insert your own secret key
+SECRET_KEY="django-insecure-nj5_!3tuzwgoqrp)9^027_x$*ll!9g-=@520cimslud+bkh&pa"
+
+# Change this to obsure your admin page from bots etc
+SECRET_ADMIN_URL=secret_admin_key
+
+# Change these to your domain
+CSRF_TRUSTED_ORIGINS="http://127.0.0.1"
+
+ALLOWED_HOSTS="127.0.0.1"
+
+# Database info, if left blank it will default to a local sqlite database which is not recommended for production
+SQL_ENGINE="django.db.backends.postgresql_psycopg2"
+SQL_DATABASE="glympse"
+SQL_USER="glympse"
+SQL_PASSWORD="<password>"
+SQL_HOST="postgres"
+SQL_PORT="5432"
+
+# Mail Host settings, must be set up for user verification emails to work
+EMAIL_HOST=""
+EMAIL_PORT="25"
+EMAIL_USE_TLS="False"
+EMAIL_HOST_USER=""
+EMAIL_HOST_PASSWORD=""
+DEFAULT_FROM_EMAIL=""
+
+ALLOWED_EMAIL_DOMAINS="rawcut.tv,tomos.tv"
+
+# Redis url
+REDIS_HOST="redis://redis:6379"
+
+ADMIN_USERNAME="admin"
+ADMIN_EMAIL="admin@example.co.uk"
+ADMIN_PASSWORD="<password>"
+
+LOG_LEVEL="DEBUG"
+
+TIMEZONE="Europe/London"
+
+POSTGRES_USER="postgres"
+POSTGRES_DB="postgres"
+POSTGRES_PASSWORD="<password>"
+PGADMIN_DEFAULT_EMAIL="admin@example.co.uk"
+PGADMIN_DEFAULT_PASSWORD="<password>"
+
+MICROSOFT_AUTH_CLIENT_ID=''
+MICROSOFT_AUTH_CLIENT_SECRET=''
+MICROSOFT_AUTH_TENANT_ID=''

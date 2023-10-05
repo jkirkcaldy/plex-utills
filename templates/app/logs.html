@@ -1,0 +1,95 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+
+    <!-- ENTER your content here -->  
+
+    <div class="card my-4">
+        <div class="card-header text-dark">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="tasks">
+                  <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks-tab-pane" type="button" role="tab" aria-controls="tasks-tab-pane" aria-selected="false">Tasks</button>
+                </li>
+                <li class="nav-item" role="system">
+                  <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system-tab-pane" type="button" role="tab" aria-controls="system-tab-pane" aria-selected="false">System</button>
+                </li>
+                <li class="nav-item" role="access">
+                  <button class="nav-link" id="access-tab" data-bs-toggle="tab" data-bs-target="#access-tab-pane" type="button" role="tab" aria-controls="access-tab-pane" aria-selected="false">Nginx Access</button>
+                </li>
+                <li class="nav-item" role="error">
+                  <button class="nav-link" id="error-tab" data-bs-toggle="tab" data-bs-target="#error-tab-pane" type="button" role="tab" aria-controls="error-tab-pane" aria-selected="false">Nginx Error</button>
+                </li>
+              </ul>
+        </div>
+        <div class="card-body logging_window text-primary">
+            <div class="tab-content logging_window" id="'logging_window">
+                <div class="tab-pane fade show active" id="tasks-tab-pane" role="tabpanel" aria-labelledby="tasks-tab" tabindex="0"><pre id="tasks_output"></pre></div>
+                <div class="tab-pane fade" id="system-tab-pane" role="tabpanel" aria-labelledby="system-tab" tabindex="0"><pre id="system_output"></pre></div>
+                <div class="tab-pane fade" id="access-tab-pane" role="tabpanel" aria-labelledby="access-tab" tabindex="0"><pre id="nginx_access_output"></pre></div>
+                <div class="tab-pane fade" id="error-tab-pane" role="tabpanel" aria-labelledby="error-tab" tabindex="0"><pre id="nginx_error_output"></pre></div>
+            </div>  
+        </div>                  
+    </div>
+        {% if task_id %}
+        <div class='progress-wrapper'>
+        <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+        <div id="progress-bar-message">Waiting for progress to start...</div>  
+        </div>
+        {% endif %}                                     
+{% endblock %}        
+                
+{% block extra_js %}   
+{% load static %}
+{% if task_id %}
+<script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+<script type="text/javascript">
+	// Progress Bar (JQuery)
+	$(function () {
+		var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+		CeleryProgressBar.initProgressBar(progressUrl, {})
+	});
+</script>   
+{% endif %}    
+<script> 
+    $(document).ready(function(){
+      $('.nav-tabs button[data-bs-target="#tasks-tab-pane"]').tab('show');
+    });
+      $('.nav-tabs button').on('shown.bs.tab', function(event){
+        var x = $(event.target).text();
+        if (x == 'Tasks') {
+          var intervalId = setInterval(read_task_log, 1000);
+        } else if (x == 'System') {
+          var intervalId = setInterval(read_system_log, 1000);
+        } else if (x == 'Nginx Access') {
+          var intervalId = setInterval(read_access_log, 1000);
+        } else if (x == 'Nginx Error') {
+          var intervalId = setInterval(read_error_log, 1000);
+        };
+        function read_task_log(){
+          fetch("{% url 'api:getTaskLogs'  %}")
+          .then(x => x.text())
+          .then(y => document.getElementById("tasks_output").innerHTML = y); 
+        };
+        function read_system_log(){
+            fetch("{% url 'api:getSystemLogs'  %}")
+            .then(x => x.text())
+            .then(y => document.getElementById("system_output").innerHTML = y); 
+        };
+        function read_access_log(){
+          fetch("{% url 'api:getNginxAccessLogs' %}")
+          .then(x => x.text())
+          .then(y => document.getElementById("nginx_access_output").innerHTML = y); 
+        };
+        function read_error_log(){
+          fetch("{% url 'api:getNginxErrorLogs'  %}")
+          .then(x => x.text())
+          .then(y => document.getElementById("nginx_error_output").innerHTML = y); 
+        };
+        $('.nav-tabs button').on('shown.bs.tab', function(event){
+          clearInterval(intervalId);
+        });
+      });
+
+</script>
+{% endblock %}

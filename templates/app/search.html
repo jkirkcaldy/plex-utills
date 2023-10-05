@@ -1,18 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block content %}
 <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
     <p>Search through the backup database for content. Here you can see what the backup posters and the bannered posters are. </p>
 
     <div class="form-group">
-        <form method="post" action="{{ url_for('search') }}" id="search">
-        <input class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search}}" />
+        <form method="post" action="{% url 'api:search' %}" id="search">
+            {% csrf_token %}
+        <input name='q' class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search}}" />
         </form>
     </div>
     
-    {% for message in get_flashed_messages() %}
+
     <div class=flash>
         {{ message }}
     </div>
-    {% endfor %}
+
 </div>
 {% endblock %}

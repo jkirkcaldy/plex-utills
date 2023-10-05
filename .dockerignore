@@ -13,3 +13,4 @@ test*.py
 Changelog*
 *support.zip
 *.ipynb
+/mediafiles/*

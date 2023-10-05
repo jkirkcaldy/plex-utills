@@ -14,25 +14,10 @@
             <span>Home</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="{% url 'search'  %}">
+      <a class="nav-link" href="{% url 'api:search'  %}">
           <i class="fas fa-fw fa-search"></i>
           <span>Search</span></a>
     </li>      
-    <!-- Nav Item - Config Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-            aria-expanded="true" aria-controls="collapseTwo">
-            <i class="fas fa-fw fa-cogs"></i>
-            <span>Config</span>
-        </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Config Pages:</h6>
-                <a class="collapse-item" href="{% url 'config'  %}">Server Config</a>
-                <a class="collapse-item" href="{% url 'config_options'  %}">Config Options</a>
-            </div>
-        </div>
-    </li>   
       <li class="nav-item">
         <a class="nav-link" href="{% url 'run_scripts'  %}">
             <i class="fas fa-fw fa-play"></i>
@@ -40,18 +25,10 @@
       </li>       
       <hr class="sidebar-divider"> 
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'script_logs'  %}">
+        <a class="nav-link" href="{% url 'api:logs'  %}">
             <i class="fas fa-fw fa-file"></i>
-            <span>Script Logs</span></a>
+            <span>Logs</span></a>
       </li>               
-
-           
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'application_logs'  %}">
-            <i class="fas fa-fw fa-file"></i>
-            <span>Application Logs</span></a>
-      </li>               
-
       <hr class="sidebar-divider">              
       <li class="nav-item">
         <a class="nav-link" href="{% url 'help'  %}">
@@ -59,12 +36,12 @@
             <span>Help</span></a>
       </li>   
       <li class="nav-item">
-          <a class="nav-link" href="{% url 'get_films'  %}">
+          <a class="nav-link" href="{% url 'get_plex_films'  %}">
               <i class="fas fa-fw fa-film"></i>
               <span>Films</span></a>
         </li>     
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'get_shows' %}">
+          <a class="nav-link" href="{% url 'get_plex_shows' %}">
               <i class="fas fa-fw fa-tv"></i>
               <span>TV Shows</span></a>
         </li>           
@@ -72,17 +49,18 @@
  
       <!-- Nav Item - Config Collapse Menu -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree"
-            aria-expanded="true" aria-controls="collapseThree">
+        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages"
+        aria-expanded="true" aria-controls="collapsePages">
             <i class="fas fa-fw fa-cogs"></i>
             <span>Plex-Utills Database</span>
         </a>
-        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
+        <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-bs-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Library Pages:</h6>
-                <a class="collapse-item" href="{% url 'get_db_films'  %}">Films</a>
-                <a class="collapse-item" href="{% url 'get_db_seasons'  %}">Seasons</a>
-                <a class="collapse-item" href="{% url 'get_db_episodes'  %}">Episodes</a>
+                <a class="collapse-item" href="{% url 'get_films'  %}">Films</a>
+                <a class="collapse-item" href="{% url 'get_shows'  %}">Shows</a>
+                <a class="collapse-item" href="{% url 'get_seasons'  %}">Seasons</a>
+                <a class="collapse-item" href="{% url 'get_episodes'  %}">Episodes</a>
             </div>
         </div>
   </li>                                  

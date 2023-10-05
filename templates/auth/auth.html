@@ -1,0 +1,116 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Auth {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+{% block content %}
+        <!-- Outer Row -->
+        <div class="row justify-content-center">
+
+            <div class="col-xl-10 col-lg-12 col-md-9">
+
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <!-- Nested Row within Card Body -->
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+
+                                    <form class="user" method="POST", action="{{ request.path}}">
+                                        {{ form.csrf_token }}
+
+                                        {% with messages = get_flashed_messages(with_categories=true) %}
+                                        <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+                                        {% if messages %}
+                                        {% for category, message in messages %}
+                                        <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">x</button>
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                        {% endwith %}
+                                        
+                                        {% if request.path == '/register/' %}
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Register!</h1>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            {{ form.name(class_="form-control form-control-user",placeholder="Name")}}
+                                        </div>
+                                        {% for error in form.name.errors %}
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            {{ error }}
+                                            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div>
+                                        {% endfor%}
+
+                                        {% elif request.path != '/register/' %}
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                        </div>
+                                        {% endif %}
+                                        <div class="form-group">
+                                            {{ form.email(class_="form-control form-control-user",placeholder="Enter Email Address...")}}
+                                        </div>
+                                        <div class="form-group">
+                                            {{ form.pwd(class_="form-control form-control-user",placeholder="Password")}}
+                                        </div>
+
+                                        {% for error in form.pwd.errors %}
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            {{ error }}
+                                            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div> 
+                                        {% endfor%}
+                                        {% if request.path == '/register/' %}
+                                        <div class="form-group mb-3">
+                                            {{ form.cpwd(class_="form-control form-control-user",placeholder="Confirm Password")}}
+                                        </div>
+                                        {% for error in form.cpwd.errors %}
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            {{ error }}
+                                            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        </div> {% endfor%}
+                                        {% else %}
+
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small">
+                                                {{ form.rem }}
+                                                <label>Remember Me</label>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        <button type="submit" class="btn btn-primary btn-user btn-block"> {{ btn_action }} </button>
+                                        <hr>
+                                    </form>
+                                    {% if request.path != '/register/' %}
+                                    <hr>
+                                    
+                                    <div class="text-center">
+                                        <a class="small" href="forgot-password">Forgot Password?</a>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <a class="small" href="/register/">Create an Account!</a>
+                                    </div>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endblock content %}
+
+    <!-- Specific Page JS goes HERE  -->
+    {% block javascripts %}{% endblock javascripts %}

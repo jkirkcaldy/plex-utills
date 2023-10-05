@@ -1,14 +1,16 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block content %}
-                    <!-- ENTER your content here -->
-                    <!-- Page Content -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">4K/HDR Posters</h6>
+
+<div class="card shadow my-4 p4">
+    <div class="card-header py-3 align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary d-inline-block">4K/HDR Posters</h6>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
+        </div>
     </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_posters4k') }}" class="btn btn-primary btn-icon-split" id="posters4k">
+            <a href="{% url 'api:posters4k' %}" class="btn btn-primary btn-icon-split" id="posters4k">
                 <span class="icon text-white-50">
                     <i class="fas fa-film"></i>
                 </span>
@@ -24,47 +26,74 @@
         <div class='container'>
             <h2 class="fw-light text-center text-lg-start mt-4 mb-0">Available Banners</h2>
             <hr class="mt-2 mb-5">
-            <h5>The 4K/3D banners will be combined with the HDR posters if they are enabled.</h5>
-            <p>
-                &nbsp
-            </p>
+            <h5 class="my-2">The 4K/3D banners will be combined with the HDR posters if they are enabled</h5>
             <hr class="mt-2 mb-5">
-            <div class="row text-center text-lg-start">
-
-                    <div class="column">
-                        <h4>4K Banner</h4>
-                        <img class="img-fluid img-thumbnail" src="/static/img/Examples/4k_banner.png" alt="">
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                <div class="col">
+                  <div class="card shadow">
+                    <img class="card-img-top" src="/static/img/Examples/4k_banner.png" alt="">
+                    <div class="card-body">
+                      <h5 class="card-title">4K Banner</h5>
                     </div>
-
-
-                <div class='column'>
-                    <h4>Mini 4K Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/mini4k.png" alt="">
+                  </div>
                 </div>
-
-
-                    <div class='column'>
-                        <h4>Old HDR Banner</h4>
-                        <img class="img-fluid img-thumbnail" src="/static/img/Examples/old_hdr.png" alt="">
+                <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/mini4k.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">Mini 4K Banner</h5>
+                      </div>
                     </div>
-
-            </div>
-            <div class="row text-center text-lg-start">
-                <div class='column'>
-                    <h4>New Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/new_hdr.png" alt="">
-                </div>
-
-                <div class='column'>
-                    <h4>Dolby Vision Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/DV.png" alt="">
-                </div>
-
-                <div class='column'>
-                    <h4>HDR10 Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/new_hdr10.png" alt="">
-                </div>
-            </div>
+                  </div>
+                <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/old_hdr.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">Old HDR Banner</h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/new_hdr.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">New Banner</h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/DV.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">Dolby Vision</h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/new_hdr10.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">HDR10 Banner</h5>
+                      </div>
+                    </div>
+                  </div>       
+                  <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/atmos_example.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">Atmos Banner</h5>
+                      </div>
+                    </div>
+                  </div>    
+                  <div class="col">
+                    <div class="card shadow">
+                      <img class="card-img-top" src="/static/img/Examples/dtsx_example.png" alt="">
+                      <div class="card-body">
+                        <h5 class="card-title">DTS:X Banner</h5>
+                      </div>
+                    </div>
+                  </div>                 
+              </div>
         </div>
     
     
@@ -73,13 +102,16 @@
 </div>
 
 
-<div class="card shadow mb-4">
+<div class="card shadow  my-4 p4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">TV 4K/HDR Posters</h6>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
+        </div>
     </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_tvposters4k') }}" class="btn btn-primary btn-icon-split" id="tvposters4k">
+            <a href="{% url 'api:tvposters4k' %}" class="btn btn-primary btn-icon-split" id="tvposters4k">
                 <span class="icon text-white-50">
                     <i class="fas fa-film"></i>
                 </span>
@@ -93,7 +125,7 @@
             <hr class="mt-2 mb-5">
             <div class="text-center">
 
-                <img class="img-fluid " src="/static/img/Examples/tv_example.png" alt="" style="width:640px;height:360px">
+                <img class="img-fluid rounded shadow" src="/static/img/Examples/tv_example.png" alt="" style="width:640px;height:360px">
 
             </div>
 
@@ -104,49 +136,16 @@
     </div>
 </div>
 
-
-
-
-
-<div class="card shadow mb-4">
+<div class="card shadow  my-4 p4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">3D Posters</h6>
-    </div>
-    <div class="card-body">
-        <p>
-            <a href="{{ url_for('run_posters3d') }}" class="btn btn-primary btn-icon-split">
-                <span class="icon text-white-50">
-              <i class="fas fa-film"></i>
-          </span>
-                <span class="text">Run Script</span>
-            </a>
-        </p>
-        <p></p>
-        <p>Much like the 4K poster script, this will go through your films and add a 3D banner to your films. Currently as Plex has no support for labelling content as 3D this will only work for 3D films keptin a separate library. You can configure the script to have full width banners or the mini corner banners.</p>
-        <p></p>
-        <div class="text-center">
-            <div class="row">
-                <div class="column">
-                    <h4>3D Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/3D_banner.png" alt="">
-                </div>
-
-                <div class="column">
-                    <h4>Mini 3D Banner</h4>
-                    <img class="img-fluid img-thumbnail" src="/static/img/Examples/mini3d.png" alt="">
-                </div>
-            </div>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
         </div>
     </div>
-</div>
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Restore Film Posters</h6>
-    </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_restore') }}" class="btn btn-primary btn-icon-split">
+            <a href="{% url 'api:posters3d' %}" class="btn btn-primary btn-icon-split">
                 <span class="icon text-white-50">
               <i class="fas fa-film"></i>
           </span>
@@ -154,39 +153,39 @@
             </a>
         </p>
         <p></p>
-        <p>If you don't like the banners or want to try a different style, this script will restore your posters. First it will try to restore from a local backup, if this isn't enabled or a poster doesn't have a local backup file for whatever reason it will fallback to themoviedb to find a poster for you.</p>
-        <p></p>
-        <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
+        <p>Much like the 4K poster script, this will go through your films and add a 3D banner to your films. Currently as Plex has no support for labelling content as 3D this will only work for 3D films kept in a separate library. You can configure the script to have full width banners or the mini corner banners.</p>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="col">
+              <div class="card shadow">
+                <img class="card-img-top" src="/static/img/Examples/3D_banner.png" alt="">
+                <div class="card-body">
+                  <h5 class="card-title">3D Banner</h5>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+                <div class="card shadow">
+                  <img class="card-img-top" src="/static/img/Examples/mini3d.png" alt="">
+                  <div class="card-body">
+                    <h5 class="card-title">Mini 3D Banner</h5>
+                  </div>
+                </div>
+              </div>
+        </div>
+            
     </div>
 </div>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Restore TV Posters</h6>
-    </div>
-    <div class="card-body">
-        <p>
-            <a href="{{ url_for('run_episode_restore') }}" class="btn btn-primary btn-icon-split">
-                <span class="icon text-white-50">
-              <i class="fas fa-film"></i>
-          </span>
-                <span class="text">Run Script</span>
-            </a>
-        </p>
-        <p></p>
-        <p>If you don't like the banners or want to try a different style, this script will restore your posters. First it will try to restore from a local backup, if this isn't enabled or a poster doesn't have a local backup file for whatever reason it will fallback to themoviedb to find a poster for you.</p>
-        <p></p>
-        <p>You must sign up for and account on TheMoviedb to get an api key for this to work.</p>
-    </div>
-</div>
-
-<div class="card shadow mb-4">
+<div class="card shadow  my-4 p4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Hide 4K</h6>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
+        </div>
     </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_hide4k') }}" class="btn btn-primary btn-icon-split" id="hide4k">
+            <a href="{% url 'api:hide4k' %}" class="btn btn-primary btn-icon-split" id="hide4k">
                 <span class="icon text-white-50">
                   <i class="fas fa-film"></i>
               </span>
@@ -199,13 +198,17 @@
         <p></p>
     </div>
 </div>
-<div class="card shadow mb-4">
+
+<div class="card shadow  my-4 p4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Auto Collections</h6>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
+        </div>
     </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_autocollections') }}" class="btn btn-primary   btn-icon-split" id="autocollections">
+            <a href="{% url 'api:autocollections' %}" class="btn btn-primary   btn-icon-split" id="autocollections">
                 <span class="icon text-white-50">
                     <i class="fas fa-film"></i>
                 </span>
@@ -221,13 +224,17 @@
         <p>This is now the script that will create the Disney, Pixar and Marvel Cinematic Universe collections. These can be individually toggled in the config options page.</p>
     </div>
 </div>
-<div class="card shadow mb-4">
+
+<div class="card shadow  my-4 p4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Hide Spoilers</h6>
+        <div class="form-check form-switch p-1 mx-5  d-flex float-end d-inline-block">
+          <input class="form-check-input mt-1 m-auto" type="checkbox" id="posters4k-toggle" onclick=""></input>
+        </div>
     </div>
     <div class="card-body">
         <p>
-            <a href="{{ url_for('run_tvspoilers') }}" class="btn btn-primary btn-icon-split" id="spoilers">
+            <a href="{% url 'api:spoilers' %}" class="btn btn-primary btn-icon-split" id="spoilers">
                 <span class="icon text-white-50">
                   <i class="fas fa-film"></i>
               </span>
@@ -240,4 +247,25 @@
     </div>
 </div>
 
+{% endblock %}
+{% block extra_js %}
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    console.log('getting api data');
+    $.ajax({
+      url: '{% url 'api:updateTasks' %}',
+      type: 'GET',
+      processData: false,
+      dataType: 'JSON',
+      success: function(resp){
+        var tasks = resp['tasks'];
+        for (var i = 0; i < tasks.legnth; i++) {
+          var t = tasks[i];
+          console.log(t);
+        };
+      }
+    });
+  });
+</script>
 {% endblock %}

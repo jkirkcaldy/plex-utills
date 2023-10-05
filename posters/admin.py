@@ -1,9 +1,25 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Plex, film, episode, season
+from posters.models import *
 
-admin.site.register(Plex)
-admin.site.register(film)
-admin.site.register(episode)
-admin.site.register(season)
+class FilmAdmin(admin.ModelAdmin):
+    search_fields = []
+    list_display = ['title', 'res', 'hdr', 'audio', 'checked']
+
+class EpisodeAdmin(admin.ModelAdmin):
+    search_fields = ['title']
+    list_display = ['title', 'res', 'hdr', 'audio', 'checked']
+    
+class SeasonAdmin(admin.ModelAdmin):
+    search_fields = ['title', 'guid']
+    list_display = ['title', 'hdr', 'res', 'checked']
+    
+class ShowAdmin(admin.ModelAdmin):
+    search_fields = []
+    list_display = ['title', 'checked']
+
+admin.site.register(film, FilmAdmin)
+admin.site.register(episode, EpisodeAdmin)
+admin.site.register(season, SeasonAdmin)
+admin.site.register(show, ShowAdmin)

@@ -1,0 +1,122 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class=" mb-4">
+
+  <p>Here are the episodes in the plex-utills database. Clicking on a poster will re-upload that poster. </p>
+  <p>Clicking on the title will reprocess that film.</p>
+  <p>If you have changed a poster but it has not updated here, perform a full refresh (usually ctrl+Shift+R or ctrl+Shift+f5) of the page or clear your browser image cache.</p>
+
+  <p>
+    <a href="/restore_from_database" class="btn btn-warning btn-icon-split" id="restore_all">
+        <span class="icon text-white-50">
+          <i class="fas fa-exclamation"></i>
+      </span>
+        <span class="text">Restore All Episodes</span>
+    </a>
+</p>
+</div>
+
+<table class="table table-bordered table-striped data-table" id="data-table">
+  <thead> 
+      <tr>
+          <th>Title</th>
+          <th>Size</th>
+          <th>Resolution</th>
+          <th>HDR</th>
+          <th>Audio</th>
+          <th>Poster</th>
+          <th>Bannered Poster</th>
+          <th>GUID</th>
+      </tr>
+  </thead>
+
+  <tfoot>
+      <tr>
+        <th>Title</th>
+        <th>Size</th>
+        <th>Resolution</th>
+        <th>HDR</th>
+        <th>Audio</th>
+        <th>Poster</th>
+        <th>Bannered Poster</th>
+        <th>GUID</th>
+      </tr>
+  </tfoot>
+</table>
+
+  <div class="card-body">
+    <p>
+        <a href="{% url 'api:delete_database'  'episodes' %}" class="btn btn-danger btn-icon-split" id="delete_database">
+            <span class="icon text-white-50">
+              <i class="fas fa-exclamation"></i>
+          </span>
+            <span class="text">Clear Database</span>
+        </a>
+    </p>
+</div>  
+{% endblock %}
+{% include 'includes/datatables.html' %}
+{% block extra_js %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    console.log('getting api data');
+     var table = $('#data-table').DataTable({
+          'ajax': {
+              'url':"{% url 'api:get_db_episodes' %}",
+              'dataSrc': "",
+          },
+          'columnDefs': [
+            {
+                'targets': 0,
+                'data': 'fields.title',
+            },
+            {
+                'targets': 1,
+                'data': 'fields.size',
+            }, 
+            {
+                'targets': 2,
+                'data': 'fields.res',
+            },
+            {
+                'targets': 3,
+                'data': 'fields.hdr',
+            },
+            {
+                'targets': 4,
+                'data': 'fields.audio',
+            },
+            {
+              'targets': 5,
+              'data': 'fields',
+              "render": function ( data, type, full, meta ) {
+                if (data.poster) {
+                return ("<img src='/media/"+data.poster+"' style='width:100px'></img>");
+              } else {
+                return ''
+              };
+            }
+            },
+            {
+              'targets': 6,
+              'data': 'fields',
+              "render": function ( data, type, full, meta ) {
+                if (data.bannered_poster) {
+                return ("<img src='/media/"+data.bannered_poster+"' style='width:100px'></img>");
+              } else {
+                return ''
+              };
+            }
+            },
+            {
+              'targets': 7,
+              'data': 'fields.guid',
+          }, 
+            ],
+          'order': [[0, 'asc']]
+     });
+    });
+  </script>
+{% endblock %}

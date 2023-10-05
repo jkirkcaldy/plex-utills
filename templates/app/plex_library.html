@@ -1,0 +1,136 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+{% csrf_token %}
+<div class="row">
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+    <p>Search through the backup database for content. Here you can see what the backup posters and the bannered posters are. </p>
+
+    <div class="form-group">
+        <form method="post" action="{% url 'api:search' %}" id="search">
+        <input class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search }}" />
+        </form>
+    </div>
+  
+
+    <p> click on a poster to change out your plex poster, if banners are enabled, they will automatically be added before uplaoding</p>
+</div>
+<div class="row">
+  {% if section == 'film' %}
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+      {% for film in page_obj.object_list  %} 
+        <a href="{% url 'info' film.guid  %}""><img src='{{ film.poster }}' class="img-fluid rounded shadow"  width="200" style="margin:5px 5px" id="myImg"></img></a>
+      {% endfor %}
+  </div>
+  {% elif section == 'show' %}
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+      {% for show in page_obj.object_list  %}
+        <a href="{% url 'get_plex_seasons' show.guid  %}"><img src='{{ show.poster }}' class="img-fluid rounded shadow"  width="200" style="margin:5px 5px" id="myImg"></img></a>
+      {% endfor %}
+  </div>
+  {% elif section == 'season' %}
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+      <div class="card mb-3 shadow" style="max-width: 540px;">
+      <div class="row g-0">
+        <div class="col-md-4">
+          <a href="{% url 'info' item.guid %}"><img src="{{item.thumbUrl}}" class="img-fluid rounded-start shadow" alt="{{item.title}}"></a>
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">{{item.title}}</h5>
+            <p class="card-text">This is the current Show poster. Click on this poster to chose a new poster to upload from TMDB.</p>
+          </div>
+        </div>
+      </div>
+      </div>
+
+        <div class="card shaddow rounded" >
+          <div class="card-header text-white bg-secondary">
+            Series
+          </div>
+          <div class="card-body">
+            {% for season in page_obj.object_list  %}
+              <a href="{% url 'get_plex_episodes' season.guid  %}"><img src='{{ season.poster }}' class="img-fluid rounded-start shadow" width="200" style="margin:5px 5px" id="myImg"></img></a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+  {% elif section == 'episode' %}
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+      <div class="card mb-3 shadow" style="max-width: 540px;">
+      <div class="row g-0">
+        <div class="col-md-4">
+          <a href="{% url 'info' item.guid %}"><img src="{{item.thumbUrl}}" class="img-fluid rounded-start shadow" alt="{{item.title}}"></a>
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">{{item.title}}</h5>
+            <p class="card-text">This is the current Series poster.  Click on this poster to chose a new poster to upload from TMDB.</p>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div class="card shaddow rounded" >
+        <div class="card-header text-white bg-secondary">
+          Episodes
+        </div>
+        <div class="card-body">
+          {% for episode in page_obj.object_list  %}
+
+          <a href="{% url 'info' episode.guid  %}"><img src='{{ episode.poster }}' class="img-fluid rounded shadow"  width="200" style="margin:5px 5px" id="myImg"></img></a>
+
+          {% endfor %}
+        </div>
+      </div>
+    </div>      
+
+
+
+  {% endif %}
+</div>  
+{% if page_obj.paginator.num_pages > 1 %}
+    <center>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1">&laquo; first</a>
+          </li>
+
+          <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.previous_page_number}}" aria-label="Previous">
+              <span aria-hidden="true">&lt;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.previous_page_number}}">{{page_obj.previous_page_number}}</a>
+          </li>
+
+          {% endif %}
+          <li class="page-item active" aria-current="page">
+            <a class="page-link" href="#">{{page_obj.number}}</a>
+          </li>
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.next_page_number}}">{{page_obj.next_page_number }}</a>
+          </li>
+
+          <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.next_page_number}}" aria-label="Next">
+              <span aria-hidden="true">&gt;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.paginator.num_pages}}">last &raquo;</a>
+          </li>
+          {% endif %}
+
+        </ul>
+      </nav>
+    </center>
+    {% endif %}
+</div>
+
+{% endblock %}

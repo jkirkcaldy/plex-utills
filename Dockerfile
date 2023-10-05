@@ -1,42 +1,60 @@
-FROM python:3.9.16-slim-bullseye
+FROM python:3.11.5-slim-bullseye
+
+
 
 LABEL maintainer="JKirkcaldy"
 LABEL support = "https://github.com/jkirkcaldy/plex-utills"
 LABEL discord = "https://discord.gg/z3FYhHwHMw"
 
+SHELL ["/bin/bash", "-c"]
 
-COPY app/static/dockerfiles/default /etc/nginx/sites-enabled/default
-RUN apt update && apt upgrade -y && apt install -y wget git 
+RUN apt-get update && apt upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    wget \
+    nginx \
+    nano \
+    git \
+    python3-dev \
+    python3-venv \
+    gcc \
+    supervisor
+WORKDIR /
 RUN wget https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb
 RUN dpkg -i repo-mediaarea_1.0-21_all.deb 
-RUN apt install -y  mediainfo nginx ffmpeg libsm6 libxext6 nano \
-&& rm -rf /var/lib/apt/lists/* 
+RUN apt install -y  mediainfo redis  \
+	&& rm -rf /var/lib/apt/lists/* && apt autoremove && apt clean
+RUN rm repo-mediaarea_1.0-21_all.deb
 
-WORKDIR /app
-COPY ./start.sh .
 
+WORKDIR /plex-utils
+
+ENV VIRTUAL_ENV=/plex-utils
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PIP_NO_CACHE_DIR=1
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
+ENV CELERY_APP='plex_utils'
+
+ENV ENABLE_REDIS='no'
+
+RUN python3 -m venv $VIRTUAL_ENV
+
+RUN pip install --upgrade pip
+RUN pip install --upgrade setuptools
+RUN pip install --upgrade wheel
+RUN pip install --upgrade twine
+
+COPY ./requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt 
+
+COPY --chown=www-data:root . .
+
+RUN chmod 777 -R /plex-utils/static
+RUN chmod 777 -R /plex-utils/templates
+
+RUN chmod +x entrypoint.sh
 RUN chmod +x start.sh
-
-
-
-
-
-
-
-
-
-
-
-COPY ./app ./app
-COPY ./main.py .
-COPY ./requirements.txt .
-COPY ./version .
-# Install requirements
-RUN pip install --upgrade pip 
-RUN pip install --no-cache-dir -Ur requirements.txt 
-RUN pip install git+https://github.com/AnthonyBloomer/tmdbv3api.git 
-
-
+RUN chmod +x prestart.sh
 
 
 
@@ -47,4 +65,5 @@ VOLUME [ "/films" ]
 VOLUME [ "/config" ]
 VOLUME [ "/logs" ]
 
-CMD ["/app/start.sh"]
+ENTRYPOINT ["/plex-utils/entrypoint.sh"]
+CMD ["/plex-utils/start.sh"]

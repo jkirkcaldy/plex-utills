@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  Glympse:
+      image: jkirkcaldy/glympse
+      container_name: Glympse
+      restart: unless-stopped
+      volumes: 
+          - <your log location>:/logs
+          - <Rushes location>:/rushes:ro
+          - <Config location>:/config
+          - <proxy location>:/media
+      environment: 
+          - TZ=Europe/London
+      ports:
+          - 80:80
+

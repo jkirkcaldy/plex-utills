@@ -2,7 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import environ
 
+
+env = environ.Env()
+
+env.read_env(env.str('ENV_PATH', '/config/.env'))
 
 def main():
     """Run administrative tasks."""

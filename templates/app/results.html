@@ -1,22 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block content %}
 <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
     <p>Search through the backup database for content. Here you can see what the backup posters and the bannered posters are. </p>
 
     <div class="form-group">
-        <form method="post" action="{{ url_for('search') }}" id="search">
-        <input class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search}}" />
+        <form method="post" action="{% url 'api:search' %}" id="search">
+			{% csrf_token %}
+        <input class="form-control" type='text' name='q' placeholder="Search you media..." aria-label="Search" />
         </form>
     </div>
     
-    {% for message in get_flashed_messages() %}
-    <div class=flash>
-        {{ message }}
-    </div>
-    {% endfor %}                
-    <div class="container">
-    	<div class="row pb-5">
-    		<h1 class="pt-5 pb-2">Result</h1>
+</div>	
+{% if results %}
+<div class="row pb-5">
+	<div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+    	<h1 class="pt-5 pb-2">Result</h1>
 
 			<table class="table">
 				<tr>
@@ -24,55 +22,49 @@
 					<th>Plex Poster</th>
 					<th>Backup Poster</th>
 				</tr>  
-				{% if F_results %}
-			 		{% for F_results in F_results %} 
+				
+				{% for result in results.films %} 
+				<tr>
+					<th scope="row"><a href="/info/{{ result.guid }}"><strong>{{ result.title }}</strong></a></th>
+				  <td><img src='{{ result.thumbUrl }}' width="200"></img></td>
+				  {% if result.episode.backup_poster %}
+				  <td><img src='/media/{{ result.backup_poster }}' width="200"></img></td>
+				  {% endif %}
+				</tr>
+			  {% endfor %}
+			  {% for result in results.shows %} 
+			  <tr>
+				  <th scope="row"><a href="/info/{{ result.guid }}"><strong>{{ result.title }}</strong></a></th>
+				<td><img src='{{ result.thumbUrl }}' width="200"></img></td>
+				{% if result.episode.backup_poster %}
+				<td><img src='/media/{{ result.backup_poster }}' width="200"></img></td>
+				{% endif %}
+			  </tr>
+				{% endfor %}
+				{% for result in results.seasons %} 
+				<tr>
+					<th scope="row"><a href="/info/{{ result.guid }}"><strong>{{ result.title }}</strong></a></th>
+				  <td><img src='{{ result.thumbUrl }}' width="200"></img></td>
+				  {% if result.episode.backup_poster %}
+				  <td><img src='/media/{{ result.backup_poster }}' width="200"></img></td>
+				  {% endif %}
+				</tr>
+		  		{% endfor %}
+					{% for result in results.episodes %} 
     				  <tr>
-    				  	<th scope="row"><a href="/info/{{ F_results.guid }}"><strong>{{ F_results.title }}</strong></a></th>
-						<td><img src='{{ F_results.poster }}' width="200"></img></td>
-						{% if F_results.backup_poster %}
-						<td><img src='/{{ F_results.backup_poster }}' width="200"></img></td>
+    				  	<th scope="row"><a href="/info/{{ result.guid }}"><strong>{{ result.title }}</strong></a></th>
+						<td><img src='{{ result.thumbUrl }}' width="200"></img></td>
+						{% if result.episode.backup_poster %}
+						<td><img src='/media/{{ result.backup_poster }}' width="200"></img></td>
 						{% endif %}
 					  </tr>
 					{% endfor %}
-				{% endif %}
-				{% if Show_results %}
-				 	{% for Show_results in Show_results %} 
-    				  <tr>
-						<th scope="row"><a href="/seasons/{{ Show_results.guid }}"><strong>{{ Show_results.title }}</strong></a></th>
-						<td><img src='{{ Show_results.poster }}' width="200"></img></td>
-					  </tr>
-					{% endfor %}
-				{% endif %}				
-				{% if S_results %}
-				 	{% for S_results in S_results %} 
-    				  <tr>
-						<th scope="row"><a href="/info/{{ S_results.guid }}"><strong>{{ S_results.title }}</strong></a></th>
-						<td><img src='{{ S_results.poster }}' width="200"></img></td>
-						{% if S_results.backup_poster %}
-						<td><img src='/{{ S_results.backup_poster }}' width="200"></img></td>
-						{% endif %}
-					  </tr>
-					{% endfor %}
-				{% endif %}
-				{% if E_results %}
-			 		{% for E_results in E_results %} 
-    				  <tr>
-						<th scope="row"><a href="/info/{{ E_results.guid }}">{{ E_results.show }} - {{ E_results.season }}:<br>{{ E_results.title }}</a></th>
-						<td><img src='{{ E_results.poster }}' width="200"></img></td>
-						{% if E_results.backup_poster %}
-						<td><img src='/{{ E_results.backup_poster }}' width="200"></img></td>
-						{% endif %}
-					  </tr>
-					{% endfor %}
-				{% endif %}
 			</table>														
-    		{% if not F_results or  S_results or E_results or Show_results %}
-    			  <p class="lead">There is nothing for you here.</p>
-    		{% endif %}
-		</div>
+
 	</div>
 </div>
 
+{% endif %}
                   
 
 

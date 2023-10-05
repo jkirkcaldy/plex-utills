@@ -1,12 +1,13 @@
 
 {% load static %}
+{% load gravatar %}
 <div id="content-wrapper" class="d-flex flex-column">
 
     <!-- Main Content -->
     <div id="content">
 
         <!-- Topbar -->
-        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary static-top shadow">
 
             <!-- Sidebar Toggle (Topbar) -->
             <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -14,10 +15,10 @@
             </button>
 
             <!-- Topbar Search -->
-            <form
-                class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+            <form action="{% url 'api:search' %}" method='POST' class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                {% csrf_token %}
                 <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                    <input name='q' type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
                         aria-label="Search" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
@@ -33,21 +34,35 @@
                 <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                 <li class="nav-item dropdown no-arrow d-sm-none">
                     <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-search fa-fw"></i>
                     </a>
                     
                 </li>
 
-                
+                <li class="nav-item  ps-3  mx-3 p-3  d-flex align-items-center">
+                    <div>
+                      <span class="fa-solid fa-sun ps-1  mx-0 p-1  d-flex align-items-center">
+                      </span>
+                    </div>
+                    <div class="form-check form-switch ps-1 mx-0 p-1  d-flex align-items-center">
+                      <input class="form-check-input mt-1 m-auto" type="checkbox" id="dark-mode-toggle" onclick="darkMode(this)"></input>
+                      <span class="fa-solid fa-moon ps-1  ms-2 p-1  d-flex align-items-center">
+                    </span>
+                    </div>
+                    <div>
+                        <span class="fa-solid fa-moon ps-1  ms-2 p-1  d-flex align-items-center">
+                        </span>
+                    </div>
+                  </li>
                 <div class="topbar-divider d-none d-sm-block"></div>
-                <li class="nav-item dropdown no-arrow mx-1">
+                <li class="nav-item dropdown no-arrow ps-1 mx-0 p-1  d-flex align-items-center">
                     <a class="nav-link dropdown-toggle" href="#" id="donateDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-credit-card fa-fw"></i>
                     </a>
                     <!-- Dropdown - Alerts -->
-                    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                    <div class="dropdown-list dropdown-menu dropdown-menu-end shadow animated--grow-in"
                         aria-labelledby="donateDropdown">
                         <h6 class="dropdown-header bg-gray-900" >
                             Donate to help the development of Plex-Utills
@@ -76,37 +91,38 @@
                 </li>
                 <!-- Nav Item - User Information -->
                 {% if user.is_authenticated %}
-                <li class="nav-item dropdown no-arrow">
+                <li class="nav-item dropdown no-arrow ps-1 mx-0 p-1  d-flex align-items-center">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{user.username}}</span>
-                        <img class="img-profile rounded-circle"
-                            src="{% static 'img/profile.png' %}">
+                        {% if user.email %}
+                        <img class="img-profile rounded-circle" style="max-width:40px;" src={% gravatar_url user.email 50 %}  alt="" />
+                        {% else %}
+                        <img class="img-profile rounded-circle" style="max-width:40px;" src={% static 'img/profile.png' %}  alt="" />
+                        {% endif %}
                     </a>
                     <!-- Dropdown - User Information -->
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
                         aria-labelledby="userDropdown">
-                        {% if user.is_superuser %}
-                        <a class="dropdown-item" href="/admin">
+                        {% if user.is_staff %}
+                        <a class="dropdown-item" href='{% url "admin:index" %}'>
                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                             Settings
                         </a>
                         <div class="dropdown-divider"></div>
                         {% endif %}
-                        
-
-                        
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             Logout
                         </a>
+
                     </div>
                 </li>
                 {% else %}
-                <li class="nav-item">
-                    <a class="nav-item" href="{% url 'login' %}" data-toggle="modal" data-target="#loginModal">
-                        <i class="fa-solid fa-fingerprint text-gray-400"></i>
-                        Login
+                <li class="nav-item  mx-1">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-solid fa-fingerprint text-gray-400"></i>
+                         Login
                     </a>
                 </li>
                 {% endif %}

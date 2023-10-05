@@ -1,27 +1,50 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block content %}
 
 <!-- ENTER your content here -->
 
 
-<div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+<div id="popup-message-content">
+  {% include 'app/messages.html' %}
+</div>
+<div call="row">
+<div class="col-md-10 col-lg-10 mx-lg-auto mx-md-auto mb-3">
     <p>Search through the backup database for content. Here you can see what the backup posters and the bannered posters are. </p>
 
     <div class="form-group">
-        <form method="post" action="{{ url_for('search') }}" id="search">
+        <form method="post" action="{% url 'api:search' %}" id="search">
         <input class="form-control" type=text name=search placeholder="Search you media..." aria-label="Search" value="{{ request.form.search}}" />
         </form>
     </div>
-    
-    {% for message in get_flashed_messages() %}
-    <div class=flash>
-        {{ message }}
-    </div>
-    {% endfor %}
-
+</div>
+<div class="row">
+  <div class="col-md-10 col-lg-auto mx-lg-auto mx-md-auto mb-3">
     {% if item %}
-	    <h1 class="pt-5 pb-2">Result</h1>
-	    <table class="table">
+    <div class="card mb-3 shadow " style="max-width: 540px;">
+      <div class="row g-0">
+        <div class="col-md-4">
+          <img src="{{item.thumbUrl}}" class="img-fluid rounded-start shadow" alt="{{item.title}}" style="height: 100%;">
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">{{item.title}}</h5>
+            <p class="card-text">This is your current poster.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    </div>
+</div>
+<div class="row">
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+      <div class="card shaddow rounded" >
+        <div class="card-header text-white bg-secondary">
+          Plex-Utills Database
+        </div>
+        <div class="card-body">
+          {% if dbitem %}
+          <table class="table">
             <tr>
                 <td><strong>Title</strong></td>
                 <td><strong>Backup Poster</strong></td>
@@ -29,25 +52,17 @@
                 <td>Resolution</td>
                 <td>HDR</td>
                 <td>Audio</td>
-
             </tr>
 	        <tr>
 	            <th scope="row"><strong>{{ item.title }}</strong></th>
-	            <td><img src='/{{ item.poster }}' width="200"></img></td>
-	            <td><img src='/{{ item.bannered_poster }}' width="200"></img></td>
-                <td>{{ item.res }}</td>
-                <td>{{ item.hdr }}</td>
-                <td>{{item.audio}}</td>
+	            <td>{% if dbitem.poster %}<img src="/media/{{ dbitem.poster }}" width="200" alt="{{db.item.title}}"></img>{% endif %}</td>
+	            <td>{% if dbitem.bannered_poster %}<img src='/media/{{ dbitem.bannered_poster }}' width="200" alt="{{db.item.title}}">{% endif %}</img></td>
+                <td>{{ dbitem.res }}</td>
+                <td>{{ dbitem.hdr }}</td>
+                <td>{{ dbitem.audio }}</td>
 	        </tr>
         </table>
-
-            {% if posters %}
-                <h3>TMDB Posters</h3>
-                <p> click on a poster to change out your plex poster, if banners are enabled, they will automatically be added before uplaoding</p>
-                {% for posters in posters %}
-                    <a href='/api/upload/&{{item.guid}}&/poster=&{{posters}}'><img src='{{poster_url}}{{ posters }}' width="200" style="margin:5px 5px"></img></a>
-                {% endfor %}
-            {% endif %}
+        </div>
     {% else %}
     <div style="margin:10px">
         <p>This film is not found in the plex-utills database. This likely means that it has not been processed yet.</p>
@@ -58,20 +73,102 @@
             <span class="text">process</span>
         </a>
     </div>
-    <div>
-        {% if posters %}
-            <h3>TMDB Posters</h3>
-            <p> click on a poster to change out your plex poster, if banners are enabled, they will automatically be added before uplaoding</p>
-        {% for posters in posters %}
-            <a href='/api/upload/&{{guid}}&/poster=&{{posters}}'><img src='{{poster_url}}{{ posters }}' width="200" style="margin:5px 5px"></img></a>
-        {% endfor %}
-        
-        {% endif %}
-    
+
+  </div>
+</div>
+  {% endif %}
+  </div>
+</div>
+<div class="row">
+  {% if posters %}
+  <div class="col-md-10 col-lg-10 mx-lg-10 mx-md-auto mb-3">
+  <div class="card shaddow rounded" >
+    <div class="card-header text-white bg-secondary">
+      TMDB Posters
     </div>
-    {% endif %}
+    <div class="card-body">
+      {% for posters in posters %}
+      <a role='button' onclick="confirmPoster(this.id)" id="{{ posters }}" data-bs-toggle="modal" data-bs-target="#confirmModal"><img src='{{poster_url}}{{ posters }}' class="img-fluid rounded shadow" width="200" style="margin:5px 5px"></img></a>
+    {% endfor %}
+    </div>
+  </div>
+  </div>
+  {% endif %}
 </div>
 
+</div>
+
+<div class="modal fade" id="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="confirmModal"
+        aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Are you sure?</h5>
+          <button class="close" type="button" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <img src='' id="confirmImage" width="200" style="margin:5px 5px"></img>
+          <p>Clicking accept will set this as the artwork and automatically add banners if enabled.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <input class="btn btn-primary" data-bs-target="#taskSentModal" data-bs-toggle="modal" data-bs-dismiss="modal" id="confirm" name="confirm" type="submit" value="Yes I'm Sure!"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="taskSentModal" aria-hidden="true" aria-labelledby="taskSentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="taskSentModal">Done!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Poster has been sent to be processed!
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>        
+      </div>
+    </div>
+  </div>
 {% endblock %}
-{% block scripts %}
+{% block extra_js %}
+<script>
+
+  function confirmPoster(poster) {
+    let cookie = document.cookie
+    let csrfToken = cookie.substring(cookie.indexOf('=') + 1)
+    document.getElementById('confirmImage').src = '{{ poster_url }}/'+poster;
+
+
+    $('#confirm').on('click', function(e){
+      event.preventDefault();
+      $.ajax({
+        url: '/api/upload',
+        type: 'POST',
+        dataType: 'JSON',
+        data: {data: JSON.stringify({'guid': "{{guid}}", 'poster': poster})},
+        headers: {'X-CSRFToken': csrfToken},      
+        error: function(results){
+            $('#confirmModal').modal('hide');
+            $('#taskSentModal').modal('hide');
+            const element = document.getElementById("popup-message-content");
+            element.innerHTML = results['msg'];
+          },
+        success:function(results){
+          $('#confirmModal').modal('hide');
+          $('#taskSentModal').modal('hide');
+          const element = document.getElementById("popup-message-content");
+          element.innerHTML = results['msg'];
+          console.log(results['msg'])
+          },
+      });
+    });
+  };
+
+</script>
 {% endblock %}

@@ -1,13 +1,10 @@
-"""
-ASGI config for plex_utils project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
-"""
-
 import os
+import environ
+
+
+env = environ.Env()
+
+env.read_env(env.str('ENV_PATH', '/config/.env'))
 
 from django.core.asgi import get_asgi_application
 

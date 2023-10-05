@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "layouts/base.html" %}
 {% block content %}
                     <!-- ENTER your content here -->
                     
@@ -30,10 +30,9 @@
 								<img src="{{ poster }}", width="200">
 								
 						  {% endif %}
-        					  <!-- links 
-        					  <p><a href="{{ url_for('config') }}">Return to the config page.</a></p>-->
+        					 
 
-							  <p><a href="{{ url_for('index') }}">Return home.</a></p>
+							  <p><a href="{% url 'index' %}">Return home.</a></p>
 						  
                         
         					  </div>
@@ -41,10 +40,8 @@
         			  </div>
                   
                     <!--END of your content-->
-                  
-<script>
-
-</script> 
+{% endblock %}            
+{% block extra_js %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type="text/javascript">
             function schedule_updater() {
